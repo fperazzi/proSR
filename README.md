@@ -2,14 +2,14 @@
 
 Unofficial Implementation of CVPRW 2018 [NTIRE](http://www.vision.ee.ethz.ch/ntire18/) workshop paper "A Fully Progressive Approach to Single-Image Super-Resolution".
 
->
-> @InProceedings{Wang_2018_CVPR_Workshops,
+```
+@InProceedings{Wang_2018_CVPR_Workshops,
   author = {Wang, Yifan and Perazzi, Federico and McWilliams, Brian and Sorkine-Hornung, Alexander and Sorkine-Hornung, Olga and Schroers, Christopher},
   title = {A Fully Progressive Approach to Single-Image Super-Resolution},
   booktitle = {The IEEE Conference on Computer Vision and Pattern Recognition (CVPR) Workshops},
   month = {June},
   year = {2018}
-}
+```
 
 ## Usage
 ### Installation
