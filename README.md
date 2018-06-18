@@ -37,7 +37,7 @@ The output images are postfixed with "_proSR". If `--output-dir` is left undefin
 ### Pretrained Models
 In `PROJECT_ROOT/data` we provide a script `get_data.sh` to download the a pretrained model for x8 upsampling. This model was trained on the [DIV2K](http://data.vision.ee.ethz.ch/cvl/DIV2K/DIV2K_train_HR.zip) dataset. On the "Track 1" of the [NTIRE Super-Resolution Challenge 2018](https://competitions.codalab.org/competitions/18015), it ranked 4th place in terms of PSNR and second when measured with SSIM.
 
-TLDR; `sh data/get_data.sh`
+TLDR; `sh get_data.sh`
 
 ### Results
 Coming soon...
