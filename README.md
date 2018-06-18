@@ -4,7 +4,7 @@ Unofficial implementation of [A Fully Progressive Approach to Single-Image Super
 
 ![](data/prosr-teaser.jpg)
 
-ProSR is an SISR method designed upon the principiple of multi-scale progressiveness. The architecture resemble an asymmetric pyramidal structure with more layers in the lower levels to enable high upsampling ratios while remaining efficient. The training procedure implements the learning paradigm of curriculum learning by gradually increasing the difficulty of the learning task.
+ProSR is an SISR method designed upon the principle of multi-scale progressiveness. The architecture resembles an asymmetric pyramidal structure with more layers in the lower levels to enable high upsampling ratios while remaining efficient. The training procedure implements the learning paradigm of curriculum learning by gradually increasing the difficulty of the learning task.
 ![](data/prosr-arch.jpg)
 
 ## Usage
@@ -43,7 +43,7 @@ TLDR; `sh data/get_data.sh`
 Coming soon...
 
 ## Publication
-If this code helps your research please considering citing the following paper.
+If this code helps your research, please considering citing the following paper.
 
 A Fully Progressive Approach to Single-Image Super-Resolution - <i>[Y. Wang](https://yifita.github.io), [F. Perazzi](fperazzi.github.io), [B. McWilliams](https://www.inf.ethz.ch/personal/mcbrian/), [A. Sorkine-Hornung](http://www.ahornung.net/), [O. Sorkine-Hornung](http://igl.ethz.ch/people/sorkine/), [C. Schroers](https://www.disneyresearch.com/people/christopher-schroers/)</i> - CVPR Workshops NTIRE 2018.
 ```
@@ -63,4 +63,4 @@ A Fully Progressive Approach to Single-Image Super-Resolution - <i>[Y. Wang](htt
 ```
 
 ## Contacts
-If you have any question please contact [Federico Perazzi](fperazzi@adobe.com).
+If you have any question, please contact [Federico Perazzi](fperazzi@adobe.com).
