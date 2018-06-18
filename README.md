@@ -24,7 +24,7 @@ Dependencies can be installed in a conda enviroment executing:
 The available options are defined in `lib/prosr/config.py`.
 
 ### Training
-Not implemented yet. Send an email to [fperazzi@adobe.com](fpearzzi@adobe.com) if you want to be notified.
+Not implemented yet. Send an email to [fperazzi@adobe.com](fpearzzi@adobe.com) if you want to be notified when available.
 
 ### Testing
 The script `test.py` takes as input a list of images and the weights of the pretrained model and output their x8 upsampling. The command line is:
