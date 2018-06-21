@@ -4,7 +4,7 @@ Unofficial implementation of [A Fully Progressive Approach to Single-Image Super
 
 ![](data/prosr-teaser.jpg)
 
-ProSR is an SISR method designed upon the principle of multi-scale progressiveness. The architecture resembles an asymmetric pyramidal structure with more layers in the lower levels to enable high upsampling ratios while remaining efficient. The training procedure implements the learning paradigm of curriculum learning by gradually increasing the difficulty of the learning task.
+ProSR is an SISR method designed upon the principle of multi-scale progressiveness. The architecture resembles an asymmetric pyramidal structure with more layers in the upper levels to enable high upsampling ratios while remaining efficient. The training procedure implements the paradigm of curriculum learning by gradually increasing the difficulty of the task.
 ![](data/prosr-arch.jpg)
 
 ## Usage
