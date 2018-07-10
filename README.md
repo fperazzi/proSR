@@ -29,17 +29,29 @@ The available options are defined in `lib/prosr/config.py`.
 Not implemented yet. Send an email to [fperazzi@adobe.com](fpearzzi@adobe.com) if you want to be notified when available.
 
 ### Testing
-The script `test.py` takes as input a list of images and the weights of the pretrained model and output their x8 upsampling. The command line is:
+The script `test.py` takes as input:
+* List of images: `--input`,`-i`.
+* CNN parameters `--weights`, `-w`.
+* Upscaling factor: `--upscaling-factor`,`-s`. The upscaling factor can be choosen from the multiples of two smaller than or equal to the max-scale parameter defined `config.py`.
+* Output directory: `--output-dir`, `-o`.
 
- `python test.py -i <list-of-images> -w <model-parameters.pth> -o <output-dir>`
+The output images are postfixed with "_proSRx{upscale_factor}". If `--output-dir` is left undefined, output images will be saved in the same folder of the input images.
 
-The output images are postfixed with "_proSR". If `--output-dir` is left undefined, they will be saved in the same folder of the input images.
+##### Command Line
+
+ ```
+ python test.py \
+    -i <list-of-images>
+    -s <upscale-factor>
+    -w <model-parameters.pth>
+    -o <output-dir>
+ ```
 
 ## Data
 ### Pretrained Models
 In `PROJECT_ROOT/data` we provide a script `get_data.sh` to download the a pretrained model for x8 upsampling. This model was trained on the [DIV2K](http://data.vision.ee.ethz.ch/cvl/DIV2K/DIV2K_train_HR.zip) dataset. On the "Track 1" of the [NTIRE Super-Resolution Challenge 2018](https://competitions.codalab.org/competitions/18015), it ranked 4th place in terms of PSNR and second when measured with SSIM.
 
-TLDR; `sh get_data.sh`
+TLDR; Download the data: `sh data/get_data.sh`
 
 ### Results
 Coming soon...
@@ -66,3 +78,4 @@ A Fully Progressive Approach to Single-Image Super-Resolution - <i>[Y. Wang](htt
 
 ## Contacts
 If you have any question, please contact [Federico Perazzi](fperazzi@adobe.com).
+
