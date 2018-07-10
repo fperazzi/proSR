@@ -22,7 +22,6 @@ def parse_args():
 
   parser.add_argument('-w','--weights',type=str,
                       required=True,
-                      default=,
                       help='Pretrained model weights.'
                       )
 
@@ -34,12 +33,11 @@ def parse_args():
                       default=config.defaults.max_scale,
                       help='Upscaling factor.')
 
-  parser.add_argument('--output-dir',type=str,
+  parser.add_argument('-o', '--output-dir',type=str,
                       default=None,
                       help='Output folder.')
 
-  args = parser.parse_args()
-  return args
+  return parser.parse_args()
 
 
 def make_output_fn(fn,upscale_factor,output_dir=None):
