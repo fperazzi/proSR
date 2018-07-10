@@ -4,6 +4,7 @@ from math import log2
 from . import densenet
 from .common import Conv2d, PixelShuffleUpsampler, \
   CompressionBlock, init_weights
+from prosr.logger import info,error
 
 ##############################################################################
 # Classes
@@ -35,7 +36,7 @@ class DenseNetGenerator(nn.Module):
     self.initiate(opt, denseblock_params)
 
   def initiate(self, opt, denseblock_params):
-    pass
+    raise NotImplementedError
 
   def create_denseblock(self, denseblock_params, with_compression=True, compression_rate=0.5):
     block = OrderedDict()
@@ -63,27 +64,30 @@ class DenseNetGenerator(nn.Module):
     return nn.Sequential(block), out_channels
 
   def forward(self, x, scale=None, blend=1):
-    pass
+    raise NotImplementedError
 
 
 class ProSR(DenseNetGenerator):
   """docstring for PyramidDenseNet"""
 
-  def __init__(self, opt,scale):
-    self.opt = opt
-    self.opt.scale = scale
+  def __init__(self, opt,max_scale):
+
+    self.max_scale = max_scale
+    self.n_denseblocks = int(log2(self.max_scale))
+    self.residual_denseblock = opt.residual_denseblock
+
     super().__init__(opt)
 
   def initiate(self, opt, denseblock_params):
     num_features = opt.num_init_features
 
     # each scale has its own init_conv
-    for s in opt.scale:
-      self.add_module('init_conv_%d' % int(log2(s)),
+    for s in range(1,self.n_denseblocks+1):
+      self.add_module('init_conv_%d' % s,
         Conv2d(opt.num_img_channels, opt.num_init_features, 3))
 
     # Each denseblock forms a pyramid
-    for i in range(int(log2(max(opt.scale)))):
+    for i in range(self.n_denseblocks):
       block_config = opt.level_config[i]
       pyramid_residual = OrderedDict()
 
@@ -124,23 +128,24 @@ class ProSR(DenseNetGenerator):
       reconst_branch['final_conv'] = Conv2d(out_channels, opt.num_img_channels, 3)
       self.add_module('reconst_%d' % (i + 1), nn.Sequential(reconst_branch))
 
-  def get_init_conv(self, scale):
-    idx = log2(scale)
+  def get_init_conv(self, idx):
     return getattr(self, 'init_conv_%d' % idx)
 
-  def forward(self, x, scale=None, base_img=None, blend=1.0):
-    try:
-      max_scale_idx = self.max_scale_idx
-    except AttributeError:
-      max_scale_idx = len(self.opt.scale) - 1
+  def forward(self,x,upscale_factor=None, base_img=None, blend=1.0):
 
-    if scale is None:
-      scale = self.opt.scale[max_scale_idx]
+    if upscale_factor is None:
+      upscale_factor = self.max_scale
+    else:
+      valid_upscale_factors = [2**(i+1) for i in range(self.n_denseblocks)]
+      if not (1 < upscale_factor <= self.max_scale and upscale_factor % 2 == 0):
+        error("Invalid upscaling factor: choose one of: {}".format(
+          valid_upscale_factors))
+        raise SystemExit(1)
 
-    feats = self.get_init_conv(scale)(x)
+    feats = self.get_init_conv(log2(upscale_factor))(x)
     output = []
-    for s in range(1, int(log2(scale))+1):
-      if self.opt.residual_denseblock:
+    for s in range(1, int(log2(upscale_factor))+1):
+      if self.residual_denseblock:
         feats = getattr(self, 'pyramid_residual_%d' % s)(feats)+feats
       else:
         feats = getattr(self, 'pyramid_residual_%d' % s)(feats)
@@ -148,12 +153,12 @@ class ProSR(DenseNetGenerator):
 
       # reconst residual image if intermediate output is required / reached desired scale /
       # use intermediate as base_img / use blend and s is one step lower than desired scale
-      if 2 ** s == scale or (blend != 1.0 and 2 ** (s+1) == scale):
+      if 2 ** s == upscale_factor or (blend != 1.0 and 2 ** (s+1) == upscale_factor):
         tmp = getattr(self, 'reconst_%d' % s)(feats)
         # if using blend, upsample the second last feature via bilinear upsampling
-        if (blend != 1.0 and s == max_scale_idx):
+        if (blend != 1.0 and s == self.n_denseblocks - 1):
           base_img = nn.functional.upsample(tmp, scale_factor=2, mode='bilinear')
-        if 2 ** s == scale:
+        if 2 ** s == upscale_factor:
           if (blend != 1.0) and s == max_scale_idx + 1:
             tmp = tmp * blend + (1 - blend) * base_img
           output += [tmp]

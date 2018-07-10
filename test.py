@@ -21,13 +21,17 @@ def parse_args():
   parser = ArgumentParser(description='ProSR')
 
   parser.add_argument('-w','--weights',type=str,
-                      default='data/checkpoints/ntire_bicubic_x8.pth',
+                      default='data/checkpoints/ntire2018_bicubic_x8.pth',
                       help='Pretrained model weights.'
                       )
 
   parser.add_argument('-i','--input',type=str,nargs='+',
                       required=True,
                       help='List of images to upsample')
+
+  parser.add_argument('-s','--upscale-factor',type=int,
+                      default=config.defaults.max_scale,
+                      help='Upscaling factor.')
 
   parser.add_argument('--output-dir',type=str,
                       default=None,
@@ -37,11 +41,11 @@ def parse_args():
   return args
 
 
-def make_output_fn(fn,output_dir=None):
+def make_output_fn(fn,upscale_factor,output_dir=None):
   path,ext = osp.splitext(fn)
   if output_dir is not None:
     path = osp.join(output_dir,osp.basename(path))
-  return osp.join(path+'_proSR'+ext)
+  return osp.join(path+'_proSRx{}'.format(upscale_factor)+ext)
 
 def tensor2im(im_tensor, mean=(0.5, 0.5, 0.5), img_mul=2.,im_residual=None):
   im_numpy = np.transpose(im_tensor[0].cpu().float().numpy(),(1,2,0))
@@ -59,7 +63,7 @@ if __name__ == '__main__':
 
   pprint(params)
 
-  net_G = ProSR(params.G,params.scale).cuda()
+  net_G = ProSR(params.G,params.max_scale).cuda()
   net_G.load_state_dict(
     torch.load(args.weights))
 
@@ -88,7 +92,7 @@ if __name__ == '__main__':
     with torch.no_grad():
       lr_t = Variable(preprocess(lr)[None,...])
 
-    sr_t = net_G(lr_t.cuda())
+    sr_t = net_G.forward(lr_t.cuda(),args.upscale_factor)
 
     if params.G.output_residual:
       h,w = sr_t.shape[2:]
@@ -97,7 +101,7 @@ if __name__ == '__main__':
 
     sr = tensor2im(sr_t.data,params.mean_img,params.mul_img,lr_interp)
 
-    fn_sr = make_output_fn(fn_lr,args.output_dir)
+    fn_sr = make_output_fn(fn_lr,args.upscale_factor,args.output_dir)
     info("Saving results: {}".format(fn_sr))
 
     io.imsave(fn_sr,sr)

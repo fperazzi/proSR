@@ -32,7 +32,7 @@ __C.R = edict()
 __C.phase = phase.TEST
 
 # Network scales
-__C.scale= [2,4,8]
+__C.max_scale= 8
 
 __C.mean_img= (0.4488,0.4371,0.4040)  # mean value to extract from the (0, 1) image values
 __C.mul_img= 255  # multiply the image value by this factor, resulting value range of image [-127.5, 127.5]

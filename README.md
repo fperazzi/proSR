@@ -4,13 +4,13 @@ Unofficial implementation of [A Fully Progressive Approach to Single-Image Super
 
 ![](data/prosr-teaser.jpg)
 
-ProSR is an SISR method designed upon the principle of multi-scale progressiveness. The architecture resembles an asymmetric pyramidal structure with more layers in the upper levels to enable high upsampling ratios while remaining efficient. The training procedure implements the paradigm of curriculum learning by gradually increasing the difficulty of the task.
+ProSR is a Single Image Super-Resolution (SISR) method designed upon the principle of multi-scale progressiveness. The architecture resembles an asymmetric pyramidal structure with more layers in the upper levels to enable high upsampling ratios while remaining efficient. The training procedure implements the paradigm of curriculum learning by gradually increasing the difficulty of the task.
 ![](data/prosr-arch.jpg)
 
 ## Usage
 ### System Requirements
 *ProSR* is developed under Ubuntu 16.04 with CUDA 9.1, cuDNN v7.0 and pytorch-0.4.0.
-We tested the program on Nvidia Titan X and Tesla K40c GPU. Any GPU with ~12GB memory will do. Parallel processing on multiple GPUs will be supported during training.
+We tested the program on Nvidia Titan X and Tesla K40c GPUs. Any NVIDIA GPU with ~12GB memory will do. Parallel processing on multiple GPUs will be supported during training.
 
 ### Dependencies and Installation
   * Python 3.x
@@ -19,6 +19,8 @@ We tested the program on Nvidia Titan X and Tesla K40c GPU. Any GPU with ~12GB m
 
 Dependencies can be installed in a conda enviroment executing:
 `conda create --name proSR --file PROJECT_ROOT/conda-deps.yml`
+
+Include `proSR` into the search path setting `export PYTHONPATH=$PROJECT_ROOT/lib:$PYTHONPATH`.
 
 ### Configuration
 The available options are defined in `lib/prosr/config.py`.
