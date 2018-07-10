@@ -21,7 +21,8 @@ def parse_args():
   parser = ArgumentParser(description='ProSR')
 
   parser.add_argument('-w','--weights',type=str,
-                      default='data/checkpoints/ntire2018_bicubic_x8.pth',
+                      required=True,
+                      default=,
                       help='Pretrained model weights.'
                       )
 

@@ -37,15 +37,18 @@ The script `test.py` takes as input:
 
 The output images are postfixed with "_proSRx{upscale_factor}". If `--output-dir` is left undefined, output images will be saved in the same folder of the input images.
 
-##### Command Line
+The corresponding command line is:
+`python test.py -i <list-of-images> -s <upscale-factor> -w <model-parameters.pth> -o <output-dir>`
 
- ```
+For a quick test, download the data with `get_data.sh` and execute:
+
+```
  python test.py \
-    -i <list-of-images>
-    -s <upscale-factor>
-    -w <model-parameters.pth>
-    -o <output-dir>
- ```
+    -i data/datasets/DIV2K_valid_LR_bicubic/X8/0801x8.png \
+    -w data/checkpoints/ntire2018_bicubic_x8.pth \
+    -s 8 -o /tmp
+```
+The output image will be saved in `/tmp/0801x8_proSRx8.png`
 
 ## Data
 ### Pretrained Models
