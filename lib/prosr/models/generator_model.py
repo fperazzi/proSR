@@ -1,6 +1,6 @@
 import torch
 from collections import OrderedDict
-from torch.autograd import Variable
+# from torch.autograd import Variable
 import math
 import numpy as np
 import os
@@ -20,7 +20,7 @@ class StdSuperresModel(BaseModel):
         self.blend = 1
 
         if opt.phase != phase.TEST:
-            self.label_t = [self.Tensor(opt.train.batch_size, opt.G.num_img_channels,
+            self.labels_t = [self.Tensor(opt.train.batch_size, opt.G.num_img_channels,
                    int(48 * max(opt.scale)), int(48 * max(opt.scale)))]
 
         # load/define networks
@@ -138,7 +138,6 @@ class StdSuperresModel(BaseModel):
             interpolated_t = interpolated
 
         self.input_t.resize_(input_t.size()).copy_(input_t)
-        self.input = Variable(self.input_t, volatile=(not self.isTrain))
 
         if self.isTrain:
             if labels_t is None:
@@ -147,44 +146,46 @@ class StdSuperresModel(BaseModel):
             for i in range(len(labels_t)):
                 assert isinstance(labels_t[i], torch.Tensor)
                 labels_t[i] = labels_t[i].narrow(1, 0, self.opt.G.num_img_channels)
-                self.label_t[i].resize_(labels_t[i].size()).copy_(labels_t[i])
-                self.labels += [Variable(self.label_t[i], volatile=(not self.isTrain))]
+                self.labels_t[i].resize_(labels_t[i].size()).copy_(labels_t[i])
+                # self.labels += [Variable(self.label_t[i], volatile=(not self.isTrain))]
             if interpolated_t is not None:
                 self.interpolated = []
                 for i in range(len(interpolated)):
                     assert isinstance(interpolated[i], torch.Tensor)
                     interpolated[i] = interpolated[i].narrow(1, 0, self.opt.G.num_img_channels)
                     self.interpolated_t[i].resize_(interpolated[i].size()).copy_(interpolated[i])
-                    self.interpolated += [Variable(self.interpolated_t[i],
-                                                   volatile=(not self.isTrain))]
+                    # self.interpolated += [Variable(self.interpolated_t[i],
+                    #                                volatile=(not self.isTrain))]
         else:
             if labels_t is not None:
-                self.labels = Variable(labels_t[0], volatile=True)
+                # self.labels = Variable(labels_t[0], volatile=True)
+                self.labels_t = labels_t[0]
             if self.opt.G.output_residual:
-                self.interpolated = Variable(interpolated[0], volatile=True)
+                # self.interpolated = Variable(interpolated[0], volatile=True)
+                self.interpolated = interpolated[0]
 
     def forward(self):
-        self.outputs = self.net_G(self.input, scale=self.model_scale, blend=self.blend)
+        self.outputs = self.net_G(self.input_t, scale=self.model_scale, blend=self.blend)
         for i in range(len(self.outputs)):
             if self.opt.G.output_residual:
                 self.outputs[i] += self.interpolated[i]
-        assert len(self.outputs) == len(self.labels)
+        assert len(self.outputs) == len(self.labels_t)
 
     def test(self):
-        b, c, h, w = self.input.data.size()
+        b, c, h, w = self.input_t.size()
         if (h*w) < self.opt.eval.chop_size:
             self.outputs = self._net_G(
-                self.input, scale=self.model_scale, blend=self.blend).cpu()
+                self.input_t, scale=self.model_scale, blend=self.blend).cpu()
             if self.opt.G.output_residual:
                 self.outputs += self.interpolated
         else:
-            self.outputs = Variable(self._chop_test(self.input.data), volatile=True)
+            self.outputs = self._chop_test(self.input_t)
             if self.opt.G.output_residual:
                 self.outputs += self.interpolated
 
     def evaluate(self):
-        im1 = self.tensor2im(self.labels.data)
-        im2 = self.tensor2im(self.outputs.data)
+        im1 = self.tensor2im(self.labels_t)
+        im2 = self.tensor2im(self.outputs)
         eval_res = {name: func(im1, im2) for name, func in self.eval_func.items()
             if 'x%d' % self.model_scale in name}
         for k, v in eval_res.items():
@@ -226,7 +227,7 @@ class StdSuperresModel(BaseModel):
         outputPatch = []
         if (wc * hc) < self.opt.eval.chop_size:
             for i in range(0, 4, nGPU):
-                inputBatch_var = Variable(torch.cat(input_patch[i:i+nGPU], dim=0), volatile=True)
+                inputBatch_var = torch.cat(input_patch[i:i+nGPU], dim=0)
                 if base_img is not None:
                     outBatch_var = self.net_G(
                         inputBatch_var, scale=self.model_scale, blend=self.blend,
@@ -274,13 +275,13 @@ class StdSuperresModel(BaseModel):
         self.loss = 0
         if self.opt.G.l1_loss_weight > 0:
             self.l1_loss = 0
-            for o, t in zip(self.outputs, self.labels):
+            for o, t in zip(self.outputs, self.labels_t):
                 self.l1_loss += self.l1_criterion(o, t) * self.opt.G.l1_loss_weight
             self.loss += self.l1_loss
 
         if self.has_vgg_loss > 0:
             self.vgg_loss = 0
-            for o, t in zip(self.outputs, self.labels):
+            for o, t in zip(self.outputs, self.labels_t):
                 vgg_real = self.vgg_net(t, acquire=self.acquire_vgg)
                 vgg_fake = self.vgg_net(o, acquire=self.acquire_vgg)
                 if self.has_vgg_loss:
@@ -316,17 +317,15 @@ class StdSuperresModel(BaseModel):
 
     def get_current_visuals(self):
         disp = OrderedDict()
-        input_t = self.input.data if isinstance(self.input, Variable) else self.input
-        disp['input'] = self.tensor2im(input_t)
+        disp['input'] = self.tensor2im(self.input_t)
         cnt = 0
-        for output in self.outputs:
-            output_t = output.data if isinstance(output, Variable) else output
+        for output_t in self.outputs:
             disp['output_%d' % cnt] = self.tensor2im(output_t)
             cnt += 1
         if hasattr(self, 'labels'):
             cnt = 0
-            for label in self.labels:
-                label = label.data if isinstance(label, Variable) else label
+            for label in self.labels_t:
+                # label = label.data if isinstance(label, Variable) else label
                 disp['label_%d' % cnt] = self.tensor2im(label)
                 cnt += 1
         return disp

@@ -44,7 +44,7 @@ def make_output_fn(fn,upscale_factor,output_dir=None):
   path,ext = osp.splitext(fn)
   if output_dir is not None:
     path = osp.join(output_dir,osp.basename(path))
-  return osp.join(path+'_proSRx{}'.format(upscale_factor)+ext)
+  return osp.join('./' + osp.basename(path) + '_proSRx{}'.format(upscale_factor)+ext)
 
 def tensor2im(im_tensor, mean=(0.5, 0.5, 0.5), img_mul=2.,im_residual=None):
   im_numpy = np.transpose(im_tensor[0].cpu().float().numpy(),(1,2,0))
@@ -89,9 +89,8 @@ if __name__ == '__main__':
     lr = io.imread(fn_lr)
 
     with torch.no_grad():
-      lr_t = Variable(preprocess(lr)[None,...])
-
-    sr_t = net_G.forward(lr_t.cuda(),args.upscale_factor)
+      lr_t = preprocess(lr)[None,...]
+      sr_t = net_G.forward(lr_t.cuda(),args.upscale_factor)
 
     if params.G.output_residual:
       h,w = sr_t.shape[2:]
