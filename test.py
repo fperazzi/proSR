@@ -1,21 +1,20 @@
 import os
 import os.path as osp
-import prosr
+from argparse import ArgumentParser
+from pprint import pprint
 
-import torch
-import torchvision.transforms as transforms
+import numpy as np
 import skimage.io as io
 import skimage.transform
-import numpy as np
 
-from pprint import pprint
-from argparse import ArgumentParser
-
+import prosr
+import torch
+import torchvision.transforms as transforms
 from prosr import config
 from prosr.logger import info
 from prosr.models import ProSR
 from torch.autograd import Variable
-import os.path as osp
+
 
 def parse_args():
   parser = ArgumentParser(description='ProSR')
