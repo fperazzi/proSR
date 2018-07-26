@@ -26,11 +26,7 @@ def parse_args():
     parser = ArgumentParser(description='ProSR')
 
     parser.add_argument(
-        '-c',
-        '--checkpoint',
-        type=str,
-        required=True,
-    )
+        '-c', '--checkpoint', type=str, required=True, help='Checkpoint')
 
     parser.add_argument(
         '-i',
@@ -38,7 +34,7 @@ def parse_args():
         type=str,
         nargs='+',
         required=True,
-        help='List of images to upsample')
+        help='Input images, either list or path to folder')
 
     parser.add_argument(
         '-t',
@@ -47,17 +43,13 @@ def parse_args():
         nargs='+',
         required=False,
         default=[],
-        help='List of images to upsample')
-
-    parser.add_argument(
-        '-e', '--eval', action='store_true', help='List of images to upsample')
+        help='Target images, either list or path to folder')
 
     parser.add_argument(
         '-u',
         '--upscale-factor',
         type=int,
         required=True,
-        default=None,
         help='List of images to upsample')
 
     parser.add_argument(
@@ -88,6 +80,9 @@ if __name__ == '__main__':
     model = cls_model(**checkpoint['params']['G'])
     model.load_state_dict(checkpoint['state_dict'])
 
+    info('Phase: {}'.format(config.phase.TEST))
+    info('Checkpoint: {}'.format(osp.basename(args.checkpoint)))
+
     model.eval()
 
     if torch.cuda.is_available():
@@ -107,9 +102,8 @@ if __name__ == '__main__':
             output = model(data['input'].cuda(), args.upscale_factor)
             sr_img = tensor2im(output, mean, stddev)
             lr_img = tensor2im(data['input'], mean, stddev)
-            if args.eval:
-                hr_img = tensor2im(
-                    data.get('target', data['raw_input']), mean, stddev)
+            if 'target' in data:
+                hr_img = tensor2im(data['target'], mean, stddev)
                 print_evaluation(
                     osp.basename(data['input_fn'][0]),
                     *eval_psnr_and_ssim(sr_img, hr_img, args.upscale_factor))
