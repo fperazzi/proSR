@@ -1,4 +1,2 @@
-
-from .config import defaults
-from .misc import util
-from .misc import parallel
+from . import utils
+from . import metrics

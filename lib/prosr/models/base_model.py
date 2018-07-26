@@ -1,24 +1,30 @@
 import os
 from collections import OrderedDict
+
 import torch
-import torch.nn as nn
-from ..logger import info, warn
-from ..misc.util import write_list_to_csv, read_csv_as_list, tensor2im
 
 from ..config import phase
+from ..logger import info
+from ..misc.util import tensor2im
+
 
 class BaseModel():
+
     def __init__(self, opt):
         self.opt = opt
         self.isTrain = opt.phase == phase.TRAIN
-        self.Tensor = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor
+        self.Tensor = torch.cuda.FloatTensor if torch.cuda.is_available(
+        ) else torch.FloatTensor
         self.save_dir = os.path.join(opt.checkpoint_dir)
         if not opt.eval.scale:
             opt.eval.scale = opt.scale
         self.eval_func = OrderedDict([('psnr_x%d' % s,
-                lambda x, y, scale=s: psnr(x, y, scale)) for s in opt.eval.scale])
-        self.best_eval = OrderedDict([('psnr_x%d' % s, 0.0) for s in opt.eval.scale])
-        self.eval_dict = OrderedDict([('psnr_x%d' % s, []) for s in opt.eval.scale])
+                                       lambda x, y, scale=s: psnr(x, y, scale))
+                                      for s in opt.eval.scale])
+        self.best_eval = OrderedDict(
+            [('psnr_x%d' % s, 0.0) for s in opt.eval.scale])
+        self.eval_dict = OrderedDict(
+            [('psnr_x%d' % s, []) for s in opt.eval.scale])
         self.train_history = []
 
         self.tensor2im = lambda t: tensor2im(t,
@@ -68,8 +74,11 @@ class BaseModel():
             eval_result = self.get_current_eval_result()
         else:
             eval_result = current_eval_result
-        self.best_eval = {k: max(self.best_eval[k], eval_result[k]) for k in self.best_eval}
-        is_best_sofar = any([eval_result[k] == v for k, v in self.best_eval.items()])
+        self.best_eval = {
+            k: max(self.best_eval[k], eval_result[k]) for k in self.best_eval
+        }
+        is_best_sofar = any(
+            [eval_result[k] == v for k, v in self.best_eval.items()])
         if is_best_sofar:
             self.best_epoch = epoch
 

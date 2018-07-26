@@ -1,6 +1,8 @@
 from __future__ import division
+
 import sys
 import time
+
 
 class ansi:
     """Color codes to print with color"""
@@ -18,38 +20,58 @@ class ansi:
 
 
 def error(message, *lines):
-    string = "{}{}: " + message + ("{}\n" if lines else "{}") + "\n".join(lines) + "{}"
-    print(string.format(ansi.RED_B, time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime()),
-        ansi.RED, ansi.ENDC))
+    string = "{}{}: " + message + ("{}\n"
+                                   if lines else "{}") + "\n".join(lines) + "{}"
+    print(
+        string.format(ansi.RED_B,
+                      time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime()),
+                      ansi.RED, ansi.ENDC))
     sys.exit(-1)
 
 
 def warn(message, *lines):
     if message:
-        string = "{}{}: " + message + ("{}\n" if lines else "{}") + "\n".join(lines) + "{}"
-        print(string.format(ansi.YELLOW_B, time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime()),
-        ansi.YELLOW, ansi.ENDC))
+        string = "{}{}: " + message + ("{}\n" if lines else
+                                       "{}") + "\n".join(lines) + "{}"
+        print(
+            string.format(ansi.YELLOW_B,
+                          time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime()),
+                          ansi.YELLOW, ansi.ENDC))
     else:
         string = "{}{}: " + "\n".join(lines) + "{}"
-        print(string.format(ansi.YELLOW, time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime()),
-        ansi.ENDC))
+        print(
+            string.format(ansi.YELLOW,
+                          time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime()),
+                          ansi.ENDC))
+
 
 def info(message, *lines):
     if message:
-        string = "{}{}: " + message + ("{}\n" if lines else "{}") + "\n".join(lines) + "{}"
-        print(string.format(ansi.WHITE_B, time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime()),
-        ansi.WHITE, ansi.ENDC))
+        string = "{}{}: " + message + ("{}\n" if lines else
+                                       "{}") + "\n".join(lines) + "{}"
+        print(
+            string.format(ansi.WHITE_B,
+                          time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime()),
+                          ansi.WHITE, ansi.ENDC))
     else:
         string = "{}{}: " + "\n".join(lines) + "{}"
-        print(string.format(ansi.WHITE, time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime()),
-        ansi.ENDC))
+        print(
+            string.format(ansi.WHITE,
+                          time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime()),
+                          ansi.ENDC))
+
 
 def success(message, *lines):
     if message:
-        string = "{}{}: " + message + ("{}\n" if lines else "{}") + "\n".join(lines) + "{}"
-        print(string.format(ansi.BLUE_B, time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime()),
-        ansi.BLUE, ansi.ENDC))
+        string = "{}{}: " + message + ("{}\n" if lines else
+                                       "{}") + "\n".join(lines) + "{}"
+        print(
+            string.format(ansi.BLUE_B,
+                          time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime()),
+                          ansi.BLUE, ansi.ENDC))
     else:
         string = "{}{}: " + "\n".join(lines) + "{}"
-        print(string.format(ansi.BLUE, time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime()),
-        ansi.ENDC))
+        print(
+            string.format(ansi.BLUE,
+                          time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime()),
+                          ansi.ENDC))

@@ -1,1 +1,1 @@
-from .generators import ProSR
+from .generators import ProSR, EDSR

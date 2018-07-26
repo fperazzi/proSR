@@ -1,27 +1,27 @@
-import torch
-from collections import OrderedDict
 # from torch.autograd import Variable
-import math
-import numpy as np
-import os
 from bisect import bisect_left
+from collections import OrderedDict
 
-from ..misc import util
-from ..logger import warn, info
-from .base_model import BaseModel
+import torch
 
 from ..config import phase
+from ..logger import info, warn
+from .base_model import BaseModel
 
 
 class StdSuperresModel(BaseModel):
+
     def __init__(self, opt):
         super(StdSuperresModel, self).__init__(opt)
-        self.input_t = self.Tensor(opt.train.batch_size, opt.G.num_img_channels, 48, 48)
+        self.input_t = self.Tensor(opt.train.batch_size, opt.G.num_img_channels,
+                                   48, 48)
         self.blend = 1
 
         if opt.phase != phase.TEST:
-            self.labels_t = [self.Tensor(opt.train.batch_size, opt.G.num_img_channels,
-                   int(48 * max(opt.scale)), int(48 * max(opt.scale)))]
+            self.labels_t = [
+                self.Tensor(opt.train.batch_size, opt.G.num_img_channels,
+                            int(48 * max(opt.scale)), int(48 * max(opt.scale)))
+            ]
 
         # load/define networks
         if opt.phase == phase.TRAIN:
@@ -32,8 +32,10 @@ class StdSuperresModel(BaseModel):
         opt.G.num_scales = len(opt.scale)
 
         if opt.G.output_residual:
-            self.interpolated_t = [self.Tensor(opt.train.batch_size, opt.G.num_img_channels,
-                                           int(48 * max(opt.scale)), int(48 * max(opt.scale)))]
+            self.interpolated_t = [
+                self.Tensor(opt.train.batch_size, opt.G.num_img_channels,
+                            int(48 * max(opt.scale)), int(48 * max(opt.scale)))
+            ]
 
         self._net_G = define_G(opt.G)
         self.finetune(self._net_G, opt.train.fine_tune)
@@ -61,12 +63,16 @@ class StdSuperresModel(BaseModel):
             if self.has_vgg_loss > 0:
                 self.acquire_vgg = []
                 self.acquire_vgg += self.opt.G.vgg
-                self.vgg_net = Vgg16(opt.mean_img, opt.mul_img,
-                    upto=max(self.acquire_vgg), mean_pool=opt.G.vgg_mean_pool)
+                self.vgg_net = Vgg16(
+                    opt.mean_img,
+                    opt.mul_img,
+                    upto=max(self.acquire_vgg),
+                    mean_pool=opt.G.vgg_mean_pool)
                 if torch.cuda.is_available():
                     print('using gpu')
                     if torch.cuda.device_count() > 1:
-                        self.vgg_net = torch.nn.DataParallel(self.vgg_net.cuda())
+                        self.vgg_net = torch.nn.DataParallel(
+                            self.vgg_net.cuda())
                     elif torch.cuda.is_available():
                         self.vgg_net = self.vgg_net.cuda()
                 self.mse_criterion = torch.nn.MSELoss()
@@ -145,15 +151,18 @@ class StdSuperresModel(BaseModel):
             self.labels = []
             for i in range(len(labels_t)):
                 assert isinstance(labels_t[i], torch.Tensor)
-                labels_t[i] = labels_t[i].narrow(1, 0, self.opt.G.num_img_channels)
+                labels_t[i] = labels_t[i].narrow(1, 0,
+                                                 self.opt.G.num_img_channels)
                 self.labels_t[i].resize_(labels_t[i].size()).copy_(labels_t[i])
                 # self.labels += [Variable(self.label_t[i], volatile=(not self.isTrain))]
             if interpolated_t is not None:
                 self.interpolated = []
                 for i in range(len(interpolated)):
                     assert isinstance(interpolated[i], torch.Tensor)
-                    interpolated[i] = interpolated[i].narrow(1, 0, self.opt.G.num_img_channels)
-                    self.interpolated_t[i].resize_(interpolated[i].size()).copy_(interpolated[i])
+                    interpolated[i] = interpolated[i].narrow(
+                        1, 0, self.opt.G.num_img_channels)
+                    self.interpolated_t[i].resize_(
+                        interpolated[i].size()).copy_(interpolated[i])
                     # self.interpolated += [Variable(self.interpolated_t[i],
                     #                                volatile=(not self.isTrain))]
         else:
@@ -165,7 +174,8 @@ class StdSuperresModel(BaseModel):
                 self.interpolated = interpolated[0]
 
     def forward(self):
-        self.outputs = self.net_G(self.input_t, scale=self.model_scale, blend=self.blend)
+        self.outputs = self.net_G(
+            self.input_t, scale=self.model_scale, blend=self.blend)
         for i in range(len(self.outputs)):
             if self.opt.G.output_residual:
                 self.outputs[i] += self.interpolated[i]
@@ -173,7 +183,7 @@ class StdSuperresModel(BaseModel):
 
     def test(self):
         b, c, h, w = self.input_t.size()
-        if (h*w) < self.opt.eval.chop_size:
+        if (h * w) < self.opt.eval.chop_size:
             self.outputs = self._net_G(
                 self.input_t, scale=self.model_scale, blend=self.blend).cpu()
             if self.opt.G.output_residual:
@@ -186,10 +196,13 @@ class StdSuperresModel(BaseModel):
     def evaluate(self):
         im1 = self.tensor2im(self.labels_t)
         im2 = self.tensor2im(self.outputs)
-        eval_res = {name: func(im1, im2) for name, func in self.eval_func.items()
-            if 'x%d' % self.model_scale in name}
+        eval_res = {
+            name: func(im1, im2)
+            for name, func in self.eval_func.items()
+            if 'x%d' % self.model_scale in name
+        }
         for k, v in eval_res.items():
-                self.eval_dict[k].append(v)
+            self.eval_dict[k].append(v)
         return eval_res
 
     def chop_tensor(self, tensor, patch_size=None):
@@ -227,14 +240,18 @@ class StdSuperresModel(BaseModel):
         outputPatch = []
         if (wc * hc) < self.opt.eval.chop_size:
             for i in range(0, 4, nGPU):
-                inputBatch_var = torch.cat(input_patch[i:i+nGPU], dim=0)
+                inputBatch_var = torch.cat(input_patch[i:i + nGPU], dim=0)
                 if base_img is not None:
                     outBatch_var = self.net_G(
-                        inputBatch_var, scale=self.model_scale, blend=self.blend,
-                        base_img=torch.cat(base_img[i:i+nGPU], dim=0)).cpu()
+                        inputBatch_var,
+                        scale=self.model_scale,
+                        blend=self.blend,
+                        base_img=torch.cat(base_img[i:i + nGPU], dim=0)).cpu()
                 else:
-                    outBatch_var = self.net_G(inputBatch_var,
-                        scale=self.model_scale, blend=self.blend).cpu()
+                    outBatch_var = self.net_G(
+                        inputBatch_var,
+                        scale=self.model_scale,
+                        blend=self.blend).cpu()
                 outputPatch.append(outBatch_var.data.clone())
                 del inputBatch_var
 
@@ -242,7 +259,8 @@ class StdSuperresModel(BaseModel):
         else:
             for i in range(4):
                 if base_img is not None:
-                    outputPatch.append(self._chop_test(input_patch[i], base_img[i]))
+                    outputPatch.append(
+                        self._chop_test(input_patch[i], base_img[i]))
                 else:
                     outputPatch.append(self._chop_test(input_patch[i]))
             outputPatch = torch.cat(outputPatch, dim=0)
@@ -256,14 +274,13 @@ class StdSuperresModel(BaseModel):
         h, hHalf, hc = hnew, int(scale * hHalf), int(scale * hc)
         # bndR = {'x1': (0, wHalf), 'x2': (wHalf, w), 'y1': (0, hHalf), 'y2': (hHalf, h)}
         # bndO = {'x2': (wc - w + wHalf, wc), 'y2': (hc - h + hHalf, hc)}
-        ret[:, :, 0: hHalf, 0: wHalf].copy_(
-            outputPatch[0][:, 0: hHalf, 0: wHalf])
-        ret[:, :, 0: hHalf, wHalf: w].copy_(
-            outputPatch[1][:, 0: hHalf, wc - w + wHalf: wc])
-        ret[:, :, hHalf: h, 0: wHalf].copy_(
-            outputPatch[2][:, hc - h + hHalf: hc, 0: wHalf])
-        ret[:, :, hHalf: h, wHalf: w].copy_(
-            outputPatch[3][:, hc - h + hHalf: hc, wc - w + wHalf: wc])
+        ret[:, :, 0:hHalf, 0:wHalf].copy_(outputPatch[0][:, 0:hHalf, 0:wHalf])
+        ret[:, :, 0:hHalf, wHalf:w].copy_(
+            outputPatch[1][:, 0:hHalf, wc - w + wHalf:wc])
+        ret[:, :, hHalf:h, 0:wHalf].copy_(
+            outputPatch[2][:, hc - h + hHalf:hc, 0:wHalf])
+        ret[:, :, hHalf:h, wHalf:w].copy_(
+            outputPatch[3][:, hc - h + hHalf:hc, wc - w + wHalf:wc])
         del outputPatch
         return ret
 
@@ -276,7 +293,8 @@ class StdSuperresModel(BaseModel):
         if self.opt.G.l1_loss_weight > 0:
             self.l1_loss = 0
             for o, t in zip(self.outputs, self.labels_t):
-                self.l1_loss += self.l1_criterion(o, t) * self.opt.G.l1_loss_weight
+                self.l1_loss += self.l1_criterion(o,
+                                                  t) * self.opt.G.l1_loss_weight
             self.loss += self.l1_loss
 
         if self.has_vgg_loss > 0:
@@ -296,7 +314,7 @@ class StdSuperresModel(BaseModel):
         self.backward()
 
     def increment_training_progress(self):
-        self.progress += 1/len(self.training_dataset)/self.opt.train.epochs
+        self.progress += 1 / len(self.training_dataset) / self.opt.train.epochs
 
     def get_current_errors(self):
         d = OrderedDict()
@@ -355,7 +373,9 @@ class GrowingGeneratorModel(StdSuperresModel):
             i = bisect_left(self.opt.train.growing_steps, self.progress)
             self.max_scale_idx = (i + 1) // 2
             self._net_G.max_scale_idx = self.max_scale_idx
-            training_scales = [opt.scale[i] for i in range(self.max_scale_idx + 1)]
+            training_scales = [
+                opt.scale[i] for i in range(self.max_scale_idx + 1)
+            ]
             self.training_dataset.random_vars.clear()
             for s in training_scales:
                 self.training_dataset.random_vars.append(s)
@@ -370,11 +390,14 @@ class GrowingGeneratorModel(StdSuperresModel):
                 self.max_scale_idx += 1
                 self._net_G.max_scale_idx = self.max_scale_idx
 
-                training_scales = [self.opt.scale[i] for i in range(self.max_scale_idx + 1)]
+                training_scales = [
+                    self.opt.scale[i] for i in range(self.max_scale_idx + 1)
+                ]
                 self.training_dataset.random_vars.clear()
                 for s in training_scales:
                     self.training_dataset.random_vars.append(s)
-                info('start training with scales: {}'.format(str(training_scales)))
+                info('start training with scales: {}'.format(
+                    str(training_scales)))
 
     def optimize_parameters(self):
         result = super().optimize_parameters()
@@ -384,8 +407,8 @@ class GrowingGeneratorModel(StdSuperresModel):
     def forward(self):
         # progress is curr_step/epochs * steps_per_epoch
         if self.max_scale_idx != 0:
-            lo, hi = self.opt.train.growing_steps[
-                self.max_scale_idx * 2 - 2: self.max_scale_idx * 2]
+            lo, hi = self.opt.train.growing_steps[self.max_scale_idx * 2 -
+                                                  2:self.max_scale_idx * 2]
             if lo == hi:
                 self.blend = 1
             else:
