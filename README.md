@@ -12,7 +12,7 @@ ProSR is a Single Image Super-Resolution (SISR) method designed upon the princip
 *ProSR* is developed under Ubuntu 16.04 with CUDA 9.1, cuDNN v7.0 and pytorch-0.4.0.
 We tested the program on Nvidia Titan X and Tesla K40c GPUs. Any NVIDIA GPU with ~12GB memory will do. Parallel processing on multiple GPUs will be supported during training.
 
-### Dependencies and Installation
+## Dependencies and Installation
   * Python 3.x
   * pytorch 0.4.0
   * See the full list of dependencies in `PROJECT_ROOT/conda-deps.yml`.
@@ -22,33 +22,52 @@ Dependencies can be installed in a conda enviroment executing:
 
 Include `proSR` into the search path setting `export PYTHONPATH=$PROJECT_ROOT/lib:$PYTHONPATH`.
 
-### Configuration
+## Configuration
 The available options are defined in `lib/prosr/config.py`.
 
-### Training
+## Training
 Not implemented yet. Send an email to [fperazzi@adobe.com](fpearzzi@adobe.com) if you want to be notified when available.
 
-### Testing
-The script `test.py` takes as input:
-* List of images: `--input`,`-i`.
-* CNN parameters `--weights`, `-w`.
-* Upscaling factor: `--upscaling-factor`,`-s`. The upscaling factor can be choosen from the multiples of two smaller than or equal to the max-scale parameter defined `config.py`.
-* Output directory: `--output-dir`, `-o`.
-
-The output images are postfixed with "_proSRx{upscale_factor}". If `--output-dir` is left undefined, output images will be saved in the same folder of the input images.
-
+## Testing
 The corresponding command line is:
-`python test.py -i <list-of-images> -s <upscale-factor> -w <model-parameters.pth> -o <output-dir>`
-
-For a quick test, download the data with `get_data.sh` and execute:
 
 ```
- python test.py \
-    -i data/datasets/DIV2K_valid_LR_bicubic/X8/0801x8.png \
-    -w data/checkpoints/ntire2018_bicubic_x8.pth \
-    -s 8 -o /tmp
+usage: test.py [-h] -c CHECKPOINT -i INPUT [INPUT ...]
+               [-t TARGET [TARGET ...]] -u UPSCALE_FACTOR [-f FMT]
+               [-o OUTPUT_DIR]
 ```
-The output image will be saved in `/tmp/0801x8_proSRx8.png`
+optional arguments:
+```
+  -h, --help            show this help message and exit
+  -c CHECKPOINT, --checkpoint CHECKPOINT
+                        Checkpoint
+  -i INPUT [INPUT ...], --input INPUT [INPUT ...]
+                        Input images, either list or path to folder
+  -t TARGET [TARGET ...], --target TARGET [TARGET ...]
+                        Target images, either list or path to folder
+  -u UPSCALE_FACTOR, --upscale-factor UPSCALE_FACTOR
+                        List of images to upsample
+  -f FMT, --fmt FMT     Image file format
+  -o OUTPUT_DIR, --output-dir OUTPUT_DIR
+                        Output folder.
+```
+
+
+The output images are postfixed with "_proSRx{upscale_factor}". If `--output` is left undefined, output images will be saved `/tmp`.
+
+### Quickstart
+Excute the following commands to upsample images provided in `$PROJECT_ROOT/data/examples`
+```
+# Upsample image by 8 times and save result in '/tmp'
+python test.py --checkpoint data/checkpoints/proSR.pth  -i data/examples/0801x8.png
+
+# Upsample images in folder by factor of 4, evaluate results (SSIM and PSNR) and save results in /tmp/prosr
+python test.py --checkpoint data/checkpoints/proSR.pth  -i data/examples -t data/examples/0801 -u 4 -o /tmp/prosr_examples
+```
+
+### Reproduce results
+To reproduce the results reported in table 1, first you need to download the data as explained in section X.
+
 
 ## Data
 ### Pretrained Models
@@ -81,4 +100,5 @@ A Fully Progressive Approach to Single-Image Super-Resolution - <i>[Y. Wang](htt
 
 ## Contacts
 If you have any question, please contact [Federico Perazzi](fperazzi@adobe.com).
+
 
