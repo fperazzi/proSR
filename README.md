@@ -32,7 +32,7 @@ conda create -n proSR
 conda install pytorch=0.4.0 torchvision cuda91 -c pytorch
 
 # Install image libraries
-conda install scikit-image pillow 
+conda install scikit-image pillow
 
 # Install pip and easydict
 conda install pip && pip install easydict
@@ -43,23 +43,32 @@ conda install visdom dominate -c conda-forge
 
 #### Search Path
 
-`export PYTHONPATH=$PROJECT_ROOT/lib:$PYTHONPATH` to include `proSR` into the search path. 
+`export PYTHONPATH=$PROJECT_ROOT/lib:$PYTHONPATH` to include `proSR` into the search path.
 
 ## Data
-In `PROJECT_ROOT/data` we provide a script `get_data.sh` to download the a pretrained model for x8 upsampling. 
+(Change) In `PROJECT_ROOT/data` we provide a script `get_data.sh` to download the a pretrained model for x8 upsampling.
 TLDR; Download the data: `sh data/get_data.sh`
 
 ### Pretrained Models
 We provide the following pretrained models:
 
-* [ProSR](https://www.dropbox.com/s/hlgunvtmkvylc4h/proSR.pth?dl=0) - This the full size model that ranked 4th place in terms of PSNR and second when measured with SSIM on the "Track 1" of the [NTIRE Super-Resolution Challenge 2018](https://competitions.codalab.org/competitions/18015).
+* [ProSR](https://www.dropbox.com/s/hlgunvtmkvylc4h/proSR.pth?dl=0) - This is the full size model that ranked 4th place in terms of PSNR and second when measured with SSIM on the "Track 1" of the [NTIRE Super-Resolution Challenge 2018](https://competitions.codalab.org/competitions/18015).
 * [ProSRs]() - A lightweight version of ProSR. Best speed / accuracy tradeoff.
 * [ProSRGAN]() - ProSR trained with an adversarial loss. Lower PSNR but higher details.
 
 ### Datasets
+We trained the models on [DIV2K](...)([7.1GB](https://cv.snu.ac.kr/research/EDSR/DIV2K.tar)) and [Flickr2K]()([21GB](http://cv.snu.ac.kr/research/EDSR/Flickr2K.tar)).
 
-We pretrained ProSR on DIV2K and Flickr2K. We evaluated the results on the following datasets:
+Additionally we evaluated the performance of ProSR on the following benchmark datasets:
 
+* [Set5 - Bevilacqua et al. BMVC 2012](http://people.rennes.inria.fr/Aline.Roumy/results/SR_BMVC12.html)
+* [Set14 - Zeyde et al. LNCS 2010](https://sites.google.com/site/romanzeyde/research-interests)
+* [B100 - Martin et al. ICCV 2001](https://www2.eecs.berkeley.edu/Research/Projects/CS/vision/bsds/)
+* [Urban100 - Huang et al. CVPR 2015](https://sites.google.com/site/jbhuang0604/publications/struct_sr)
+
+To evaluate ProSR on one of these benchmarks (e.g. Set14) execute the following command:
+```
+```
 
 ## Testing
 Run `test.py`
@@ -79,22 +88,27 @@ optional arguments:
   -t TARGET [TARGET ...], --target TARGET [TARGET ...]
                         Target images, either list or path to folder
   -u UPSCALE_FACTOR, --upscale-factor UPSCALE_FACTOR
-                        List of images to upsample
+                        Upscaling factor.
   -f FMT, --fmt FMT     Image file format
   -o OUTPUT_DIR, --output-dir OUTPUT_DIR
-                        Output folder.
+                        Output folder, default: '/tmp/<class_name>'
 ```
 
 
-By default, the output images will be saved `/tmp/<class_name>` where `<class_name>` is the name of the architecture defined in the `checkpoints['params'][class_name]`.
+By default, the output images will be saved in `/tmp/<class_name>` where `<class_name>` is the name of the architecture defined in the `checkpoints['params'][class_name]`.
 
 
 
 ### Quickstart
-Excute the following commands to upsample images provided in `$PROJECT_ROOT/data/examples`
+Execute the following commands to upsample an entire dataset (e.g. DIV2K) by x8.
 ```
-# Upsample image by 8 times and save result in '/tmp'
-python test.py --checkpoint data/checkpoints/proSR.pth -i data/examples/0801x8.png
+python test.py --checkpoint data/checkpoints/proSR.pth -i data/datasets/DIV2K_valid_HR -s
+```
+
+Other exemplar command lines:
+```
+# Upsample image by 8 times and save result in 'data/outputs/proSR'
+python test.py --checkpoint data/checkpoints/proSR.pth -i data/examples/0801x8.png -o data/outputs/proSR
 
 # Upsample images in folder by factor of 4, evaluate
 # results (SSIM and PSNR) and save results in /tmp/prosr
@@ -107,7 +121,8 @@ python test.py --checkpoint data/checkpoints/proSR.pth \
 To reproduce the results reported in table 1, first you need to download the data as explained in section X.
 
 
-# Results 
+# Results
+Following widespread protocal, result are obtained converting RGB images to YCbCr and evaluating the PSNR and SSIM on the Y channel only.
 | Model  | S14 | B100 | U100 | DIV2K | S14 | B100 | U100 | DIV2K | S14| B100 | U100 | DIV2K |
 |---------|---------|---------|---------|---------|---------|---------|---------|---------|---------|---------|---------|---------|
 MsLapSRN | 33.28 | 32.05 | 31.15 | 35.62 | 28.26 | 27.43 | 25.51 | 30.39 | 24.57 | 24.65 | 22.06 | 26.52 |

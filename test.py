@@ -17,6 +17,7 @@ from prosr.metrics import eval_psnr_and_ssim
 from prosr.models import EDSR, ProSR
 from prosr.utils import get_filenames, tensor2im
 
+'dir_data'
 
 def print_evaluation(filename, psnr, ssim):
     print('{} | psnr: {:.2f} | ssim: {:.2f}'.format(filename, psnr, ssim))
