@@ -1,13 +1,13 @@
 # ProSR
 
-Unofficial implementation of [A Fully Progressive Approach to Single-Image Super-Resolution](https://fperazzi.github.io/files/publications/prosr.pdf).
+Unofficial implementation of  [A Fully Progressive Approach to Single-Image Super-Resolution](https://fperazzi.github.io/files/publications/prosr.pdf).
 
 ![](data/prosr-teaser.jpg)
 
 ProSR is a Single Image Super-Resolution (SISR) method designed upon the principle of multi-scale progressiveness. The architecture resembles an asymmetric pyramidal structure with more layers in the upper levels to enable high upsampling ratios while remaining efficient. The training procedure implements the paradigm of curriculum learning by gradually increasing the difficulty of the task.
 
 ## Gettings Started
-Follow the intrunctions below to get ProSR up and running on your machine, for developement and testing purposes.
+Follow the instructions below to get ProSR up and running on your machine, both for development and testing purpose.
 
 ### System Requirements
 *ProSR* is developed under Ubuntu 16.04 with CUDA 9.1, cuDNN v7.0 and pytorch-0.4.0. We tested the program on Nvidia Titan X and Tesla K40c GPUs. Any NVIDIA GPU with ~12GB memory will do. Parallel processing on multiple GPUs will be supported during training.
@@ -51,25 +51,23 @@ TLDR; Download the data: `sh data/get_data.sh`
 ### Pretrained Models
 We provide the following pretrained models:
 
-* [ProSR](https://www.dropbox.com/s/hlgunvtmkvylc4h/proSR.pth?dl=0) - This is the full size model that ranked 4th place in terms of PSNR and second when measured with SSIM on the "Track 1" of the [NTIRE Super-Resolution Challenge 2018](https://competitions.codalab.org/competitions/18015).
+* [ProSR](https://www.dropbox.com/s/hlgunvtmkvylc4h/proSR.pth?dl=0) - This is the full size model that ranked 2nd and 4th place respectively in terms of PSNR and SSIM on the "Track 1" of the [NTIRE Super-Resolution Challenge 2018](https://competitions.codalab.org/competitions/18015).
 * [ProSRs]() - A lightweight version of ProSR. Best speed / accuracy tradeoff.
 * [ProSRGAN]() - ProSR trained with an adversarial loss. Lower PSNR but higher details.
 
 ![](data/prosr-arch.jpg)
 
 ### Datasets
-We trained the models on [DIV2K](...) ([7.1GB](https://cv.snu.ac.kr/research/EDSR/DIV2K.tar)) and [Flickr2K]() ([21GB](http://cv.snu.ac.kr/research/EDSR/Flickr2K.tar)).
+We trained our models on [DIV2K](...) ([7.1GB](https://cv.snu.ac.kr/research/EDSR/DIV2K.tar)) and [Flickr2K]() ([21GB](http://cv.snu.ac.kr/research/EDSR/Flickr2K.tar)).
 
-Additionally we evaluated the performance of ProSR on the following benchmark datasets:
+Additionally, we evaluated the performance of ProSR on the following benchmark datasets:
 
 * [Set5 - Bevilacqua et al. BMVC 2012](http://people.rennes.inria.fr/Aline.Roumy/results/SR_BMVC12.html)
 * [Set14 - Zeyde et al. LNCS 2010](https://sites.google.com/site/romanzeyde/research-interests)
 * [B100 - Martin et al. ICCV 2001](https://www2.eecs.berkeley.edu/Research/Projects/CS/vision/bsds/)
 * [Urban100 - Huang et al. CVPR 2015](https://sites.google.com/site/jbhuang0604/publications/struct_sr)
 
-To evaluate ProSR on one of these benchmarks (e.g. Set14) execute the following command:
-```
-```
+See section [Quickstart](#user-content-quickstart) to evaluate ProSR on one of these benchmarks.
 
 ## Testing
 Run `test.py`
@@ -106,7 +104,7 @@ Execute the following commands to upsample an entire dataset (e.g. DIV2K) by x8.
 python test.py --checkpoint data/checkpoints/proSR.pth -i data/datasets/DIV2K_valid_HR -s
 ```
 
-Other exemplar command lines:
+other useful command lines:
 ```
 # Upsample image by 8 times and save result in 'data/outputs/proSR'
 python test.py --checkpoint data/checkpoints/proSR.pth -i data/examples/0801x8.png -o data/outputs/proSR
@@ -118,12 +116,8 @@ python test.py --checkpoint data/checkpoints/proSR.pth \
   -i data/examples -t data/examples/0801 -u 4 -o /tmp/prosr_examples
 ```
 
-### Reproduce results
-To reproduce the results reported in table 1, first you need to download the data as explained in section X.
-
-
 # Results
-Following widespread protocol, the quantitative results are obtained converting RGB images to YCbCr and evaluating the PSNR and SSIM on the Y channel only. Refer to `eval.py` for further details about the evaluation.
+Following wide-spread protocol, the quantitative results are obtained converting RGB images to YCbCr and evaluating the PSNR and SSIM on the Y channel only. Refer to `eval.py` for further details about the evaluation.
 
 | Model  | S14 | B100 | U100 | DIV2K | S14 | B100 | U100 | DIV2K | S14| B100 | U100 | DIV2K |
 |---------|---------|---------|---------|---------|---------|---------|---------|---------|---------|---------|---------|---------|
@@ -133,12 +127,16 @@ MsLapSRN | 33.28 | 32.05 | 31.15 | 35.62 | 28.26 | 27.43 | 25.51 | 30.39 | 24.57
 [ProSR](https://www.dropbox.com/s/hlgunvtmkvylc4h/proSR.pth?dl=0) | 34.00 | 32.34 | 32.91 | 36.44 | 28.94 | 27.79 | 26.89 | 30.81 | 25.29 | 24.99 | 23.04 | 27.36 |
 
 
-
 ## Training
-Not implemented yet. Send an email to [fperazzi@adobe.com](fpearzzi@adobe.com) if you want to be notified when available.
+TODO
 
 ### Configuration
-The available options are defined in `lib/prosr/config.py`.
+
+The available options for each of the provided models ProSR, ProSRs and ProSRGAN are available in the folder $PROJECT_ROOT/options. Note that the same configuration file is embedded as a dictionary in the respective *.pth. file. You can print the configuration file, as well as the log and evaluation history using the command:
+
+```
+python print_info.py --config data/checkpoints/proSRl.pth
+```
 
 ## Publication
 If this code helps your research, please considering citing the following paper.
