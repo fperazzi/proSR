@@ -29,7 +29,7 @@ The available options are defined in `lib/prosr/config.py`.
 Not implemented yet. Send an email to [fperazzi@adobe.com](fpearzzi@adobe.com) if you want to be notified when available.
 
 ## Testing
-The corresponding command line is:
+Run `test.py`
 
 ```
 usage: test.py [-h] -c CHECKPOINT -i INPUT [INPUT ...]
@@ -59,10 +59,13 @@ The output images are postfixed with "_proSRx{upscale_factor}". If `--output` is
 Excute the following commands to upsample images provided in `$PROJECT_ROOT/data/examples`
 ```
 # Upsample image by 8 times and save result in '/tmp'
-python test.py --checkpoint data/checkpoints/proSR.pth  -i data/examples/0801x8.png
+python test.py --checkpoint data/checkpoints/proSR.pth -i data/examples/0801x8.png
 
-# Upsample images in folder by factor of 4, evaluate results (SSIM and PSNR) and save results in /tmp/prosr
-python test.py --checkpoint data/checkpoints/proSR.pth  -i data/examples -t data/examples/0801 -u 4 -o /tmp/prosr_examples
+# Upsample images in folder by factor of 4, evaluate
+# results (SSIM and PSNR) and save results in /tmp/prosr
+
+python test.py --checkpoint data/checkpoints/proSR.pth \
+  -i data/examples -t data/examples/0801 -u 4 -o /tmp/prosr_examples
 ```
 
 ### Reproduce results
