@@ -58,7 +58,7 @@ We provide the following pretrained models:
 ![](data/prosr-arch.jpg)
 
 ### Datasets
-We trained the models on [DIV2K](...)([7.1GB](https://cv.snu.ac.kr/research/EDSR/DIV2K.tar)) and [Flickr2K]()([21GB](http://cv.snu.ac.kr/research/EDSR/Flickr2K.tar)).
+We trained the models on [DIV2K](...) ([7.1GB](https://cv.snu.ac.kr/research/EDSR/DIV2K.tar)) and [Flickr2K]() ([21GB](http://cv.snu.ac.kr/research/EDSR/Flickr2K.tar)).
 
 Additionally we evaluated the performance of ProSR on the following benchmark datasets:
 
@@ -123,13 +123,14 @@ To reproduce the results reported in table 1, first you need to download the dat
 
 
 # Results
-Following widespread protocal, result are obtained converting RGB images to YCbCr and evaluating the PSNR and SSIM on the Y channel only.
+Following widespread protocol, the quantitative results are obtained converting RGB images to YCbCr and evaluating the PSNR and SSIM on the Y channel only. Refer to `eval.py` for further details about the evaluation.
+
 | Model  | S14 | B100 | U100 | DIV2K | S14 | B100 | U100 | DIV2K | S14| B100 | U100 | DIV2K |
 |---------|---------|---------|---------|---------|---------|---------|---------|---------|---------|---------|---------|---------|
 MsLapSRN | 33.28 | 32.05 | 31.15 | 35.62 | 28.26 | 27.43 | 25.51 | 30.39 | 24.57 | 24.65 | 22.06 | 26.52 |
 | EDSR   | 33.92 | 32.32 | 32.93 | 36.47 | 28.80 | 27.71 | 26.64 | 30.71 | 24.96 | 24.83 | 22.53 | 26.96 |
 [ProSRs]() | 33.36 | 32.02 | 31.42 | 35.80 | 28.59 | 27.58 | 26.01 | 30.39 | 24.93 | 24.80 | 22.43 | 26.88 |
-[ProSR](https://www.dropbox.com/s/hlgunvtmkvylc4h/proSR.pth?dl=0)   | 34.00 | 32.34 | 32.91 | 36.44 | 28.94 | 27.79 | 26.89 | 30.81 | 25.29 | 24.99 | 23.04 | 27.36 |
+[ProSR](https://www.dropbox.com/s/hlgunvtmkvylc4h/proSR.pth?dl=0) | 34.00 | 32.34 | 32.91 | 36.44 | 28.94 | 27.79 | 26.89 | 30.81 | 25.29 | 24.99 | 23.04 | 27.36 |
 
 
 
