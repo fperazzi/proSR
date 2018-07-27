@@ -28,7 +28,6 @@ def get_filenames(source, image_format):
     if len(source) and os.path.isdir(source[0]):
         source_fns = sorted(
             glob.glob("{}/*.{}".format(source[0], image_format)))
-        print(source_fns)
     else:
         source_fns = source
 
@@ -159,7 +158,7 @@ def spatial_resize(x, size=None, scale_factor=None):
         h, w = x.size()[-2:]
         size = int(h * scale_factor), int(w * scale_factor)
     if h < size[0] and w < size[0]:
-        return F.upsample(x, size=size, mode='bilinear')
+        return F.upsample(x, size=size, mode='bilinear',align_corners=True)
     else:
         if size[0] % h != 0 or size[1] % w != 0:
             return F.adaptive_avg_pool2d(x, output_size=size)

@@ -59,7 +59,6 @@ if __name__ == '__main__':
     args = parse_args()
 
     if args.imgs is not None:
-        print(args.imgs)
         imgs1 = ImageCollection(args.imgs[0])
         imgs2 = ImageCollection(args.imgs[1])
     elif args.dirs is not None:

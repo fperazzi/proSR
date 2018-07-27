@@ -142,7 +142,7 @@ class ProSR(nn.Module):
                 # if using blend, upsample the second last feature via bilinear upsampling
                 if (blend != 1.0 and s == self.n_denseblocks - 1):
                     base_img = nn.functional.upsample(
-                        tmp, scale_factor=2, mode='bilinear')
+                        tmp, scale_factor=2, mode='bilinear',align_corners=True)
                 if 2**s == upscale_factor:
                     if (blend != 1.0) and s == max_scale_idx + 1:
                         tmp = tmp * blend + (1 - blend) * base_img

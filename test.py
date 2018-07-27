@@ -72,6 +72,7 @@ if __name__ == '__main__':
     args = parse_args()
     params = config.default_params
 
+    info()
     pprint(params)
 
     checkpoint = torch.load(args.checkpoint)
