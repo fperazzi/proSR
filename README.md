@@ -5,7 +5,6 @@ Unofficial implementation of [A Fully Progressive Approach to Single-Image Super
 ![](data/prosr-teaser.jpg)
 
 ProSR is a Single Image Super-Resolution (SISR) method designed upon the principle of multi-scale progressiveness. The architecture resembles an asymmetric pyramidal structure with more layers in the upper levels to enable high upsampling ratios while remaining efficient. The training procedure implements the paradigm of curriculum learning by gradually increasing the difficulty of the task.
-![](data/prosr-arch.jpg)
 
 ## Gettings Started
 Follow the intrunctions below to get ProSR up and running on your machine, for developement and testing purposes.
@@ -55,6 +54,8 @@ We provide the following pretrained models:
 * [ProSR](https://www.dropbox.com/s/hlgunvtmkvylc4h/proSR.pth?dl=0) - This is the full size model that ranked 4th place in terms of PSNR and second when measured with SSIM on the "Track 1" of the [NTIRE Super-Resolution Challenge 2018](https://competitions.codalab.org/competitions/18015).
 * [ProSRs]() - A lightweight version of ProSR. Best speed / accuracy tradeoff.
 * [ProSRGAN]() - ProSR trained with an adversarial loss. Lower PSNR but higher details.
+
+![](data/prosr-arch.jpg)
 
 ### Datasets
 We trained the models on [DIV2K](...)([7.1GB](https://cv.snu.ac.kr/research/EDSR/DIV2K.tar)) and [Flickr2K]()([21GB](http://cv.snu.ac.kr/research/EDSR/Flickr2K.tar)).
