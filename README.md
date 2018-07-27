@@ -1,6 +1,7 @@
 # ProSR
 
-### Unofficial implementation of  [A Fully Progressive Approach to Single-Image Super-Resolution](https://fperazzi.github.io/files/publications/prosr.pdf).
+### [A Fully Progressive Approach to Single-Image Super-Resolution](https://fperazzi.github.io/files/publications/prosr.pdf).
+(Unofficial implementation)
 
 ![](docs/figures/prosr-teaser.jpg)
 
