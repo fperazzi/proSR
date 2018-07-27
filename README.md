@@ -56,7 +56,7 @@ optional arguments:
 ```
 
 
-The output images are postfixed with "_proSRx{upscale_factor}". If `--output` is left undefined, output images will be saved `/tmp`.
+By default, the output images will be saved `/tmp/<class_name>` where `<class_name>` is the name of the architecture defined in the `checkpoints['params'][class_name]`.
 
 ### Quickstart
 Excute the following commands to upsample images provided in `$PROJECT_ROOT/data/examples`
