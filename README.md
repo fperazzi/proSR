@@ -7,26 +7,29 @@ Unofficial implementation of [A Fully Progressive Approach to Single-Image Super
 ProSR is a Single Image Super-Resolution (SISR) method designed upon the principle of multi-scale progressiveness. The architecture resembles an asymmetric pyramidal structure with more layers in the upper levels to enable high upsampling ratios while remaining efficient. The training procedure implements the paradigm of curriculum learning by gradually increasing the difficulty of the task.
 ![](data/prosr-arch.jpg)
 
-## Usage
+## Gettings Started
+Follow these intrunctions blow to get this code up and running on your local machine for developement and testing purposes.
+
 ### System Requirements
 *ProSR* is developed under Ubuntu 16.04 with CUDA 9.1, cuDNN v7.0 and pytorch-0.4.0.
 We tested the program on Nvidia Titan X and Tesla K40c GPUs. Any NVIDIA GPU with ~12GB memory will do. Parallel processing on multiple GPUs will be supported during training.
 
-## Dependencies and Installation
+### Dependencies
   * Python 3.x
   * pytorch 0.4.0
   * See the full list of dependencies in `PROJECT_ROOT/conda-deps.yml`.
 
 Dependencies can be installed in a conda enviroment executing:
-`conda create --name proSR --file PROJECT_ROOT/conda-deps.yml`
+> `conda create --name proSR --file PROJECT_ROOT/conda-deps.yml`
 
 Include `proSR` into the search path setting `export PYTHONPATH=$PROJECT_ROOT/lib:$PYTHONPATH`.
 
-## Configuration
-The available options are defined in `lib/prosr/config.py`.
 
 ## Training
 Not implemented yet. Send an email to [fperazzi@adobe.com](fpearzzi@adobe.com) if you want to be notified when available.
+
+### Configuration
+The available options are defined in `lib/prosr/config.py`.
 
 ## Testing
 Run `test.py`
@@ -101,7 +104,10 @@ A Fully Progressive Approach to Single-Image Super-Resolution - <i>[Y. Wang](htt
 }
 ```
 
-## Contacts
-If you have any question, please contact [Federico Perazzi](fperazzi@adobe.com).
+### Contacts
+If you have any question, please contact [Yifan Wang](yifan.wang@inf.ethz.ch) and [Federico Perazzi](fperazzi@adobe.com).
+
+### License
+Figure out something
 
 
