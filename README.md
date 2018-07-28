@@ -76,17 +76,17 @@ python test.py --checkpoint data/checkpoints/proSR.pth -i data/datasets/DIV2K/DI
   --upscale-factor 8 --output-dir data/outputs/DIV2K_valid_SR_bicubic/X8
 ```
 
-other useful command lines:
-```
-# Upsample image by 8 times and save result in 'data/outputs/proSR'
-python test.py --checkpoint data/checkpoints/proSR.pth -i data/examples/0801x8.png -o data/outputs/proSR
+> other useful command lines:
+> ```
+> # Upsample image by 8 times and save result in 'data/outputs/proSR'
+> python test.py --checkpoint data/checkpoints/proSR.pth -i data/examples/0801x8.png -o data/outputs/proSR
 
-# Upsample images in folder by factor of 4, evaluate
-# results (SSIM and PSNR) and save results in /tmp/prosr
+> # Upsample images in folder by factor of 4, evaluate
+> # results (SSIM and PSNR) and save results in /tmp/prosr
 
-python test.py --checkpoint data/checkpoints/proSR.pth \
-  -i data/examples -t data/examples/0801 -u 4 -o /tmp/prosr_examples
-```
+> python test.py --checkpoint data/checkpoints/proSR.pth \
+>   -i data/examples -t data/examples/0801 -u 4 -o /tmp/prosr_examples
+> ```
 
 ## Testing
 Run `test.py`
