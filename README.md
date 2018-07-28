@@ -134,7 +134,7 @@ TODO
 The available options for each of the provided models ProSR, ProSRs and ProSRGAN are available in the folder PROJECT_ROOT/options. Note that the same configuration file is embedded as a dictionary in the respective *.pth. file. You can print the configuration file, as well as the log and evaluation history using the command:
 
 ```
-python print_info.py --config data/checkpoints/proSRl.pth
+python print_info.py --config data/checkpoints/proSR.pth
 ```
 
 ## Publication
