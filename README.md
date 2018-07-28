@@ -1,13 +1,13 @@
 # ProSR
 
 ### [A Fully Progressive Approach to Single-Image Super-Resolution](https://fperazzi.github.io/files/publications/prosr.pdf).
-(Unofficial implementation)
+(Unofficial Implementation)
 
 ![](docs/figures/prosr-teaser.jpg)
 
 **ProSR** is a Single Image Super-Resolution (SISR) method designed upon the principle of multi-scale progressiveness. The architecture resembles an asymmetric pyramidal structure with more layers in the upper levels to enable high upsampling ratios while remaining efficient. The training procedure implements the paradigm of curriculum learning by gradually increasing the difficulty of the task.
 
-## Install
+## Installation
 Follow the instructions below to get **ProSR** up and running on your machine, both for development and testing purpose.
 
 ### System Requirements
@@ -45,9 +45,8 @@ conda install visdom dominate -c conda-forge
 
 `export PYTHONPATH=$PROJECT_ROOT/lib:$PYTHONPATH` to include `proSR` into the search path.
 
-## Data
-(Change) In `PROJECT_ROOT/data` we provide a script `get_data.sh` to download the a pretrained model for x8 upsampling.
-TLDR; Download the data: `sh data/get_data.sh`
+## Getting the Data
+In `PROJECT_ROOT/data` we provide a script `get_data.sh` to download ProSR pretrained models and the datasets that we used in this project. This is a large download of approximately 30GB that might take a while to complete. If you would rather download individual files, continue reading.
 
 ### Pretrained Models
 We provide the following pretrained models:
