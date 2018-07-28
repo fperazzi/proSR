@@ -72,7 +72,8 @@ See section [Quickstart](#user-content-quickstart) to evaluate ProSR on one of t
 ## Quickstart
 Execute the following commands to upsample an entire dataset (e.g. DIV2K) by x8.
 ```
-python test.py --checkpoint data/checkpoints/proSR.pth -i data/datasets/DIV2K_valid_HR -s
+python test.py --checkpoint data/checkpoints/proSR.pth -i data/datasets/DIV2K/DIV2K_valid_LR_bicubic/X8 \
+  --upscale-factor 8 --output-dir data/outputs/DIV2K_valid_SR_bicubic/X8
 ```
 
 other useful command lines:

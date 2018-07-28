@@ -17,8 +17,6 @@ from prosr.metrics import eval_psnr_and_ssim
 from prosr.models import EDSR, ProSR
 from prosr.utils import get_filenames, tensor2im
 
-'dir_data'
-
 def print_evaluation(filename, psnr, ssim):
     print('{} | psnr: {:.2f} | ssim: {:.2f}'.format(filename, psnr, ssim))
 
@@ -73,7 +71,6 @@ if __name__ == '__main__':
     args = parse_args()
     params = config.default_params
 
-    info()
     pprint(params)
 
     checkpoint = torch.load(args.checkpoint)
@@ -98,6 +95,10 @@ if __name__ == '__main__':
 
     mean = checkpoint['params']['data']['mean']
     stddev = checkpoint['params']['data']['stddev']
+
+
+    if not osp.isdir(args.output_dir):
+        os.makedirs(args.output_dir)
 
     with torch.no_grad():
         for data in data_loader:

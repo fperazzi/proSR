@@ -8,10 +8,10 @@ mkdir -p $DATADIR/{datasets,checkpoints}
 ##################################
 
 # EDSR
-wget https://www.dropbox.com/s/hj1rcew430l6cbf/EDSR.pth?dl=0 -P $DATADIR/checkpoints
+wget https://www.dropbox.com/s/hj1rcew430l6cbf/EDSR.pth?dl=0 -P $DATADIR/checkpoints/ESDR.pth
 
 # ProSR
-wget https://www.dropbox.com/s/hlgunvtmkvylc4h/proSR.pth?dl=0 -P $DATADIR/checkpoints
+wget https://www.dropbox.com/s/hlgunvtmkvylc4h/proSR.pth?dl=0 -P $DATADIR/checkpoints/proSR.pth
 
 ##################################
 # Datasets
