@@ -151,7 +151,7 @@ class ProSR(nn.Module):
         if not self.training:
             assert len(output) == 1
             interpolated = spatial_resize(x, scale_factor=upscale_factor)
-            output = output.pop() # + interpolated #TODO Fix
+            output = output.pop()  # + interpolated #TODO Fix
         else:
             assert len(output) == 1
         return output

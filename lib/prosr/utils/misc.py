@@ -40,11 +40,10 @@ def is_image_file(filename):
 
 # Converts a Tensor into a Numpy array
 # |imtype|: the desired type of the converted numpy array
-def tensor2im(image_tensor, mean=(0.5, 0.5, 0.5), img_mul=2.):
+def tensor2im(image_tensor, mean=(0.5, 0.5, 0.5), stddev=2.):
     image_numpy = image_tensor[0].cpu().float().numpy()
     image_numpy = (
-        np.transpose(image_numpy, (1, 2, 0)) /
-        (1.0 / np.array(img_mul).reshape(1, 1, -1)) + np.array(mean)) * 255.0
+        np.transpose(image_numpy, (1, 2, 0)) * stddev + np.array(mean)) * 255.0
     image_numpy = image_numpy.clip(0, 255)
     return np.around(image_numpy).astype(np.uint8)
 
@@ -83,16 +82,6 @@ def mod_crop(im, scale):
     h, w = im.shape[:2]
     # return im[(h % scale):, (w % scale):, ...]
     return im[:h - (h % scale), :w - (w % scale), ...]
-
-
-def cut_boundary(im1, scale):
-    boundarypixels = 0
-    if scale > 1:
-        boundarypixels = scale
-        im1 = im1[boundarypixels:-boundarypixels, boundarypixels:
-                  -boundarypixels, :]
-
-    return im1
 
 
 def diagnose_network(net, name='network'):

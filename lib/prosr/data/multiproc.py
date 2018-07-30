@@ -3,11 +3,11 @@ import queue
 import sys
 import threading
 import traceback
+import random
 
 import torch
 import torch.multiprocessing as multiprocessing
-from torch.utils.data.sampler import (RandomSampler, SequentialSampler,
-                                      WeightedRandomSampler)
+from torch.utils.data.sampler import (RandomSampler, SequentialSampler)
 
 string_classes = (str, bytes)
 
@@ -35,7 +35,7 @@ def _worker_loop(dataset, index_queue, data_queue, collate_fn):
             break
         idx, random_var, batch_indices = r
         try:
-            samples = collate_fn([dataset.get(i) for i in batch_indices])
+            samples = collate_fn([dataset.get(i, random_var) for i in batch_indices])
         except Exception:
             data_queue.put((idx, ExceptionWrapper(sys.exc_info())))
         else:

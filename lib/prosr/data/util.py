@@ -1,11 +1,13 @@
-import random
-
 import numpy as np
+from numpy import random
+from math import floor
+
 from PIL import Image
 
 
-def random_rot90(img):
-    r = random.randint(0, 3)  #TODO Check and rewrite func
+def random_rot90(img, r=None):
+    if r is None:
+        r = random.random()*4  # TODO Check and rewrite func
     if r < 1:
         return img.transpose(Image.ROTATE_90)
     elif r < 2:
@@ -15,16 +17,32 @@ def random_rot90(img):
     else:
         return img
 
+def augment_pairs(img1, img2):
+    vflip = random.random() > 0.5
+    hflip = random.random() > 0.5
+    rot = random.random() * 4
+    if hflip:
+        img1 = img1.transpose(Image.FLIP_LEFT_RIGHT)
+        img2 = img2.transpose(Image.FLIP_LEFT_RIGHT)
+    if vflip:
+        img1 = img1.transpose(Image.FLIP_TOP_BOTTOM)
+        img2 = img2.transpose(Image.FLIP_TOP_BOTTOM)
+
+    img1 = random_rot90(img1, rot)
+    img2 = random_rot90(img2, rot)
+    return img1, img2
+
 
 # Rewrite this function
 def random_crop_pairs(crop_size, scale, hr, lr, lr_t=(0, 0)):
+    # TODO: what is lr_t
     oh_lr = ow_lr = crop_size
     hr_lr_ratio = max(1 / scale, scale)
 
     oh_hr = ow_hr = oh_lr * hr_lr_ratio
     imw_lr, imh_lr = lr.size
     imw_hr, imh_hr = hr.size
-    #TODO put it back
+    # TODO put it back
     # assert imh_lr * hr_lr_ratio == imh_hr and imw_lr * hr_lr_ratio == imw_hr, \
     #   'image size of hr and lr don\'t match!'
     if lr_t[0] < 0:
@@ -71,17 +89,9 @@ def tensor2im(image_tensor,
     return np.around(image_numpy).astype(dtype)
 
 
-def tensor2ims(tensor, imtype=np.uint8):
-    b, c, h, w = tensor.size()
-    tensor = tensor.view(-1, h, w)
-    tensor = tensor.cpu().float().numpy()
-    ims = []
-    for i in range(tensor.shape[0]):
-        im = tensor[i:i + 1]
-        im -= np.min(im)
-        crange = np.max(im)
-        if not crange == 0:
-            im /= crange
-            im *= 255
-        ims.append(im.transpose((1, 2, 0)).astype(imtype))
-    return ims
+def downscale_by_ratio(img, ratio, method=Image.BICUBIC):
+    if ratio == 1:
+        return img
+    w, h = img.size
+    w, h = floor(w/ratio), floor(h/ratio)
+    return img.resize((w, h), method)

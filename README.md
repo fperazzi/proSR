@@ -32,10 +32,10 @@ conda create -n proSR
 conda install pytorch=0.4.0 torchvision cuda91 -c pytorch
 
 # Install image libraries
-conda install scikit-image pillow
+conda install scikit-image pillow cython
 
 # Install pip and easydict
-conda install pip && pip install easydict
+pip install easydict
 
 # Additional modules for visualization
 conda install visdom dominate -c conda-forge
@@ -58,7 +58,8 @@ We provide the following pretrained models:
 ![](docs/figures/prosr-arch.jpg)
 
 ### Datasets
-We trained our models on [DIV2K](...) ([7.1GB](https://cv.snu.ac.kr/research/EDSR/DIV2K.tar)) and [Flickr2K]() ([21GB](http://cv.snu.ac.kr/research/EDSR/Flickr2K.tar)).
+We trained our models on [DIV2K](...) ([7.1GB](https://cv.snu.ac.kr/research/EDSR/DIV2K.tar)) 
+<!-- and [Flickr2K]() ([21GB](http://cv.snu.ac.kr/research/EDSR/Flickr2K.tar)). -->
 
 Additionally, we evaluated the performance of ProSR on the following benchmark datasets:
 

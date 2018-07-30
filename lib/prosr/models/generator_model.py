@@ -43,7 +43,7 @@ class StdSuperresModel(BaseModel):
         # load network weights
         if not opt.phase == phase.TRAIN or opt.train.resume:
             self.load_network(self._net_G, 'G', opt.which_epoch)
-        retun
+            return
 
         # Wrap model if multiple gpus
         if torch.cuda.is_available():
