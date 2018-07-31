@@ -1,56 +1,16 @@
 import os
 from collections import OrderedDict
+from easydict import EasyDict as edict
 
 import torch
 
 from ..config import phase
 from ..logger import info
 from ..misc.util import tensor2im
+from ..metrics import eval_psnr
 
 
 class BaseModel():
-
-    def __init__(self, opt):
-        self.opt = opt
-        self.isTrain = opt.phase == phase.TRAIN
-        self.Tensor = torch.cuda.FloatTensor if torch.cuda.is_available(
-        ) else torch.FloatTensor
-        self.save_dir = os.path.join(opt.checkpoint_dir)
-        if not opt.eval.scale:
-            opt.eval.scale = opt.scale
-        self.eval_func = OrderedDict([('psnr_x%d' % s,
-                                       lambda x, y, scale=s: psnr(x, y, scale))
-                                      for s in opt.eval.scale])
-        self.best_eval = OrderedDict(
-            [('psnr_x%d' % s, 0.0) for s in opt.eval.scale])
-        self.eval_dict = OrderedDict(
-            [('psnr_x%d' % s, []) for s in opt.eval.scale])
-        self.train_history = []
-
-        self.tensor2im = lambda t: tensor2im(t,
-            mean=self.opt.mean_img, img_mul=self.opt.mul_img)
-
-    def name(self):
-        return 'BaseModel'
-
-    def set_input(self, input):
-        self.input = input
-
-    def forward(self):
-        pass
-
-    # used in test time, no backprop
-    def test(self):
-        pass
-
-    def get_image_paths(self):
-        pass
-
-    def optimize_parameters(self):
-        pass
-
-    def get_current_visuals(self):
-        return self.input
 
     def get_current_errors(self):
         return {}
@@ -92,7 +52,10 @@ class BaseModel():
     def save_network(self, network, network_label, epoch_label):
         save_filename = '%s_net_%s.pth' % (epoch_label, network_label)
         save_path = os.path.join(self.save_dir, save_filename)
-        torch.save(network.cpu().state_dict(), save_path)
+        to_save = edict({'state_dict': network.cpu().state_dict(),
+                         'params':     {'G': self.opt.G}
+                         })
+        torch.save(to_save, save_path)
         if torch.cuda.is_available():
             network.cuda()
 
@@ -112,36 +75,11 @@ class BaseModel():
         for param_group in optimizer.param_groups:
             param_group['lr'] = lr
 
-    # helper loading function that can be used by subclasses
-    def load_network(self, network, network_label, epoch_label):
-        save_filename = '%s_net_%s.pth' % (epoch_label, network_label)
-        save_path = os.path.join(self.save_dir, save_filename)
-        loaded_state = torch.load(save_path)
-        loaded_param_names = set(loaded_state.keys())
-
-        # allow loaded states to contain keys that don't exist in current model
-        # by trimming these keys;
-        own_state = network.state_dict()
-        extra = loaded_param_names - set(own_state.keys())
-        if len(extra) > 0:
-            print('Dropping ' + str(extra) + ' from loaded states')
-        for k in extra:
-            del loaded_state[k]
-
-        try:
-            network.load_state_dict(loaded_state)
-        except KeyError as e:
-            print(e)
-        info('Loaded network state from ' + save_path)
-
     def update_learning_rate(self):
-        pass
-
-    def finetune(self, model, param_prefix):
-        """finetune params with prefix defined in list param_prefix"""
-        if len(param_prefix) == 0:
+        """update learning rate with exponential decay"""
+        lr = self.old_lr * self.opt.train.lr_decay
+        if lr < self.opt.train.smallest_lr:
             return
-        for p_name, p in model.named_parameters():
-            freeze = all([p_name[:len(pre)] != pre for pre in param_prefix])
-            if freeze:
-                p.requires_grad = False
+        self.set_learning_rate(lr, self.optimizer_G)
+        info('update learning rate: %f -> %f' % (self.old_lr, lr))
+        self.old_lr = lr

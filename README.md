@@ -36,9 +36,6 @@ conda install scikit-image pillow cython
 
 # Install pip and easydict
 pip install easydict
-
-# Additional modules for visualization
-conda install visdom dominate -c conda-forge
 ```
 
 #### Search Path

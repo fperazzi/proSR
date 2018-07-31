@@ -3,13 +3,11 @@ from enum import Enum
 from math import log2
 
 import torch.nn as nn
-import torch.nn.functional as F
 from prosr.logger import error
-from prosr.utils.misc import spatial_resize
 
 from .layers import (CompressionBlock, Conv2d, DenseResidualBlock,
                      PixelShuffleUpsampler, ResidualBlock, _DenseBlock,
-                     get_activation, init_weights)
+                     init_weights)
 
 
 ##############################################################################
@@ -24,25 +22,24 @@ class block_type(Enum):
 class ProSR(nn.Module):
     """docstring for PyramidDenseNet"""
 
-    def __init__(self, residual_denseblock, act_type, act_params,
+    def __init__(self, residual_denseblock,
                  num_init_features, bn_size, growth_rate, ps_woReLU,
-                 level_config, level_compression, num_img_channels, res_factor,
+                 level_config, level_compression, res_factor,
                  max_num_feature, max_scale, **kwargs):
         super(ProSR, self).__init__()
-
         self.max_scale = max_scale
-        self.n_denseblocks = int(log2(self.max_scale))
+        self.n_pyramids = int(log2(self.max_scale))
+
+        # used in curriculum learning, initially set to the last scale
+        self.current_scale_idx = self.n_pyramids-1
+
         self.residual_denseblock = residual_denseblock
-
         self.DenseBlock = _DenseBlock
-
         self.Upsampler = PixelShuffleUpsampler
         self.upsample_args = {'woReLU': ps_woReLU}
 
         denseblock_params = {
             'num_layers': None,
-            'activation': act_type,
-            'activation_params': act_params.__dict__,
             'num_input_features': num_init_features,
             'bn_size': bn_size,
             'growth_rate': growth_rate,
@@ -53,38 +50,32 @@ class ProSR(nn.Module):
         # Initiate network
 
         # each scale has its own init_conv
-        for s in range(1, self.n_denseblocks + 1):
-            self.add_module('init_conv_%d' % s,
-                            Conv2d(num_img_channels, num_init_features, 3))
+        for s in range(1, self.n_pyramids + 1):
+            self.add_module('init_conv_%d' % s, Conv2d(3, num_init_features, 3))
 
         # Each denseblock forms a pyramid
-        for i in range(self.n_denseblocks):
+        for i in range(self.n_pyramids):
             block_config = level_config[i]
             pyramid_residual = OrderedDict()
 
-            # next scale feature
+            # starting from the second pyramid, compress the input features
             if i != 0:
-                out_planes = num_init_features if level_compression <= 0 \
-                  else int(level_compression * num_features)
-                comp = CompressionBlock(
-                    in_planes=num_features, out_planes=out_planes)
-                pyramid_residual['compression_%d' % i] = comp
+                out_planes = num_init_features if level_compression <= 0 else int(level_compression * num_features)
+                pyramid_residual['compression_%d' % i] = CompressionBlock(in_planes=num_features, out_planes=out_planes)
                 num_features = out_planes
 
+            # serial connect blocks
             for b, num_layers in enumerate(block_config):
                 denseblock_params['num_layers'] = num_layers
                 denseblock_params['num_input_features'] = num_features
-
+                # residual dense block used in ProSRL and ProSRGAN
                 if self.residual_denseblock:
-                    block = DenseResidualBlock(
-                        **denseblock_params, res_factor=res_factor)
-                    pyramid_residual['residual_denseblock_%d' %
-                                     (b + 1)] = block
+                    pyramid_residual['residual_denseblock_%d' % (b + 1)] = DenseResidualBlock(res_factor=res_factor, **denseblock_params)
                 else:
                     block, num_features = self.create_denseblock(
-                        denseblock_params,
-                        with_compression=(b != len(block_config) - 1),
-                        compression_rate=block_compression)
+                                                denseblock_params,
+                                                with_compression=(b != len(block_config) - 1),
+                                                compression_rate=kwargs['block_compression'])
                     pyramid_residual['denseblock_%d' % (b + 1)] = block
 
             # conv before upsampling
@@ -102,30 +93,27 @@ class ProSR(nn.Module):
             # reconstruction convolutions
             reconst_branch = OrderedDict()
             out_channels = num_features
-            reconst_branch['final_conv'] = Conv2d(out_channels,
-                                                  num_img_channels, 3)
+            reconst_branch['final_conv'] = Conv2d(out_channels, 3, 3)
             self.add_module('reconst_%d' % (i + 1),
                             nn.Sequential(reconst_branch))
 
+            init_weights(self)
+
     def get_init_conv(self, idx):
+        """choose which init_conv based on curr_scale_idx (1-based)"""
         return getattr(self, 'init_conv_%d' % idx)
 
     def forward(self, x, upscale_factor=None, base_img=None, blend=1.0):
-
         if upscale_factor is None:
             upscale_factor = self.max_scale
         else:
-            valid_upscale_factors = [
-                2**(i + 1) for i in range(self.n_denseblocks)
-            ]
-            if not (1 < upscale_factor <= self.max_scale
-                    and upscale_factor % 2 == 0):
-                error("Invalid upscaling factor: choose one of: {}".format(
+            valid_upscale_factors = [2**(i + 1) for i in range(self.n_pyramids)]
+            if upscale_factor not in valid_upscale_factors:
+                error("Invalid upscaling factor {}: choose one of: {}".format(upscale_factor,
                     valid_upscale_factors))
                 raise SystemExit(1)
 
         feats = self.get_init_conv(log2(upscale_factor))(x)
-        output = []
         for s in range(1, int(log2(upscale_factor)) + 1):
             if self.residual_denseblock:
                 feats = getattr(self, 'pyramid_residual_%d' % s)(feats) + feats
@@ -136,24 +124,17 @@ class ProSR(nn.Module):
 
             # reconst residual image if intermediate output is required / reached desired scale /
             # use intermediate as base_img / use blend and s is one step lower than desired scale
-            if 2**s == upscale_factor or (blend != 1.0 and 2**
-                                          (s + 1) == upscale_factor):
+            if 2**s == upscale_factor or (blend != 1.0 and 2**(s + 1)==upscale_factor):
                 tmp = getattr(self, 'reconst_%d' % s)(feats)
                 # if using blend, upsample the second last feature via bilinear upsampling
-                if (blend != 1.0 and s == self.n_denseblocks - 1):
+                if (blend != 1.0 and s == self.current_scale_idx):
                     base_img = nn.functional.upsample(
-                        tmp, scale_factor=2, mode='bilinear',align_corners=True)
+                        tmp, scale_factor=2, mode='bilinear', align_corners=True)
                 if 2**s == upscale_factor:
-                    if (blend != 1.0) and s == max_scale_idx + 1:
+                    if (blend != 1.0) and s == self.current_scale_idx+1:
                         tmp = tmp * blend + (1 - blend) * base_img
-                    output += [tmp]
+                    output = tmp
 
-        if not self.training:
-            assert len(output) == 1
-            interpolated = spatial_resize(x, scale_factor=upscale_factor)
-            output = output.pop()  # + interpolated #TODO Fix
-        else:
-            assert len(output) == 1
         return output
 
     def create_denseblock(self,
@@ -166,11 +147,10 @@ class ProSR(nn.Module):
         num_features += denseblock_params['num_layers'] * denseblock_params['growth_rate']
 
         if with_compression:
-            out_planes = num_features if compression_rate <= 0 \
-              else int(compression_rate * num_features)
-            block['comp'] = CompressionBlock(
-                in_planes=num_features, out_planes=out_planes)
+            out_planes = num_features if compression_rate <= 0 else int(compression_rate * num_features)
+            block['comp'] = CompressionBlock(in_planes=num_features, out_planes=out_planes)
             num_features = out_planes
+
         return nn.Sequential(block), num_features
 
     def create_finalconv(self, in_channels, max_channels=None):

@@ -1,1 +1,1 @@
-from .misc import tensor2im, get_filenames
+from .misc import tensor2im, get_filenames, print_network, print_current_errors

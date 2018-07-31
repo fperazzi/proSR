@@ -1,1 +1,1 @@
-from .base import DataLoader, Dataset
+from .progressive_loader import DataLoader, Dataset

@@ -1,10 +1,8 @@
 # /usr/bin/env python
-from enum import Enum
-
+# from enum import Enum
 from easydict import EasyDict as edict
-
-""" Configuration file."""
-
+import copy
+from enum import Enum
 
 class phase(Enum):
     TRAIN = 'train'
@@ -12,60 +10,70 @@ class phase(Enum):
     TEST = 'test'
 
 
-__C = edict()
+""" Configuration file."""
 
-# Public access to configuration settings
-default_params = __C
+######### ProSR #########
+prosr_params = \
+    edict({
+        'phase': phase.TEST,
+        'train': {
+            'epochs': 450*16,  # different to paper
+            'batch_size': 16,
+            'input_size': [48, 36, 24],  # reduce input size for 4x and 8x to save memory
+            'growing_steps': [0.12, 0.25, 0.45, 0.6, 1.00],
+            'lr_schedule_patience': 30,
+            'lr': 0.0001,
+            'l1_loss_weight': 1.0,
+        },
+        'G': {
+            'residual_denseblock': True,  # ProSR_l and ProSRGan uses residual links, ProSR_l doesn't
+            # densenet hyperparameters
+            'num_init_features': 160,
+            'growth_rate': 40,
+            # architecture for each pyramid level
+            # len(level_config) means the number of pyramids (equals the number of scales)
+            # len(level_config(i)) means the number of DCUs in pyramid i
+            # level_config(i)(j) means the number of dense layers in j-th DCU of the i-th pyramid.
+            'level_config': [[8, 8, 8, 8, 8, 8, 8, 8, 8], [8, 8, 8], [8]],
+            # maximum number of features before subpixel upsampling
+            'max_num_feature': 312,
+            'ps_woReLU': False,  # ps without relu
+            'level_compression': -1,  # used between pyramid levels, if <0: compress to same as input
+            'bn_size': 4,
+            'res_factor': 0.2,  # scale residual
+        },
+        'data': {
+            'mean': [0.4488, 0.4371, 0.4040],  # mean value to extract from the (0, 1) image values
+            'stddev': [0.0039215, 0.0039215, 0.0039215],  # multiply the image value by this factor, resulting value range of image [-127.5, 127.5]
+            'max_scale': 8,
+            'scale': [2, 4, 8],
+        },
+    })
+prosrs_params = copy.deepcopy(prosr_params)
+prosrs_params.G.level_config = [[6, 6, 6, 6], [6, 6], [6]]
+prosrs_params.G.num_init_features = 24
+prosrs_params.G.growth_rate = 12
+prosrs_params.G.block_compression = 0.4
+prosrs_params.G.level_compression = 0.5
+prosrs_params.G.max_num_features = 120
+prosrs_params.G.residual_denseblock = False
 
-__C.train = edict()
-__C.test = edict()
-__C.eval = edict()
-
-__C.G = edict()
-__C.D = edict()
-__C.R = edict()
-
-__C.phase = phase.TEST
-__C.data = edict()
-
-# Network scales
-__C.max_scale = 8
-
-__C.data.mean = [0.4488, 0.4371,
-                 0.4040]  # mean value to extract from the (0, 1) image values
-__C.data.stddev = [
-    0.0039215, 0.0039215, 0.0039215
-]  # multiply the image value by this factor, resulting value range of image [-127.5, 127.5]
-
-# directory to save and load model file during training and test
-__C.data.image_mode = 'RGB'
-__C.data.crop_size = None
-
-__C.G.output_residual = True
-
-# selects model to use for netG
-__C.G.residual_denseblock = True  # ProSR_l and ProSRGan uses residual links
-__C.G.num_img_channels = 3
-
-# densenet hyperparameters
-__C.G.num_init_features = 160
-__C.G.growth_rate = 40
-
-# architecture for each pyramid level
-# len(level_config) means the number of pyramids (equals the number of scales)
-# len(level_config(i)) means the number of DCUs in pyramid i
-# level_config(i)(j) means the number of dense layers in j-th DCU of the i-th pyramid.
-__C.G.level_config = [[8, 8, 8, 8, 8, 8, 8, 8, 8], [8, 8, 8], [8]]
-__C.G.max_num_feature = 312
-__C.G.max_scale = __C.max_scale
-
-# if > 1 use denseblocks recursively
-__C.G.act_type = 'ReLU'  # activation to be used
-__C.G.act_params = dict()
-__C.G.ps_woReLU = False
-__C.G.level_compression = -1  # used between pyramid levels, if <0: compress to same as input
-__C.G.bn_size = 4
-__C.G.res_factor = 0.2  # scale residual
-
-# upsample method for global skip connection with pillow
-__C.G.upsample_method = 'BICUBIC'
+prosrgan_params = copy.deepcopy(prosr_params)
+prosrgan_params.D = edict({
+    'which_epoch': 'latest',
+    'which_model_netD': 'srgan',
+    'input_residual': True,
+    'scale_overhead': True,
+    'warmup_epochs': 0,
+    'update_freq': 2,
+    'use_lsgan': True,
+    'ndf': 64,
+    'act_type': 'LRELU',
+    'act_params': {'negative_slope': 0.2},
+    })
+prosrgan_params.train.D_lr = 0.0001
+prosrgan_params.train.vgg_loss_weight = [0.5, 2]
+prosrgan_params.train.gan_loss_weight = 1
+prosrgan_params.train.l1_loss_weight = 0
+prosrgan_params.G.vgg = [2, 4]
+prosrgan_params.G.vgg_mean_pool = True

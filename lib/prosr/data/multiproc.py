@@ -9,10 +9,12 @@ import torch
 import torch.multiprocessing as multiprocessing
 from torch.utils.data.sampler import (RandomSampler, SequentialSampler)
 
+"""
+A hacky way to schedule different scales with dataset.get()
+"""
 string_classes = (str, bytes)
 
 _use_shared_memory = False
-"""Whether to use shared memory in default_collate"""
 
 
 class ExceptionWrapper(object):

@@ -100,23 +100,23 @@ class ResidualBlock(nn.Module):
         if self.block_type == block_type.BRCBRC:
             self.m = nn.Sequential(
                 nn.BatchNorm2d(planes),
-                get_activation(act_type, act_params),
+                nn.ReLU(inplace=True),
                 Conv2d(planes, planes, 3),
                 nn.BatchNorm2d(planes),
-                get_activation(act_type, act_params),
+                nn.ReLU(inplace=True),
                 Conv2d(planes, planes, 3),
             )
         elif self.block_type == block_type.CRC:
             self.m = nn.Sequential(
                 Conv2d(planes, planes, 3),
-                get_activation(act_type, act_params),
+                nn.ReLU(inplace=True),
                 Conv2d(planes, planes, 3),
             )
         elif self.block_type == block_type.CBRCB:
             self.m = nn.Sequential(
                 Conv2d(planes, planes, 3),
                 nn.BatchNorm2d(planes),
-                get_activation(act_type, act_params),
+                nn.ReLU(inplace=True),
                 Conv2d(planes, planes, 3),
                 nn.BatchNorm2d(planes),
             )
@@ -124,28 +124,9 @@ class ResidualBlock(nn.Module):
     def forward(self, x):
         return self.res_factor * self.m(x) + x
 
-
-def get_activation(act_type, activation_params=dict()):
-    act_type = act_type.upper()
-    if act_type == 'RELU':
-        return nn.ReLU(inplace=True)
-    elif act_type == 'ELU':
-        return nn.ELU(inplace=True, **activation_params)
-    elif act_type == 'LRELU' or act_type == 'LEAKYRELU':
-        return nn.LeakyReLU(inplace=True, **activation_params)
-    elif act_type == 'SELU':
-        return nn.SELU(inplace=True)
-    else:
-        raise NotImplementedError(
-            '{} is not implemented, available activations are: {}'.format(
-                act_type,
-                ', '.join(['ReLU', 'ELU', 'SELU', 'LeakyReLU (LReLU)'])))
-
-
 class _DenseLayer(nn.Sequential):
 
-    def __init__(self, num_input_features, growth_rate, bn_size, activation,
-                 activation_params):
+    def __init__(self, num_input_features, growth_rate, bn_size):
         super(_DenseLayer, self).__init__()
         num_output_features = bn_size * growth_rate
 
@@ -158,11 +139,8 @@ class _DenseLayer(nn.Sequential):
                 stride=1,
                 bias=True)),
 
-        self.add_module('relu_2', get_activation(activation,
-                                                 activation_params)),
-        self.add_module(
-            'conv_2',
-            Conv2d(num_output_features, growth_rate, 3, stride=1, bias=True)),
+        self.add_module('relu_2', nn.ReLU(inplace=True)),
+        self.add_module('conv_2', Conv2d(num_output_features, growth_rate, 3, stride=1, bias=True)),
 
     def forward(self, x):
         new_features = super(_DenseLayer, self).forward(x)
@@ -175,14 +153,11 @@ class _DenseBlock(nn.Sequential):
                  num_layers,
                  num_input_features,
                  bn_size,
-                 growth_rate,
-                 activation='ReLU',
-                 activation_params=dict()):
+                 growth_rate):
         super(_DenseBlock, self).__init__()
         for i in range(num_layers):
             layer = _DenseLayer(num_input_features + i * growth_rate,
-                                growth_rate, bn_size, activation,
-                                activation_params)
+                                growth_rate, bn_size)
             self.add_module('denselayer%d' % (i + 1), layer)
 
 
@@ -203,8 +178,7 @@ class DenseResidualBlock(nn.Sequential):
     def forward(self, x, identity_x=None):
         if identity_x is None:
             identity_x = x
-        return self.res_factor * super(DenseResidualBlock,
-                                       self).forward(x) + identity_x
+        return self.res_factor * super(DenseResidualBlock, self).forward(x) + identity_x
 
 
 class CompressionBlock(nn.Sequential):
