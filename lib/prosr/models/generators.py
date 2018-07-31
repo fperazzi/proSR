@@ -97,13 +97,13 @@ class ProSR(nn.Module):
             self.add_module('reconst_%d' % (i + 1),
                             nn.Sequential(reconst_branch))
 
-            init_weights(self)
+        init_weights(self)
 
     def get_init_conv(self, idx):
         """choose which init_conv based on curr_scale_idx (1-based)"""
         return getattr(self, 'init_conv_%d' % idx)
 
-    def forward(self, x, upscale_factor=None, base_img=None, blend=1.0):
+    def forward(self, x, upscale_factor=None, blend=1.0):
         if upscale_factor is None:
             upscale_factor = self.max_scale
         else:
@@ -122,7 +122,7 @@ class ProSR(nn.Module):
             feats = getattr(
                 self, 'pyramid_residual_%d_residual_upsampler' % s)(feats)
 
-            # reconst residual image if intermediate output is required / reached desired scale /
+            # reconst residual image if reached desired scale /
             # use intermediate as base_img / use blend and s is one step lower than desired scale
             if 2**s == upscale_factor or (blend != 1.0 and 2**(s + 1)==upscale_factor):
                 tmp = getattr(self, 'reconst_%d' % s)(feats)

@@ -86,11 +86,11 @@ def main(opt):
 
         if (epoch+1) % 10 == 0:
             print('saving the model at the end of epoch %d, iters %d' %
-                (epoch, total_steps))
-            trainer.save(str(epoch))
+                (epoch+1, total_steps))
+            trainer.save(str(epoch+1))
 
-        print('End of epoch %d / %d \t Time Taken: %d sec' %
-            (epoch, opt.train.epochs, time() - epoch_start_time))
+        errors = trainer.get_current_errors()
+        print_current_errors(epoch, total_steps, errors, time() - epoch_start_time, log_name=log_file)
 
         ################# evaluation with validation set ##############
         if (epoch+1) % opt.train.batch_size == 0:
@@ -102,9 +102,6 @@ def main(opt):
                 for i, data in enumerate(testing_data_loader):
                     trainer.set_input(**data)
                     trainer.evaluate()
-                    # import skimage.io as io
-                    # from prosr.utils import tensor2im
-                    # io.imsave(osp.join(checkpoint_dir, osp.basename(data['input_fn'][0])), tensor2im(trainer.output, opt.data.mean, opt.data.stddev))
 
                 t = time() - eval_start_time
                 eval_result = trainer.get_current_eval_result()
@@ -121,7 +118,6 @@ def main(opt):
                         best_key = [k for k in trainer.best_eval if trainer.best_eval[k] == eval_result[k]]
                     else:
                         best_key = list(trainer.best_eval.keys())
-                    print('saving best model')
                     trainer.save('best_'+'_'.join(best_key))
 
                 trainer.set_train()

@@ -34,6 +34,7 @@ class CurriculumLearningTrainer(object):
         self.net_G = ProSR(**opt.G).cuda()
 
         # ######## Multi GPU #######
+        # TODO: doesn't work for ProSRs
         # if torch.cuda.device_count() > 1:
         #     self.net_G = torch.nn.DataParallel(self.net_G)
 
@@ -106,7 +107,7 @@ class CurriculumLearningTrainer(object):
     def evaluate(self):
         if isinstance(self.net_G, torch.nn.DataParallel):
             # TODO: fix this silly way to pass 1 instance to multiple gpu (self.net_G.module.forward wouldn't work)
-            self.output = self.net_G(torch.cat((self.input, self.input)), upscale_factor=self.model_scale, blend=self.blend)[0]+self.interpolated
+            self.output = self.net_G(torch.cat((self.input, self.input)), upscale_factor=self.model_scale, blend=self.blend)[:1]+self.interpolated
         else:
             self.output = self.net_G(self.input, upscale_factor=self.model_scale, blend=self.blend)+self.interpolated
 

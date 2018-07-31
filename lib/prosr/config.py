@@ -26,6 +26,7 @@ prosr_params = \
             'l1_loss_weight': 1.0,
         },
         'G': {
+            'max_scale': 8,
             'residual_denseblock': True,  # ProSR_l and ProSRGan uses residual links, ProSR_l doesn't
             # densenet hyperparameters
             'num_init_features': 160,
@@ -50,13 +51,14 @@ prosr_params = \
         },
     })
 prosrs_params = copy.deepcopy(prosr_params)
+prosrs_params.train.batch_size = 32
 prosrs_params.G.level_config = [[6, 6, 6, 6], [6, 6], [6]]
 prosrs_params.G.num_init_features = 24
 prosrs_params.G.growth_rate = 12
 prosrs_params.G.block_compression = 0.4
 prosrs_params.G.level_compression = 0.5
-prosrs_params.G.max_num_features = 120
 prosrs_params.G.residual_denseblock = False
+prosrs_params.G.res_factor = 1.0
 
 prosrgan_params = copy.deepcopy(prosr_params)
 prosrgan_params.D = edict({
