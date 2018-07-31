@@ -38,8 +38,8 @@ def eval_psnr_and_ssim(im1, im2):
         im1_t = mod_crop(im1_t, args.scale)
         im2_t = mod_crop(im2_t, args.scale)
 
-        im1_t = crop_boundaries(im1_t, int(args.scale))
-        im2_t = crop_boundaries(im2_t, int(args.scale))
+        im1_t = crop_boundaries(im1_t, int(args.scale)+6)
+        im2_t = crop_boundaries(im2_t, int(args.scale)+6)
 
     psnr_val = compare_psnr(im1_t, im2_t)
     ssim_val = compare_ssim(

@@ -20,8 +20,8 @@ def print_evaluation(filename, psnr, ssim):
 def parse_args():
     parser = ArgumentParser(description='ProSR')
     parser.add_argument('-c', '--checkpoint', type=str, required=True, help='Checkpoint')
-    parser.add_argument('-i', '--input', help='Input images, either list or path to folder', type=str, nargs='+',required=True)
-    parser.add_argument('-t','--target', help='Target images, either list or path to folder', type=str,nargs='+',required=False,default=[])
+    parser.add_argument('-i', '--input', help='Input images, either list or path to folder', type=str, nargs='*',required=False,default=[])
+    parser.add_argument('-t','--target', help='Target images, either list or path to folder', type=str,nargs='*',required=False,default=[])
     parser.add_argument('-u','--upscale-factor',help='upscale ratio e.g. 2, 4 or 8', type=int,required=True)
     parser.add_argument('-f', '--fmt', help='Image file format', type=str, default='*')
     parser.add_argument('-o', '--output-dir', help='Output folder.', type=str, default='./')
