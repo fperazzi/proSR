@@ -210,8 +210,7 @@ class CurriculumLearningTrainer(object):
 
     def load_network(self, network, network_label, epoch_label):
         network = network.module if isinstance(network, torch.nn.DataParallel) else network
-        save_filename = '%s_net_%s.pth' % (epoch_label, network_label)
-        save_path = os.path.join(self.save_dir, save_filename)
+        save_path = '%s_net_%s.pth' % (epoch_label, network_label)
         loaded_state = torch.load(save_path)['state_dict']
         loaded_param_names = set(loaded_state.keys())
 
@@ -236,8 +235,7 @@ class CurriculumLearningTrainer(object):
         torch.save(optimizer.state_dict(), save_path)
 
     def load_optimizer(self, optimizer, label, epoch_label):
-        save_filename = '%s_optim_%s.pth' % (epoch_label, label)
-        save_path = os.path.join(self.save_dir, save_filename)
+        save_path = '%s_optim_%s.pth' % (epoch_label, label)
         loaded_state = torch.load(save_path)
         optimizer.load_state_dict(loaded_state)
         info('Loaded optimizer state from ' + save_path)

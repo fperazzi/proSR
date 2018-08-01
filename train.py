@@ -29,7 +29,7 @@ def parse_args():
     parser.add_argument('--name',        type=str, help='name of this training experiment', default=strftime("%Y-%m-%d-%H:%M:%S", localtime()))
     parser.add_argument('--upscale-factor', type=int, help='upscale factor', default=[2, 4, 8], nargs='+')
     parser.add_argument('--start-epoch', type=int, help='start from epoch x', default=0)
-    parser.add_argument('--resume',      type=str, help='checkpoint to resume from')
+    parser.add_argument('--resume',      type=str, help='checkpoint to resume from. E.g. --resume \'best_psnr_x4\' for best_psnr_x4_net_G.pth ')
     parser.add_argument('--eval-dataset', type=str, help='dataset for evaluation', default='Set14')
     parser.add_argument('-v', '--visdom', type=bool, help='use visdom to visualize', default=True)
     parser.add_argument('-p', '--visdom-port', type=int, help='port used by visdom', default=8067)
@@ -64,7 +64,7 @@ def main(opt):
 
     ############# set up trainer ######################
     trainer = CurriculumLearningTrainer(opt, training_data_loader,
-        start_epoch=args.start_epoch, save_dir=osp.join('data', 'checkpoints', opt.experiment_id), resume_from=None)
+        start_epoch=args.start_epoch, save_dir=osp.join('data', 'checkpoints', opt.experiment_id), resume_from=args.resume)
     trainer.set_train()
 
     log_file = os.path.join('data/checkpoints', params.experiment_id, 'loss_log.txt')
