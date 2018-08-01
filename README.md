@@ -128,7 +128,43 @@ MsLapSRN | 33.28 | 32.05 | 31.15 | 35.62 | 28.26 | 27.43 | 25.51 | 30.39 | 24.57
 
 
 ## Training
-TODO
+Prepare data following the [previous instruction](#Get the Data).
+
+```
+(Optionally start visdom in a terminal;)
+python -m visdom.server -port 8067
+(In a new terminal)
+python train.py -m MODEL --visdom true --visdom-port 8067
+```
+`MODEL` is one of `prosr`, `prosrs` and `prosrgan` (TODO).
+
+Model configurations is loaded from `prosr/configs.py`. Checkpoints and log files are stored under `data/checkpoints/NAME`
+
+By default, all available GPUs are used. To use specific GPUs use `VISIBLE_CUDA_DEVICES`, e.g. `VISIBLE_CUDA_DEVICES=0,1 python train.py ...`
+
+To resume training from a checkpoint, e.g. `data/checkpoints/pretrained_net_G.pth`, 
+```python train.py -m MODEL --resume data/checkpoints/pretrained```
+
+```
+optional arguments:
+  -h, --help            show this help message and exit
+  -m {prosr,prosrs,prosrgan,edsr}, --model {prosr,prosrs,prosrgan,edsr}
+                        model
+  --name NAME           name of this training experiment
+  --upscale-factor UPSCALE_FACTOR [UPSCALE_FACTOR ...]
+                        upscale factor
+  --start-epoch START_EPOCH
+                        start from epoch x
+  --resume RESUME       checkpoint to resume from. E.g. --resume
+                        'best_psnr_x4' for best_psnr_x4_net_G.pth
+  --eval-dataset EVAL_DATASET
+                        dataset for evaluation
+  -v VISDOM, --visdom VISDOM
+                        use visdom to visualize
+  -p VISDOM_PORT, --visdom-port VISDOM_PORT
+                        port used by visdom
+  --use-html USE_HTML   save log images to html
+```
 
 ### Configuration
 
