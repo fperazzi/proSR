@@ -7,7 +7,6 @@ from ..utils import print_network, tensor2im
 from ..logger import warn, info
 from ..metrics import eval_psnr
 from .generators import ProSR
-from .vgg import Vgg16
 
 
 class CurriculumLearningTrainer(object):
@@ -33,10 +32,10 @@ class CurriculumLearningTrainer(object):
         ######### create generator and optimizer  #########
         self.net_G = ProSR(**opt.G).cuda()
 
-        # ######## Multi GPU #######
+        ######## Multi GPU #######
         # TODO: doesn't work for ProSRs
-        # if torch.cuda.device_count() > 1:
-        #     self.net_G = torch.nn.DataParallel(self.net_G)
+        if torch.cuda.device_count() > 1:
+            self.net_G = torch.nn.DataParallel(self.net_G)
 
         self.optimizer_G = torch.optim.Adam(
             [p for p in self.net_G.parameters() if p.requires_grad],
@@ -148,6 +147,13 @@ class CurriculumLearningTrainer(object):
                 for s in training_scales:
                     self.training_dataset.random_vars.append(s)
                 info('start training with scales: {}'.format(str(training_scales)))
+
+    def get_current_visuals(self):
+        disp = OrderedDict()
+        disp['input'] = self.tensor2im(self.input.detach())
+        disp['output'] = self.tensor2im(self.output.detach())
+        disp['label'] = self.tensor2im(self.label.detach())
+        return disp
 
     def get_current_errors(self):
         d = OrderedDict()

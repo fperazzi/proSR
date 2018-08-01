@@ -32,10 +32,13 @@ conda create -n proSR
 conda install pytorch=0.4.0 torchvision cuda91 -c pytorch
 
 # Install image libraries
-conda install scikit-image pillow cython
+conda install scikit-image cython
+
+# Install visdom
+conda install visdom dominate -c conda-forge
 
 # Install pip and easydict
-pip install easydict
+pip install easydict html
 ```
 
 #### Search Path

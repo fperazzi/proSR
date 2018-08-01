@@ -104,6 +104,11 @@ class DataLoader(multiproc._DataLoader):
 
     def __init__(self, dataset, batch_size, upscale_factor=None):
         self.dataset = dataset
+        # this keeps consistent with experiments in the paper
+        if self.dataset.phase == Phase.TRAIN:
+            self.dataset.target_fns = self.dataset.target_fns*batch_size
+            self.dataset.source_fns = self.dataset.source_fns*batch_size
+
         self.phase = dataset.phase
         super(DataLoader, self).__init__(self.dataset,
                 batch_size=batch_size,
