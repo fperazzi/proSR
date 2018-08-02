@@ -1,7 +1,6 @@
 import random
 from PIL import Image
 from collections import Iterable
-import torch.utils.data as torch_data
 import torchvision.transforms as transforms
 
 from .. import Phase
@@ -33,10 +32,10 @@ class Dataset(object):
             error(
                 "Inconsistent number of images! Found {} source image(s) and {} target image(s).".
                 format(len(source), len(target)))
-        # elif self.phase == Phase.TRAIN:
-        #     assert len(target), "Training requires target files"
-        # else:
-        #     assert len(target) or len(source), "At least one of target and source is not specified."
+        elif self.phase == Phase.TRAIN:
+            assert len(target), "Training requires target files"
+        else:
+            assert len(target) or len(source), "At least one of target and source is not specified."
 
         self.source_fns = source
         self.target_fns = target

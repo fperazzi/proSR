@@ -72,7 +72,7 @@ prosrgan_params.D = edict({
     'ndf': 64,
     'act_type': 'LRELU',
     'act_params': {'negative_slope': 0.2},
-    })
+        })
 prosrgan_params.train.D_lr = 0.0001
 prosrgan_params.train.vgg_loss_weight = [0.5, 2]
 prosrgan_params.train.gan_loss_weight = 1

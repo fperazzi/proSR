@@ -3,25 +3,33 @@ import numpy as np
 import os.path as osp
 from argparse import ArgumentParser
 from pprint import pprint
+import sys
 
 import skimage.io as io
+import torch
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(osp.join(BASE_DIR, 'lib'))
 
 import prosr
-import torch
 from prosr import Phase
 from prosr.data import DataLoader, Dataset
-from prosr.logger import info, error
+from prosr.logger import info
 from prosr.metrics import eval_psnr_and_ssim
 from prosr.utils import get_filenames, tensor2im
 
-def print_evaluation(filename, psnr, ssim,iid,n_images):
-    print('[{:03d}/{:03d}] {} | psnr: {:.2f} | ssim: {:.2f}'.format(iid,n_images,filename, psnr, ssim))
+def print_evaluation(filename, psnr, ssim, iid=None, n_images=None):
+    if iid and n_images:
+        print('[{:03d}/{:03d}] {:10s} | psnr: {:.2f} | ssim: {:.2f}'.format(iid,n_images, osp.splitext(filename)[0], psnr, ssim))
+    else:
+        print('[{:7s}]            | psnr: {:.2f} | ssim: {:.2f}'.format(filename, psnr, ssim))
 
 
 def parse_args():
     parser = ArgumentParser(description='ProSR')
     parser.add_argument('-c', '--checkpoint', type=str, required=True, help='Checkpoint')
-    parser.add_argument('-i', '--input', help='Input images, either list or path to folder', type=str, nargs='*',required=False,default=[])
+    parser.add_argument('-i', '--input', help='Input images, either list or path to folder. If not given, use bicubically downsampled target image as input',
+        type=str, nargs='*',required=False,default=[])
     parser.add_argument('-t','--target', help='Target images, either list or path to folder', type=str,nargs='*',required=False,default=[])
     parser.add_argument('-u','--upscale-factor',help='upscale ratio e.g. 2, 4 or 8', type=int,required=True)
     parser.add_argument('-f', '--fmt', help='Image file format', type=str, default='*')
@@ -32,8 +40,8 @@ def parse_args():
     args.input = get_filenames(args.input, args.fmt)
     args.target = get_filenames(args.target, args.fmt)
 
-    if not len(args.input):
-        error("Did not find images in: {}".format(args.input))
+    # if not len(args.input):
+    #     error("Did not find images in: {}".format(args.input))
 
     return args
 
@@ -58,10 +66,8 @@ if __name__ == '__main__':
         model = model.cuda()
 
     # TODO Change
-    dataset = Dataset(Phase.TEST, args.input, args.target, args.upscale_factor, crop_size=None,
-                      **checkpoint['params']['data'])
-
-
+    checkpoint['params']['data']['crop_size'] = None
+    dataset = Dataset(Phase.TEST, args.input, args.target, args.upscale_factor, **checkpoint['params']['data'])
 
     data_loader = DataLoader(dataset, batch_size=1)
 
