@@ -1,4 +1,5 @@
 import os
+import numpy as np
 import os.path as osp
 from argparse import ArgumentParser
 from pprint import pprint
@@ -9,12 +10,12 @@ import prosr
 import torch
 from prosr import Phase
 from prosr.data import DataLoader, Dataset
-from prosr.logger import info
+from prosr.logger import info, error
 from prosr.metrics import eval_psnr_and_ssim
 from prosr.utils import get_filenames, tensor2im
 
-def print_evaluation(filename, psnr, ssim):
-    print('{} | psnr: {:.2f} | ssim: {:.2f}'.format(filename, psnr, ssim))
+def print_evaluation(filename, psnr, ssim,iid,n_images):
+    print('[{:03d}/{:03d}] {} | psnr: {:.2f} | ssim: {:.2f}'.format(iid,n_images,filename, psnr, ssim))
 
 
 def parse_args():
@@ -30,6 +31,9 @@ def parse_args():
 
     args.input = get_filenames(args.input, args.fmt)
     args.target = get_filenames(args.target, args.fmt)
+
+    if not len(args.input):
+        error("Did not find images in: {}".format(args.input))
 
     return args
 
@@ -57,6 +61,8 @@ if __name__ == '__main__':
     dataset = Dataset(Phase.TEST, args.input, args.target, args.upscale_factor, crop_size=None,
                       **checkpoint['params']['data'])
 
+
+
     data_loader = DataLoader(dataset, batch_size=1)
 
     mean = checkpoint['params']['data']['mean']
@@ -70,17 +76,19 @@ if __name__ == '__main__':
             psnr_mean = 0
             ssim_mean = 0
 
-        for data in data_loader:
+        for iid,data in enumerate(data_loader):
             output = model(data['input'].cuda(), args.upscale_factor).cpu() + data['bicubic']
             sr_img = tensor2im(output, mean, stddev)
             if 'target' in data:
                 hr_img = tensor2im(data['target'], mean, stddev)
                 psnr_val, ssim_val = eval_psnr_and_ssim(sr_img, hr_img, args.upscale_factor)
                 print_evaluation(
-                    osp.basename(data['input_fn'][0]), psnr_val, ssim_val)
+                    osp.basename(data['input_fn'][0]), psnr_val, ssim_val,iid,len(dataset))
                 psnr_mean += psnr_val
                 ssim_mean += ssim_val
-
+            else:
+                print_evaluation(
+                    osp.basename(data['input_fn'][0]),np.nan,np.nan,iid,len(dataset))
             io.imsave(
                 osp.join(args.output_dir, osp.basename(data['input_fn'][0])),
                 sr_img)

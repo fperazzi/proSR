@@ -52,13 +52,13 @@ In `PROJECT_ROOT/data` we provide a script `get_data.sh` to download ProSR pretr
 We provide the following pretrained models:
 
 * [ProSR](https://www.dropbox.com/s/hlgunvtmkvylc4h/proSR.pth?dl=0) - This is the full size model that ranked 2nd and 4th place respectively in terms of PSNR and SSIM on the "Track 1" of the [NTIRE Super-Resolution Challenge 2018](https://competitions.codalab.org/competitions/18015).
-* [ProSRs]() - A lightweight version of ProSR. Best speed / accuracy tradeoff.
+* [ProSRs](https://www.dropbox.com/s/deww1i4liva717z/proSRs.pth?dl=0) - A lightweight version of ProSR. Best speed / accuracy tradeoff.
 * [ProSRGAN]() - ProSR trained with an adversarial loss. Lower PSNR but higher details.
 
 ![](docs/figures/prosr-arch.jpg)
 
 ### Datasets
-We trained our models on [DIV2K](...) ([7.1GB](https://cv.snu.ac.kr/research/EDSR/DIV2K.tar)) 
+We trained our models on [DIV2K](https://data.vision.ee.ethz.ch/cvl/DIV2K) ([7.1GB](https://data.vision.ee.ethz.ch/cvl/DIV2K/))
 <!-- and [Flickr2K]() ([21GB](http://cv.snu.ac.kr/research/EDSR/Flickr2K.tar)). -->
 
 Additionally, we evaluated the performance of ProSR on the following benchmark datasets:
@@ -68,29 +68,17 @@ Additionally, we evaluated the performance of ProSR on the following benchmark d
 * [B100 - Martin et al. ICCV 2001](https://www2.eecs.berkeley.edu/Research/Projects/CS/vision/bsds/)
 * [Urban100 - Huang et al. CVPR 2015](https://sites.google.com/site/jbhuang0604/publications/struct_sr)
 
-See section [Quickstart](#user-content-quickstart) to evaluate ProSR on one of these benchmarks.
+See the next section to evaluate ProSR on one of these benchmarks.
 
-## Quickstart
-Execute the following commands to upsample an entire dataset (e.g. DIV2K) by x8.
-```
-python test.py --checkpoint data/checkpoints/proSR.pth -i data/datasets/DIV2K/DIV2K_valid_LR_bicubic/X8 \
-  --upscale-factor 8 --output-dir data/outputs/DIV2K_valid_SR_bicubic/X8
-```
-
-(TODO)other useful command lines:
-```
-# Upsample image by 8 times and save result in 'data/outputs/proSR'
-python test.py --checkpoint data/checkpoints/proSR.pth -i data/examples/0801x8.png -o data/outputs/proSR
-
-# Upsample images in folder by factor of 4, evaluate
-# results (SSIM and PSNR) and save results in /tmp/prosr
-
-python test.py --checkpoint data/checkpoints/proSR.pth \
-  -i data/examples -t data/examples/0801 -u 4 -o /tmp/prosr_examples
-```
 
 ## Testing
-Run `test.py`
+Execute the following commands to upsample an entire folder by x8 and evaluate the results
+```
+python test.py --checkpoint data/checkpoints/proSR.pth --input data/datasets/DIV2K/DIV2K_valid_LR_bicubic/X8 \
+  --target data/datasets/DIV2K/DIV2K_valid_HR --upscale-factor 8 --output-dir data/outputs/DIV2K_valid_SR_bicubic/X8
+```
+
+See `test.py`
 
 ```
 usage: test.py [-h] -c CHECKPOINT -i INPUT [INPUT ...]
@@ -116,6 +104,7 @@ optional arguments:
 
 By default, the output images will be saved in `/tmp/<class_name>` where `<class_name>` is the name of the architecture defined in the `checkpoints['params'][class_name]`.
 
+
 ## Results
 Following wide-spread protocol, the quantitative results are obtained converting RGB images to YCbCr and evaluating the PSNR and SSIM on the Y channel only. Refer to `eval.py` for further details about the evaluation.
 
@@ -123,7 +112,7 @@ Following wide-spread protocol, the quantitative results are obtained converting
 |---------|---------|---------|---------|---------|---------|---------|---------|---------|---------|---------|---------|---------|
 MsLapSRN | 33.28 | 32.05 | 31.15 | 35.62 | 28.26 | 27.43 | 25.51 | 30.39 | 24.57 | 24.65 | 22.06 | 26.52 |
 | EDSR   | 33.92 | 32.32 | 32.93 | 36.47 | 28.80 | 27.71 | 26.64 | 30.71 | 24.96 | 24.83 | 22.53 | 26.96 |
-[ProSRs]() | 33.36 | 32.02 | 31.42 | 35.80 | 28.59 | 27.58 | 26.01 | 30.39 | 24.93 | 24.80 | 22.43 | 26.88 |
+[ProSRs](https://www.dropbox.com/s/deww1i4liva717z/proSRs.pth?dl=0) | 33.36 | 32.02 | 31.42 | 35.80 | 28.59 | 27.58 | 26.01 | 30.39 | 24.93 | 24.80 | 22.43 | 26.88 |
 [ProSR](https://www.dropbox.com/s/hlgunvtmkvylc4h/proSR.pth?dl=0) | 34.00 | 32.34 | 32.91 | 36.44 | 28.94 | 27.79 | 26.89 | 30.81 | 25.29 | 24.99 | 23.04 | 27.36 |
 
 
@@ -136,13 +125,13 @@ python -m visdom.server -port 8067
 (In a new terminal)
 python train.py -m MODEL --visdom true --visdom-port 8067
 ```
-`MODEL` is one of `prosr`, `prosrs` and `prosrgan` (TODO).
+`MODEL` is one of `proSR`, `proSRs` and `proSRgan` (TODO).
 
 Model configurations is loaded from `prosr/configs.py`. Checkpoints and log files are stored under `data/checkpoints/NAME`
 
 By default, all available GPUs are used. To use specific GPUs use `VISIBLE_CUDA_DEVICES`, e.g. `VISIBLE_CUDA_DEVICES=0,1 python train.py ...`
 
-To resume training from a checkpoint, e.g. `data/checkpoints/pretrained_net_G.pth`, 
+To resume training from a checkpoint, e.g. `data/checkpoints/pretrained_net_G.pth`,
 ```python train.py -m MODEL --resume data/checkpoints/pretrained```
 
 ```

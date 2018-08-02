@@ -1,23 +1,20 @@
 #! /bin/bash
 
 DATADIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-mkdir -p $DATADIR/{datasets,checkpoints}
+mkdir -p $DATADIR/datasets $DATADIR/checkpoints
 
 ##################################
 # Pretrained Models
 ##################################
 
-# EDSR
-wget https://www.dropbox.com/s/hj1rcew430l6cbf/EDSR.pth?dl=0 -O $DATADIR/checkpoints/EDSR.pth
-
 # ProSR
 wget https://www.dropbox.com/s/hlgunvtmkvylc4h/proSR.pth?dl=0 -O $DATADIR/checkpoints/proSR.pth
 
-##################################
-# Datasets
-##################################
+###################################
+## Datasets
+###################################
 
-# DIV2K
+## DIV2K
 mkdir -p $DATADIR/datasets/DIV2K
 wget http://data.vision.ee.ethz.ch/cvl/DIV2K/DIV2K_train_HR.zip -P /tmp
 wget http://data.vision.ee.ethz.ch/cvl/DIV2K/DIV2K_valid_HR.zip -P /tmp
@@ -47,7 +44,7 @@ rm /tmp/DIV2K_valid_LR_bicubic_X2.zip
 
 
 # Flickr2K
-# wget http://cv.snu.ac.kr/research/EDSR/Flickr2K.tar -P /tmp
-# tar -xvf /tmp/Flickr2K.tar -C $DATADIR/datasets/
-# rm -rf /tmp/Flickr2K.tar
+wget http://cv.snu.ac.kr/research/EDSR/Flickr2K.tar -P /tmp
+tar -xvf /tmp/Flickr2K.tar -C $DATADIR/datasets/
+rm -rf /tmp/Flickr2K.tar
 
