@@ -140,6 +140,7 @@ optional arguments:
                         scale ratio e.g. 2, 4 or 8
 
 ```
+
 ### Evaluation
 Results can be evaluated in terms of PSNR and SSIM using the script `tools/eval.py`:
 ```
@@ -177,7 +178,7 @@ python train.py -m MODEL --visdom true --visdom-port 8067
 ```
 `MODEL` is one of `proSR`, `proSRs` and `proSRgan` (TODO).
 
-Model configurations is loaded from `prosr/configs.py`. Checkpoints and log files are stored under `data/checkpoints/NAME`
+Model configurations is loaded from `prosr/config.py`. Checkpoints and log files are stored under `data/checkpoints/NAME`
 
 By default, all available GPUs are used. To use specific GPUs use `VISIBLE_CUDA_DEVICES`, e.g. `VISIBLE_CUDA_DEVICES=0,1 python train.py ...`
 
