@@ -123,12 +123,14 @@ The models available for download have been trained on images downscaled with a 
 
 ```
 python scale.py -i data/datasets/DIV2K/DIV2K_train_HR/0161.png -o /tmp/0161.png --ratio 8
+```
 
+See `tools/scale.py`
+```
 usage: scale.py [-h] [-i INPUT] [-o OUTPUT] -s RATIO
-
-Downscale
-
+```
 optional arguments:
+```
   -h, --help            show this help message and exit
   -i INPUT, --input INPUT
                         Input image
@@ -142,13 +144,16 @@ optional arguments:
 Results can be evaluated in terms of PSNR and SSIM using the script `tools/eval.py`:
 ```
 python tools/eval.py -sr data/outputs/DIV2K_valid_SR_bicubic/X8 -hr data/datasets/DIV2K/DIV2K_valid_HR -u 8
+```
 
+See `tools/eval.py`:
+
+```
 usage: eval.py [-h] [-hr [HR_INPUT [HR_INPUT ...]]]
                [-sr [SR_INPUT [SR_INPUT ...]]] [-f FMT] -u UPSCALE_FACTOR
-
-Evaluation
-
+```
 optional arguments:
+```
   -h, --help            show this help message and exit
   -hr [HR_INPUT [HR_INPUT ...]], --hr-input [HR_INPUT [HR_INPUT ...]]
                         High-resolution images, either list or path to folder
