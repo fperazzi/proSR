@@ -116,6 +116,16 @@ MsLapSRN | 33.28 | 32.05 | 31.15 | 35.62 | 28.26 | 27.43 | 25.51 | 30.39 | 24.57
 [ProSR](https://www.dropbox.com/s/hlgunvtmkvylc4h/proSR.pth?dl=0) | 34.00 | 32.34 | 32.91 | 36.44 | 28.94 | 27.79 | 26.89 | 30.81 | 25.29 | 24.99 | 23.04 | 27.36 |
 
 
+## Additional Tools
+
+### Downscaling
+The models available for download have been trained on images downscaled with a bicubic filter. To replicate the same type of downsampling we provide a script `bicubic_scale.py`:
+
+```
+python scale.py -i data/datasets/DIV2K/DIV2K_train_HR/0161.png -o /tmp/0161.png --ratio 8
+
+```
+
 ## Training
 Prepare data following the [previous instruction](#Get the Data).
 
