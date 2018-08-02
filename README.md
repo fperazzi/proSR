@@ -235,15 +235,3 @@ A Fully Progressive Approach to Single-Image Super-Resolution - <i>[Y. Wang](htt
 
 ### Contacts
 If you have any question, please contact [Yifan Wang](yifan.wang@inf.ethz.ch) and [Federico Perazzi](fperazzi@adobe.com).
-
-### License
-Figure out something
-
-## Todolist
- [ ] Finish README
- [ ] Remove scikit-image dependency?
- [ ] Restructure parameters and merge in test/train from commandline
- [ ] Add training
- [ ] Refactoring printing/logging
-
-
