@@ -16,7 +16,7 @@ def downscale_by_ratio(img, ratio, method=Image.BICUBIC, magic_crop=False):
 
 
 def parse_args():
-    parser = ArgumentParser(description='ProSR')
+    parser = ArgumentParser(description='Downscale')
     parser.add_argument('-i', '--input', help='Input image')
     parser.add_argument('-o', '--output', help='Output imag.')
 

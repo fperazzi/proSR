@@ -119,12 +119,47 @@ MsLapSRN | 33.28 | 32.05 | 31.15 | 35.62 | 28.26 | 27.43 | 25.51 | 30.39 | 24.57
 ## Additional Tools
 
 ### Downscaling
-The models available for download have been trained on images downscaled with a bicubic filter. To replicate the same type of downsampling we provide a script `bicubic_scale.py`:
+The models available for download have been trained on images downscaled with a bicubic filter. To replicate the same type of downsampling we provide the script `tools/scale.py`:
 
 ```
 python scale.py -i data/datasets/DIV2K/DIV2K_train_HR/0161.png -o /tmp/0161.png --ratio 8
 
+usage: scale.py [-h] [-i INPUT] [-o OUTPUT] -s RATIO
+
+Downscale
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -i INPUT, --input INPUT
+                        Input image
+  -o OUTPUT, --output OUTPUT
+                        Output imag.
+  -s RATIO, --ratio RATIO
+                        scale ratio e.g. 2, 4 or 8
+
 ```
+### Evaluation
+Results can be evaluated in terms of PSNR and SSIM using the script `tools/eval.py`:
+```
+python tools/eval.py -sr data/outputs/DIV2K_valid_SR_bicubic/X8 -hr data/datasets/DIV2K/DIV2K_valid_HR -u 8
+
+usage: eval.py [-h] [-hr [HR_INPUT [HR_INPUT ...]]]
+               [-sr [SR_INPUT [SR_INPUT ...]]] [-f FMT] -u UPSCALE_FACTOR
+
+Evaluation
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -hr [HR_INPUT [HR_INPUT ...]], --hr-input [HR_INPUT [HR_INPUT ...]]
+                        High-resolution images, either list or path to folder
+  -sr [SR_INPUT [SR_INPUT ...]], --sr-input [SR_INPUT [SR_INPUT ...]]
+                        Super-resolution images, either list or path to folder
+  -f FMT, --fmt FMT     Image file format
+  -u UPSCALE_FACTOR, --upscale-factor UPSCALE_FACTOR
+                        upscale ratio e.g. 2, 4 or 8
+
+```
+
 
 ## Training
 Prepare data following the [previous instruction](#Get the Data).

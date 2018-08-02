@@ -83,7 +83,7 @@ if __name__ == '__main__':
                 hr_img = tensor2im(data['target'], mean, stddev)
                 psnr_val, ssim_val = eval_psnr_and_ssim(sr_img, hr_img, args.upscale_factor)
                 print_evaluation(
-                    osp.basename(data['input_fn'][0]), psnr_val, ssim_val,iid,len(dataset))
+                    osp.basename(data['input_fn'][0]), psnr_val, ssim_val,iid+1,len(dataset))
                 psnr_mean += psnr_val
                 ssim_mean += ssim_val
             else:
