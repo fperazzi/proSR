@@ -1,6 +1,7 @@
 import os
 import os.path as osp
 from argparse import ArgumentParser
+import yaml
 from pprint import pprint
 from time import localtime, strftime, time
 import sys
@@ -18,7 +19,7 @@ import prosr
 from prosr.data import DataLoader, Dataset
 from prosr.logger import info
 from prosr.models.trainer import CurriculumLearningTrainer
-from prosr.utils import get_filenames, print_current_errors,IMG_EXTENSIONS
+from prosr.utils import get_filenames, print_current_errors, IMG_EXTENSIONS
 
 CHECKPOINT_DIR = 'data/checkpoints'
 
@@ -30,13 +31,20 @@ def print_evaluation(filename, psnr, ssim):
 def parse_args():
     parser = ArgumentParser(description='training script for ProSR')
 
-    parser.add_argument(
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument(
         '-m',
         '--model',
         type=str,
         help='model',
-        choices=['prosr', 'prosrs', 'prosrgan', 'edsr'],
-        default='prosr')
+        choices=['prosr', 'prosrs', 'prosrgan'])
+
+    group.add_argument(
+        '-c',
+        '--config',
+        type=str,
+        help="Configuration file in 'yaml' format.")
+
     parser.add_argument(
         '--name',
         type=str,
@@ -88,7 +96,6 @@ def set_seed():
 def main(args):
     set_seed()
 
-
     ############### training loader and eval loader #################
     train_files = get_filenames(
         args.train.dataset.path, image_format=IMG_EXTENSIONS)
@@ -109,8 +116,11 @@ def main(args):
 
     testing_dataset = torch.utils.data.ConcatDataset([
         Dataset(
-            prosr.Phase.VAL, [], eval_files, s, crop_size=None, **args.eval.dataset)
-        for s in args.cmd.upscale_factor
+            prosr.Phase.VAL, [],
+            eval_files,
+            s,
+            crop_size=None,
+            **args.eval.dataset) for s in args.cmd.upscale_factor
     ])
     testing_data_loader = torch.utils.data.DataLoader(testing_dataset)
     info('#validation images = %d' % len(testing_data_loader))
@@ -205,22 +215,32 @@ def main(args):
             visualizer.plot(lrs, epoch, 3)
             visualizer.plot(eval_result, epoch, 2)
 
-def dictify(dct,intype,otype):
+
+def dictify(dct, intype, otype):
     dct = otype(dct)
     for k, v in dct.items():
         if isinstance(v, intype):
-            dct[k] = dictify(v,intype,otype)
+            dct[k] = dictify(v, intype, otype)
     return dct
+
 
 if __name__ == '__main__':
 
     # Parse command-line arguments
     args = parse_args()
 
-    params = edict(getattr(prosr, args.model + '_params'))
-    params.cmd = edict(vars(args))
+    if args.config is not None:
+        with open(args.config) as stream:
+            try:
+                params = edict(yaml.load(stream))
+            except yaml.YAMLError as exc:
+                print(exc)
+                sys.exit(0)
+    else:
+        params = edict(getattr(prosr, args.model + '_params'))
 
-    pprint(params)
+    # Add command line arguments
+    params.cmd = edict(vars(args))
 
     params.cmd.experiment_id = '{}_{}'.format(args.model, args.name)
     checkpoint_dir = osp.join(CHECKPOINT_DIR, params.cmd.experiment_id)

@@ -8,7 +8,7 @@
 **ProSR** is a Single Image Super-Resolution (SISR) method designed upon the principle of multi-scale progressiveness. The architecture resembles an asymmetric pyramidal structure with more layers in the upper levels to enable high upsampling ratios while remaining efficient. The training procedure implements the paradigm of curriculum learning by gradually increasing the difficulty of the task.
 
 ## Installation
-Follow the instructions below to get **ProSR** up and running on your machine, both for development and testing purpose.
+Follow the instructions below to get **ProSR** up and running on your machine, both for development and testing purposes.
 
 ### System Requirements
 **ProSR** is developed under Ubuntu 16.04 with CUDA 9.1, cuDNN v7.0 and pytorch-0.4.0. We tested the program on Nvidia Titan X and Tesla K40c GPUs. Any NVIDIA GPU with ~12GB memory will do. Parallel processing on multiple GPUs is supported during training.
@@ -46,7 +46,7 @@ pip install easydict html
 `export PYTHONPATH=$PROJECT_ROOT/lib:$PYTHONPATH` to include `proSR` into the search path.
 
 ## Getting the Data
-In `PROJECT_ROOT/data` we provide a script `get_data.sh` to download ProSR pretrained models and the datasets that we used in this project. This is a large download of approximately 30GB that might take a while to complete. If you would rather download individual files, continue reading.
+In `PROJECT_ROOT/data` we provide a script `get_data.sh` to download ProSR pretrained models and the datasets that we used in this project. This is a large download of approximately 10GB that might take a while to complete. If you would rather download individual files, continue reading.
 
 ### Pretrained Models
 We provide the following pretrained models:
@@ -67,10 +67,15 @@ Additionally, we evaluated the performance of ProSR on the following benchmark d
 * [B100 - Martin et al. ICCV 2001](https://www2.eecs.berkeley.edu/Research/Projects/CS/vision/bsds/)
 * [Urban100 - Huang et al. CVPR 2015](https://sites.google.com/site/jbhuang0604/publications/struct_sr)
 
-See the next section to evaluate ProSR on one of these benchmarks.
+See the next section to evaluate **ProSR** on one of these benchmarks.
 
 
 ## Testing
+Run:
+```
+python test.py LR_DATA --checkpoint CHECKPOINT --upscale-factor NUMBER
+````
+
 Execute the following commands to upsample an entire folder by x8 and evaluate the results
 ```
 python test.py --checkpoint data/checkpoints/proSR.pth --input data/datasets/DIV2K/DIV2K_valid_LR_bicubic/X8 \
@@ -167,30 +172,37 @@ optional arguments:
 
 
 ## Training
-Download the datasets. You can find instructions above.
+Download the datasets as previously described and execute the command:
 
 ```
-python train.py -m MODEL --visdom true --visdom-port 8067
+python train.py --model MODEL --visdom true
 ```
-`MODEL` is one of `proSR`, `proSRs` and `proSRgan`.
+`MODEL` is one of `prosr`, `prosrs` and `prosrgan`. Model configurations is loaded from `prosr/config.py`. Checkpoints and log files are stored under `data/checkpoints/NAME`
 
-To visualize intermediate results (optional) run the `visdom.server`:
-
+Alternatively, we provide configuration files:
 ```
-python -m visdom.server -port 8067
+python train.py --config CONFIG.yaml
 ```
 
-Model configurations is loaded from `prosr/config.py`. Checkpoints and log files are stored under `data/checkpoints/NAME`
+Configurations files for the architectures proposed in the papers are can be found in `PROJECT_ROOT/options`
+
+To resume training from a checkpoint, e.g. `data/checkpoints/pretrained_net_G.pth`.
 
 By default, all available GPUs are used. To use specific GPUs use `VISIBLE_CUDA_DEVICES`, e.g. `VISIBLE_CUDA_DEVICES=0,1 python train.py ...`
 
-To resume training from a checkpoint, e.g. `data/checkpoints/pretrained_net_G.pth`,
 ```
 python train.py -m MODEL --resume data/checkpoints/pretrained
-
 ```
+
+See `train.py`
+```
+usage: train.py [-h] (-m {prosr,prosrs,prosrgan} | -c CONFIG) [--name NAME]
+                [--upscale-factor UPSCALE_FACTOR [UPSCALE_FACTOR ...]]
+                [--start-epoch START_EPOCH] [--resume RESUME] [-v VISDOM]
+                [-p VISDOM_PORT] [--use-html USE_HTML]
 ```
 optional arguments:
+```
   -h, --help            show this help message and exit
   -m {prosr,prosrs,prosrgan,edsr}, --model {prosr,prosrs,prosrgan,edsr}
                         model
@@ -210,12 +222,20 @@ optional arguments:
   --use-html USE_HTML   save log images to html
 ```
 
-### Configuration
-
-The available options for each of the provided models ProSR, ProSRs and ProSRGAN are available in the folder PROJECT_ROOT/options. Note that the same configuration file is embedded as a dictionary in the respective *.pth. file. You can print the configuration file, as well as the log and evaluation history using the command:
+#### Visualization
+To visualize intermediate results (optional) run the `visdom.server` in a separate terminal (see below) and enable visualization passing the command line arguments: `--visdom True --visdom-port PORT-NUMBER`.
 
 ```
-python print_info.py --config data/checkpoints/proSR.pth
+# Run the server
+python -m visdom.server -port 8067
+```
+
+### Configuration
+
+The available options for each of the provided models ProSR, ProSRs and ProSRGAN are available in the folder `PROJECT_ROOT/options`. Note that the same configuration file is embedded as a dictionary in the respective *.pth. file. You can print the configuration file, as well as the log and evaluation history using the command:
+
+```
+python print_info.py --config data/checkpoints/proSR.pths
 ```
 
 ## Publication

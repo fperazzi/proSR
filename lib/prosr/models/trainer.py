@@ -25,8 +25,8 @@ class CurriculumLearningTrainer(object):
         self.best_eval = OrderedDict([('psnr_x%d' % s, 0.0) for s in opt.data.scale])
         self.eval_dict = OrderedDict([('psnr_x%d' % s, []) for s in opt.data.scale])
 
-        self.tensor2im = lambda t: tensor2im(t, mean=training_dataset.mean,
-                                             stddev=training_dataset.stddev)
+        self.tensor2im = lambda t: tensor2im(t, mean=training_dataset.dataset.mean,
+                                             stddev=training_dataset.dataset.stddev)
 
         opt.G.max_scale = max(opt.data.scale)
 
