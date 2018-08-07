@@ -1,0 +1,50 @@
+D:
+  act_params: {negative_slope: 0.2}
+  act_type: LRELU
+  input_residual: true
+  ndf: 64
+  scale_overhead: true
+  update_freq: 2
+  use_lsgan: true
+  warmup_epochs: 0
+  which_epoch: latest
+  which_model_netD: srgan
+G:
+  bn_size: 4
+  growth_rate: 40
+  level_compression: -1
+  level_config:
+  - [8, 8, 8, 8, 8, 8, 8, 8, 8]
+  - [8, 8, 8]
+  - [8]
+  max_num_feature: 312
+  max_scale: 8
+  num_init_features: 160
+  ps_woReLU: false
+  res_factor: 0.2
+  residual_denseblock: true
+  vgg: [2, 4]
+  vgg_mean_pool: true
+data:
+  max_scale: 8
+  scale: [2, 4, 8]
+eval:
+  dataset:
+    mean: [0.4488, 0.4371, 0.404]
+    path: data/datasets/DIV2K/DIV2K_valid_HR
+    stddev: [0.0039215, 0.0039215, 0.0039215]
+train:
+  D_lr: 0.0001
+  batch_size: 16
+  dataset:
+    mean: [0.4488, 0.4371, 0.404]
+    path: data/datasets/DIV2K/DIV2K_train_HR
+    stddev: [0.0039215, 0.0039215, 0.0039215]
+  epochs: 7200
+  gan_loss_weight: 1
+  growing_steps: [0.12, 0.25, 0.45, 0.6, 1.0]
+  input_size: [48, 36, 24]
+  l1_loss_weight: 0
+  lr: 0.0001
+  lr_schedule_patience: 30
+  vgg_loss_weight: [0.5, 2]

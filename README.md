@@ -75,8 +75,9 @@ Run:
 ```
 python test.py LR_DATA HR_DATA (optional) --checkpoint CHECKPOINT --upscale-factor NUMBER
 ```
-
 `LR_DATA` is the low-resolution input and can be either a folder, an image or a list of images. If high-resolution images are provided (`HR_DATA`), the script will compute the resulting PSNR and SSIM.
+
+`CHECKPOINT` is the path to the pretrained *\*.pth* file.
 
 Execute the following commands to upsample an entire folder by x8 and evaluate the results
 ```

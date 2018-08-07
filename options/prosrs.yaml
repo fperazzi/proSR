@@ -1,0 +1,44 @@
+G:
+  block_compression: 0.4
+  bn_size: 4
+  growth_rate: 12
+  level_compression: 0.5
+  level_config:
+  - [6, 6, 6, 6]
+  - [6, 6]
+  - [6]
+  max_num_feature: 312
+  max_scale: 8
+  num_init_features: 24
+  ps_woReLU: false
+  res_factor: 1.0
+  residual_denseblock: false
+cmd:
+  model: prosrs
+  name: 2018-08-07-13:58:17
+  resume: null
+  start_epoch: 0
+  upscale_factor: [2, 4, 8]
+  use_html: false
+  visdom: false
+  visdom_port: 8067
+data:
+  max_scale: 8
+  scale: [2, 4, 8]
+eval:
+  dataset:
+    mean: [0.4488, 0.4371, 0.404]
+    path: data/datasets/DIV2K/DIV2K_valid_HR
+    stddev: [0.0039215, 0.0039215, 0.0039215]
+train:
+  batch_size: 32
+  dataset:
+    mean: [0.4488, 0.4371, 0.404]
+    path: data/datasets/DIV2K/DIV2K_train_HR
+    stddev: [0.0039215, 0.0039215, 0.0039215]
+  epochs: 7200
+  growing_steps: [0.12, 0.25, 0.45, 0.6, 1.0]
+  input_size: [48, 36, 24]
+  l1_loss_weight: 1.0
+  lr: 0.0001
+  lr_schedule_patience: 30

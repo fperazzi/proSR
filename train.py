@@ -216,11 +216,11 @@ def main(args):
             visualizer.plot(eval_result, epoch, 2)
 
 
-def dictify(dct, intype, otype):
+def change_dict_type(dct, intype, otype):
     dct = otype(dct)
     for k, v in dct.items():
         if isinstance(v, intype):
-            dct[k] = dictify(v, intype, otype)
+            dct[k] = change_dict_type(v, intype, otype)
     return dct
 
 
