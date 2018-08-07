@@ -73,8 +73,10 @@ See the next section to evaluate **ProSR** on one of these benchmarks.
 ## Testing
 Run:
 ```
-python test.py LR_DATA --checkpoint CHECKPOINT --upscale-factor NUMBER
-````
+python test.py LR_DATA HR_DATA (optional) --checkpoint CHECKPOINT --upscale-factor NUMBER
+```
+
+`LR_DATA` is the low-resolution input and can be either a folder, an image or a list of images. If high-resolution images are provided (`HR_DATA`), the script will compute the resulting PSNR and SSIM.
 
 Execute the following commands to upsample an entire folder by x8 and evaluate the results
 ```
