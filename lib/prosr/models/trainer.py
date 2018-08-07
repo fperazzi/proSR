@@ -25,7 +25,8 @@ class CurriculumLearningTrainer(object):
         self.best_eval = OrderedDict([('psnr_x%d' % s, 0.0) for s in opt.data.scale])
         self.eval_dict = OrderedDict([('psnr_x%d' % s, []) for s in opt.data.scale])
 
-        self.tensor2im = lambda t: tensor2im(t, mean=opt.data.mean, stddev=opt.data.stddev)
+        self.tensor2im = lambda t: tensor2im(t, mean=training_dataset.mean,
+                                             stddev=training_dataset.stddev)
 
         opt.G.max_scale = max(opt.data.scale)
 
@@ -57,9 +58,9 @@ class CurriculumLearningTrainer(object):
         ########### define loss functions  ############
         self.l1_criterion = torch.nn.L1Loss()
 
-        print('---------- Networks initialized -------------')
-        print_network(self.net_G)
-        print('-----------------------------------------------')
+        # print('---------- Networks initialized -------------')
+        # print_network(self.net_G)
+        # print('-----------------------------------------------')
 
     def reset_curriculum_for_dataloader(self):
         """ set data loader to load correct scales"""

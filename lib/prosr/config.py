@@ -15,8 +15,12 @@ class phase(Enum):
 ######### ProSR #########
 prosr_params = \
     edict({
-        'phase': phase.TEST,
         'train': {
+            'dataset': {
+                'path': 'data/datasets/DIV2K/DIV2K_train_HR',
+                'mean': [0.4488, 0.4371, 0.4040],  # mean value to extract from the (0, 1) image values
+                'stddev': [0.0039215, 0.0039215, 0.0039215]  # multiply the image value by this factor, resulting value range of image [-127.5, 127.5]
+            },
             'epochs': 450*16,  # different to paper
             'batch_size': 16,
             'input_size': [48, 36, 24],  # reduce input size for 4x and 8x to save memory
@@ -43,12 +47,17 @@ prosr_params = \
             'bn_size': 4,
             'res_factor': 0.2,  # scale residual
         },
-        'data': {
-            'mean': [0.4488, 0.4371, 0.4040],  # mean value to extract from the (0, 1) image values
-            'stddev': [0.0039215, 0.0039215, 0.0039215],  # multiply the image value by this factor, resulting value range of image [-127.5, 127.5]
-            'max_scale': 8,
-            'scale': [2, 4, 8],
+        'eval': {
+            'dataset': {
+                'path': 'data/datasets/DIV2K/DIV2K_valid_HR',
+                'mean': [0.4488, 0.4371, 0.4040],  # mean value to extract from the (0, 1) image values
+                'stddev': [0.0039215, 0.0039215, 0.0039215]  # multiply the image value by this factor, resulting value range of image [-127.5, 127.5]
+            },
         },
+        'data': {
+            'max_scale': 8,
+            'scale': [2, 4, 8]
+        }
     })
 prosrs_params = copy.deepcopy(prosr_params)
 prosrs_params.train.batch_size = 32

@@ -44,7 +44,7 @@ rm /tmp/DIV2K_valid_LR_bicubic_X2.zip
 
 
 # Flickr2K
-wget http://cv.snu.ac.kr/research/EDSR/Flickr2K.tar -P /tmp
-tar -xvf /tmp/Flickr2K.tar -C $DATADIR/datasets/
-rm -rf /tmp/Flickr2K.tar
+# wget http://cv.snu.ac.kr/research/EDSR/Flickr2K.tar -P /tmp
+# tar -xvf /tmp/Flickr2K.tar -C $DATADIR/datasets/
+# rm -rf /tmp/Flickr2K.tar
 

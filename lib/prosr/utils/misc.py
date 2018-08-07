@@ -8,20 +8,25 @@ import numpy as np
 from PIL import Image
 
 IMG_EXTENSIONS = [
-    '.jpg',
-    '.JPG',
-    '.jpeg',
-    '.JPEG',
-    '.png',
-    '.PNG',
-    '.ppm',
-    '.PPM',
-    '.bmp',
-    '.BMP',
+    'jpg',
+    'jpeg',
+    'png',
+    'ppm',
+    'bmp',
+    'tiff'
 ]
 
+def get_filenames(source, image_format):
 
-def get_filenames(source, image_format=None):
+    # If image_format is a list
+    if isinstance(image_format,list):
+        source_fns = []
+        for fmt in image_format:
+            source_fns += get_filenames(source,fmt)
+        return sorted(source_fns)
+
+    if source is None:
+        return []
     # Seamlessy load single file, list of files and files from directories.
     source_fns = []
     if isinstance(source, str):
@@ -38,7 +43,7 @@ def get_filenames(source, image_format=None):
 
 
 def is_image_file(filename):
-    return any(filename.endswith(extension) for extension in IMG_EXTENSIONS)
+    return any(filename.lower().endswith(extension) for extension in IMG_EXTENSIONS)
 
 
 # Converts a Tensor into a Numpy array
@@ -129,9 +134,9 @@ def print_current_errors(epoch, i, errors, t, log_name=None):
         with open(log_name, "a") as log_file:
             log_file.write('%s\n' % message)
 
-
 def crop_boundaries(im, cs):
     if cs > 1:
         return im[cs:-cs, cs:-cs, ...]
     else:
         return im
+

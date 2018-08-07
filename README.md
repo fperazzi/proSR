@@ -59,7 +59,6 @@ We provide the following pretrained models:
 
 ### Datasets
 We trained our models on [DIV2K](https://data.vision.ee.ethz.ch/cvl/DIV2K) ([7.1GB](https://data.vision.ee.ethz.ch/cvl/DIV2K/))
-<!-- and [Flickr2K]() ([21GB](http://cv.snu.ac.kr/research/EDSR/Flickr2K.tar)). -->
 
 Additionally, we evaluated the performance of ProSR on the following benchmark datasets:
 
@@ -168,23 +167,28 @@ optional arguments:
 
 
 ## Training
-Prepare data following the [previous instruction](#Get the Data).
+Download the datasets. You can find instructions above.
 
 ```
-(Optionally start visdom in a terminal;)
-python -m visdom.server -port 8067
-(In a new terminal)
 python train.py -m MODEL --visdom true --visdom-port 8067
 ```
-`MODEL` is one of `proSR`, `proSRs` and `proSRgan` (TODO).
+`MODEL` is one of `proSR`, `proSRs` and `proSRgan`.
+
+To visualize intermediate results (optional) run the `visdom.server`:
+
+```
+python -m visdom.server -port 8067
+```
 
 Model configurations is loaded from `prosr/config.py`. Checkpoints and log files are stored under `data/checkpoints/NAME`
 
 By default, all available GPUs are used. To use specific GPUs use `VISIBLE_CUDA_DEVICES`, e.g. `VISIBLE_CUDA_DEVICES=0,1 python train.py ...`
 
 To resume training from a checkpoint, e.g. `data/checkpoints/pretrained_net_G.pth`,
-```python train.py -m MODEL --resume data/checkpoints/pretrained```
+```
+python train.py -m MODEL --resume data/checkpoints/pretrained
 
+```
 ```
 optional arguments:
   -h, --help            show this help message and exit
@@ -218,6 +222,7 @@ python print_info.py --config data/checkpoints/proSR.pth
 If this code helps your research, please considering citing the following paper.
 
 A Fully Progressive Approach to Single-Image Super-Resolution - <i>[Y. Wang](https://yifita.github.io), [F. Perazzi](fperazzi.github.io), [B. McWilliams](https://www.inf.ethz.ch/personal/mcbrian/), [A. Sorkine-Hornung](http://www.ahornung.net/), [O. Sorkine-Hornung](http://igl.ethz.ch/people/sorkine/), [C. Schroers](https://www.disneyresearch.com/people/christopher-schroers/)</i> - CVPR Workshops NTIRE 2018.
+
 ```
 @InProceedings{Wang_2018_CVPR_Workshops,
     author = {
@@ -233,6 +238,5 @@ A Fully Progressive Approach to Single-Image Super-Resolution - <i>[Y. Wang](htt
   year = {2018}
 }
 ```
-
-### Contacts
+## Contacts
 If you have any question, please contact [Yifan Wang](yifan.wang@inf.ethz.ch) and [Federico Perazzi](fperazzi@adobe.com).
