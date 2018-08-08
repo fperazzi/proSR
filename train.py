@@ -147,7 +147,7 @@ def main(args):
     info('start training from epoch %d, learning rate %e' %
          (trainer.start_epoch, trainer.lr))
 
-    for epoch in range(trainer.start_epoch+1, args.train.epochs+1):
+    for epoch in range(trainer.start_epoch + 1, args.train.epochs + 1):
         iter_start_time = time()
         for i, data in enumerate(trainer.training_dataset):
             trainer.set_input(**data)
@@ -164,10 +164,11 @@ def main(args):
 
         # Save model
         if (epoch) % save_model_freq == 0:
-            info('saving the model at the end of epoch %d, iters %d' %
-                  (epoch, total_steps),bold=True)
+            info(
+                'saving the model at the end of epoch %d, iters %d' %
+                (epoch, total_steps),
+                bold=True)
             trainer.save(str(epoch))
-
 
         ################# update learning rate  #################
         if (epoch - trainer.best_epoch) > args.train.lr_schedule_patience:
@@ -189,7 +190,7 @@ def main(args):
 
         ################# test with validation set ##############
         if next_eval_epoch == epoch:
-            next_eval_epoch = min(next_eval_epoch*2,max_eval_frequency)
+            next_eval_epoch = min(next_eval_epoch * 2, max_eval_frequency)
             with torch.no_grad():
                 test_start_time = time()
                 # use validation set
@@ -203,12 +204,19 @@ def main(args):
                 test_result = trainer.get_current_eval_result()
 
                 trainer.update_best_eval_result(epoch, test_result)
-                info('eval at epoch %d : '%epoch + ' | '.join(
-                    ['{}: {:.02f}'.format(k, v) for k, v in test_result.items()]) +
-                      ' | time {:d} sec'.format(int(t)),bold=True)
+                info(
+                    'eval at epoch %d : ' % epoch + ' | '.join([
+                        '{}: {:.02f}'.format(k, v)
+                        for k, v in test_result.items()
+                    ]) + ' | time {:d} sec'.format(int(t)),
+                    bold=True)
 
-                info('best at epoch %d : '%trainer.best_epoch + ' | '.join(
-                    ['{}: {:.02f}'.format(k, v) for k, v in trainer.best_eval.items()]),bold=True)
+                info(
+                    'best at epoch %d : ' % trainer.best_epoch + ' | '.join([
+                        '{}: {:.02f}'.format(k, v)
+                        for k, v in trainer.best_eval.items()
+                    ]),
+                    bold=True)
 
                 if trainer.best_epoch == epoch:
                     if len(trainer.best_eval) > 1:

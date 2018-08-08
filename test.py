@@ -39,7 +39,7 @@ def parse_args():
         'Input images, either list or path to folder. If not given, use bicubically downsampled target image as input',
         type=str,
         nargs='+',
-        required=True,
+        required=False,
         default=[])
     parser.add_argument(
         '-t',
@@ -132,8 +132,6 @@ if __name__ == '__main__':
 
             fn = osp.join(args.output_dir, osp.basename(data['input_fn'][0]))
             io.imsave(fn,sr_img)
-            if iid+1 == len(data_loader):
-                info("Saved image in: {}".format(fn),bold=True)
 
         if len(args.target):
             psnr_mean /= len(dataset)

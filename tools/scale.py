@@ -21,7 +21,7 @@ def parse_args():
     parser.add_argument('-o', '--output', help='Output imag.')
 
     parser.add_argument(
-        '-s',
+        '-r',
         '--ratio',
         help='scale ratio e.g. 2, 4 or 8',
         type=int,
