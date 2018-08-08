@@ -147,8 +147,8 @@ def main(args):
     for epoch in range(trainer.start_epoch, args.train.epochs):
         epoch_start_time = time()
 
+        iter_start_time = time()
         for i, data in enumerate(trainer.training_dataset):
-            iter_start_time = time()
             trainer.set_input(**data)
             trainer.forward()
             trainer.optimize_parameters()
@@ -157,6 +157,7 @@ def main(args):
             if total_steps % 100 == 0:
                 errors = trainer.get_current_errors()
                 t = time() - iter_start_time
+                iter_start_time = 0
                 print_current_errors(
                     epoch, total_steps, errors, t, log_name=log_file)
 
