@@ -146,9 +146,9 @@ def main(args):
 
     for epoch in range(trainer.start_epoch, args.train.epochs):
         epoch_start_time = time()
-        iter_start_time = time()
 
         for i, data in enumerate(trainer.training_dataset):
+            iter_start_time = time()
             trainer.set_input(**data)
             trainer.forward()
             trainer.optimize_parameters()
