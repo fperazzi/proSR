@@ -139,6 +139,7 @@ def main(args):
 
     next_eval_epoch = 1
     save_model_freq = 10
+    print_errors_freq = 100
 
     ############# start training ###############
     info('start training from epoch %d, learning rate %e' %
@@ -154,13 +155,12 @@ def main(args):
             trainer.optimize_parameters()
 
             total_steps += 1
-            if total_steps % 10 == 0:
+            if total_steps % print_errors_freq == 0:
                 errors = trainer.get_current_errors()
                 t = time() - iter_start_time
                 iter_start_time = time()
                 print_current_errors(
                     epoch, total_steps, errors, t, log_name=log_file)
-                break
 
         # Save model
         if (epoch + 1) % save_model_freq == 0:
