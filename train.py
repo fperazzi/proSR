@@ -12,8 +12,8 @@ import random
 
 import torch
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(osp.join(BASE_DIR, 'lib'))
+# BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# sys.path.append(osp.join(BASE_DIR, 'lib'))
 
 import prosr
 from prosr.data import DataLoader, Dataset

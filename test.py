@@ -8,24 +8,15 @@ import sys
 import skimage.io as io
 import torch
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(osp.join(BASE_DIR, 'lib'))
+# BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# sys.path.append(osp.join(BASE_DIR, 'lib'))
 
 import prosr
 from prosr import Phase
 from prosr.data import DataLoader, Dataset
 from prosr.logger import info
 from prosr.metrics import eval_psnr_and_ssim
-from prosr.utils import get_filenames, tensor2im, IMG_EXTENSIONS
-
-
-def print_evaluation(filename, psnr, ssim, iid=None, n_images=None):
-    if iid is not None and n_images:
-        info('[{:03d}/{:03d}] {:10s} | psnr: {:.2f} | ssim: {:.2f}'.format(
-            iid, n_images,
-            osp.splitext(filename)[0], psnr, ssim))
-    else:
-        info('{} | psnr: {:.2f} | ssim: {:.2f}'.format(filename, psnr, ssim))
+from prosr.utils import get_filenames, tensor2im, IMG_EXTENSIONS,print_evaluation
 
 
 def parse_args():
@@ -38,7 +29,7 @@ def parse_args():
         help=
         'Input images, either list or path to folder. If not given, use bicubically downsampled target image as input',
         type=str,
-        nargs='+',
+        nargs='*',
         required=False,
         default=[])
     parser.add_argument(

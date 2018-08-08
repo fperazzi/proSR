@@ -73,19 +73,19 @@ See the next section to evaluate **ProSR** on one of these benchmarks.
 ## Testing
 Run:
 ```
-python test.py -i LR_DATA (optional) -t HR_DATA (optional) --checkpoint CHECKPOINT --upscale-factor NUMBER
+python test.py -i LR_INPUT (optional) -t HR_INPUT (optional) --checkpoint CHECKPOINT --upscale-factor NUMBER
 ```
-`LR_DATA` is the low-resolution input and can be either a folder, an image or a list of images. If high-resolution images are provided (`HR_DATA`), the script will compute the resulting PSNR and SSIM. Alternatively, if only high-resolution images are given as arguments, the script will scale `HR_DATA` by the inverse of the upscale factor `NUMBER`.
+`LR_DATA` is the low-resolution input and can be either a folder, an image or a list of images. If high-resolution images are provided (`HR_INPUT`), the script will compute the resulting PSNR and SSIM. Alternatively, if only high-resolution images are given as arguments, the script will scale `HR_INPUT` by the inverse of the upscale factor `NUMBER`.
 
 ```
 # upsample LR_DATA
 python test.py -i LR_DATA --checkpoint CHECKPOINT --upscale-factor NUMBER
 
-# upsample LR_DATA and evaluate against HR_DATA
-python test.py -i LR_DATA -t HR_DATA --checkpoint CHECKPOINT --upscale-factor NUMBER
+# upsample LR_DATA and evaluate against HR_INPUT
+python test.py -i LR_DATA -t HR_INPUT --checkpoint CHECKPOINT --upscale-factor NUMBER
 
-# Dowsample HR_DATA and evaluate upsampled(downsampled(HR_DATA)) against HR_DATA
-python test.py -t HR_DATA --checkpoint CHECKPOINT --upscale-factor NUMBER
+# Dowsample HR_INPUT and evaluate upsampled(downsampled(HR_INPUT)) against HR_INPUT
+python test.py -t HR_INPUT --checkpoint CHECKPOINT --upscale-factor NUMBER
 ```
 
 `CHECKPOINT` is the path to the pretrained *\*.pth* file.
@@ -140,7 +140,7 @@ MsLapSRN | 33.28 | 32.05 | 31.15 | 35.62 | 28.26 | 27.43 | 25.51 | 30.39 | 24.57
 The models available for download have been trained on images downscaled with a bicubic filter. To replicate the same type of downsampling we provide the script `tools/scale.py`:
 
 ```
-python scale.py -i HR_IMG -o LR_IMG --ratio 8
+python scale.py -i HR_INPUT -o LR_OUTPUT --ratio 8
 ```
 
 See `tools/scale.py`
@@ -160,30 +160,30 @@ optional arguments:
 ```
 
 ### Evaluation
-Results can be evaluated in terms of PSNR and SSIM using the script `tools/eval.py`:
+Results can be evaluated in terms of PSNR and SSIM using the script `tools/eval.py`. The command line is similar to `test.py`:
+
 ```
-python tools/eval.py -sr data/outputs/DIV2K_valid_SR_bicubic/X8 -hr data/datasets/DIV2K/DIV2K_valid_HR -u 8
+python tools/eval.py -i LR_INPUT -t HR_INPUT --upscale-factor NUMBER
 ```
+
+The input can be either a folder, an image or a list of images. The upsampling factor needs to be specified because boundary cropping depends on it.
 
 See `tools/eval.py`:
 
 ```
-usage: eval.py [-h] [-hr [HR_INPUT [HR_INPUT ...]]]
-               [-sr [SR_INPUT [SR_INPUT ...]]] [-f FMT] -u UPSCALE_FACTOR
+usage: eval.py [-h] -i [INPUT [INPUT ...]] -t [TARGET [TARGET ...]] -u
+               UPSCALE_FACTOR
 ```
 optional arguments:
 ```
   -h, --help            show this help message and exit
-  -hr [HR_INPUT [HR_INPUT ...]], --hr-input [HR_INPUT [HR_INPUT ...]]
+  -i [INPUT [INPUT ...]], --input [INPUT [INPUT ...]]
                         High-resolution images, either list or path to folder
-  -sr [SR_INPUT [SR_INPUT ...]], --sr-input [SR_INPUT [SR_INPUT ...]]
+  -t [TARGET [TARGET ...]], --target [TARGET [TARGET ...]]
                         Super-resolution images, either list or path to folder
-  -f FMT, --fmt FMT     Image file format
   -u UPSCALE_FACTOR, --upscale-factor UPSCALE_FACTOR
                         upscale ratio e.g. 2, 4 or 8
-
 ```
-
 
 ## Training
 Download the datasets as previously described and execute the command:
@@ -202,7 +202,7 @@ Configurations files for the architectures proposed in the papers are can be fou
 
 To resume training from a checkpoint, e.g. `data/checkpoints/pretrained_net_G.pth`.
 
-By default, all available GPUs are used. To use specific GPUs use `VISIBLE_CUDA_DEVICES`, e.g. `VISIBLE_CUDA_DEVICES=0,1 python train.py ...`
+By default, all available GPUs are used. To use specific GPUs use `VISIBLE_CUDA_DEVICES`, e.g. `VISIBLE_CUDA_DEVICES=0,1 python train.py ...
 
 ```
 python train.py -m MODEL --resume data/checkpoints/pretrained

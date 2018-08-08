@@ -5,7 +5,7 @@ from bisect import bisect_left
 
 from ..utils import print_network, tensor2im
 from ..logger import warn, info
-from ..metrics import eval_psnr
+from ..metrics import eval_psnr_and_ssim
 from .generators import ProSR
 
 
@@ -114,7 +114,7 @@ class CurriculumLearningTrainer(object):
 
         im1 = self.tensor2im(self.label)
         im2 = self.tensor2im(self.output)
-        eval_res = {'psnr_x%d' % self.model_scale: eval_psnr(im1, im2, self.model_scale)}
+        eval_res = {'psnr_x%d' % self.model_scale: eval_psnr_and_ssim(im1, im2, self.model_scale)[0]}
         for k, v in eval_res.items():
             self.eval_dict[k].append(v)
         return eval_res

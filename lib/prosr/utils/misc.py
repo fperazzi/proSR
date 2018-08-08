@@ -139,3 +139,13 @@ def crop_boundaries(im, cs):
     else:
         return im
 
+def print_evaluation(filename, psnr, ssim, iid=None, n_images=None):
+    from prosr.logger import info
+    if iid is not None and n_images:
+        info('[{:03d}/{:03d}] {:10s} | psnr: {:.2f} | ssim: {:.2f}'.format(
+            iid, n_images,
+            osp.splitext(filename)[0], psnr, ssim))
+    else:
+        info('{} | psnr: {:.2f} | ssim: {:.2f}'.format(filename, psnr, ssim))
+
+
