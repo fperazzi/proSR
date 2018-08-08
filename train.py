@@ -162,8 +162,8 @@ def main(args):
                     epoch, total_steps, errors, t, log_name=log_file)
 
         # Save model
-        if (epoch + 1) % 1 == 0:
-            print('saving the model at the end of epoch %d, iters %d' %
+        if (epoch + 1) % save_model_freq == 0:
+            info('saving the model at the end of epoch %d, iters %d' %
                   (epoch + 1, total_steps))
             trainer.save(str(epoch + 1))
 
@@ -175,7 +175,6 @@ def main(args):
 
         ################ visualize ###############
         if args.cmd.visdom:
-            print("visdom")
             lrs = {
                 'lr%d' % i: param_group['lr']
                 for i, param_group in enumerate(

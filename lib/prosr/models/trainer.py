@@ -32,6 +32,7 @@ class CurriculumLearningTrainer(object):
 
         ######### create generator and optimizer  #########
         self.net_G = ProSR(**opt.G).cuda()
+        self.best_epoch = 0
 
         ######## Multi GPU #######
         # TODO: doesn't work for ProSRs
