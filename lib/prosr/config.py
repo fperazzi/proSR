@@ -47,7 +47,7 @@ prosr_params = \
             'bn_size': 4,
             'res_factor': 0.2,  # scale residual
         },
-        'eval': {
+        'test': {
             'dataset': {
                 'path': 'data/datasets/DIV2K/DIV2K_valid_HR',
                 'mean': [0.4488, 0.4371, 0.4040],  # mean value to extract from the (0, 1) image values

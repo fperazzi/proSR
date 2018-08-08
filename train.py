@@ -24,10 +24,6 @@ from prosr.utils import get_filenames, print_current_errors, IMG_EXTENSIONS
 CHECKPOINT_DIR = 'data/checkpoints'
 
 
-def print_evaluation(filename, psnr, ssim):
-    print('{} | psnr: {:.2f} | ssim: {:.2f}'.format(filename, psnr, ssim))
-
-
 def parse_args():
     parser = ArgumentParser(description='training script for ProSR')
 
@@ -96,11 +92,11 @@ def set_seed():
 def main(args):
     set_seed()
 
-    ############### training loader and eval loader #################
+    ############### training loader and test loader #################
     train_files = get_filenames(
         args.train.dataset.path, image_format=IMG_EXTENSIONS)
-    eval_files = get_filenames(
-        args.eval.dataset.path, image_format=IMG_EXTENSIONS)
+    test_files = get_filenames(
+        args.test.dataset.path, image_format=IMG_EXTENSIONS)
 
     training_dataset = Dataset(
         prosr.Phase.TRAIN, [],
@@ -112,18 +108,18 @@ def main(args):
     training_data_loader = DataLoader(
         training_dataset, batch_size=args.train.batch_size)
 
-    info('#training images = %d' % len(training_data_loader))
+    info('training images = %d' % len(training_data_loader))
 
     testing_dataset = torch.utils.data.ConcatDataset([
         Dataset(
             prosr.Phase.VAL, [],
-            eval_files,
+            test_files,
             s,
             crop_size=None,
-            **args.eval.dataset) for s in args.cmd.upscale_factor
+            **args.test.dataset) for s in args.cmd.upscale_factor
     ])
     testing_data_loader = torch.utils.data.DataLoader(testing_dataset)
-    info('#validation images = %d' % len(testing_data_loader))
+    info('validation images = %d' % len(testing_data_loader))
 
     ############# set up trainer ######################
     trainer = CurriculumLearningTrainer(
@@ -141,6 +137,9 @@ def main(args):
     total_steps = trainer.start_epoch * steps_per_epoch
     trainer.reset_curriculum_for_dataloader()
 
+    next_eval_epoch = 1
+    save_model_freq = 10
+
     ############# start training ###############
     info('start training from epoch %d, learning rate %e' %
          (trainer.start_epoch, trainer.lr))
@@ -148,6 +147,7 @@ def main(args):
     for epoch in range(trainer.start_epoch, args.train.epochs):
         epoch_start_time = time()
         iter_start_time = time()
+
         for i, data in enumerate(trainer.training_dataset):
             trainer.set_input(**data)
             trainer.forward()
@@ -160,60 +160,65 @@ def main(args):
                 print_current_errors(
                     epoch, total_steps, errors, t, log_name=log_file)
 
-        if (epoch + 1) % 10 == 0:
+        # Save model
+        if (epoch + 1) % 1 == 0:
             print('saving the model at the end of epoch %d, iters %d' %
                   (epoch + 1, total_steps))
             trainer.save(str(epoch + 1))
 
-        ################# evaluation with validation set ##############
-        with torch.no_grad():
-            eval_start_time = time()
-            # use validation set
-            trainer.set_eval()
-            trainer.reset_eval_result()
-            for i, data in enumerate(testing_data_loader):
-                trainer.set_input(**data)
-                trainer.evaluate()
-
-            t = time() - eval_start_time
-            eval_result = trainer.get_current_eval_result()
-
-            trainer.update_best_eval_result(epoch, eval_result)
-            print('evaluation on ' + args.eval_dataset + ', ' + ' | '.join(
-                ['{}: {:.02f}'.format(k, v) for k, v in eval_result.items()]) +
-                  ', time {:d} sec'.format(int(t)))
-            info('best so far in epoch %d: ' % trainer.best_epoch + ', '.join(
-                ['%s = %.2f' % (k, v)
-                 for (k, v) in trainer.best_eval.items()]))
-
-            if trainer.best_epoch == epoch:
-                if len(trainer.best_eval) > 1:
-                    best_key = [
-                        k for k in trainer.best_eval
-                        if trainer.best_eval[k] == eval_result[k]
-                    ]
-                else:
-                    best_key = list(trainer.best_eval.keys())
-                trainer.save('best_' + '_'.join(best_key))
-
-            trainer.set_train()
 
         ################# update learning rate  #################
         if (epoch - trainer.best_epoch) > args.train.lr_schedule_patience:
-            trainer.save('lastlr_%g' % trainer.lr)
+            trainer.save('last_lr_%g' % trainer.lr)
             trainer.update_learning_rate()
 
         ################ visualize ###############
-        if args.visdom:
+        if args.cmd.visdom:
+            print("visdom")
             lrs = {
                 'lr%d' % i: param_group['lr']
                 for i, param_group in enumerate(
                     trainer.optimizer_G.param_groups)
             }
             visualizer.display_current_results(
-                trainer.get_current_eval_result(), epoch)
+                trainer.get_current_test_result(), epoch)
             visualizer.plot(lrs, epoch, 3)
-            visualizer.plot(eval_result, epoch, 2)
+            visualizer.plot(test_result, epoch, 2)
+
+        ################# test with validation set ##############
+        if next_eval_epoch == epoch:
+            next_eval_epoch = max(next_eval_epoch*2,16)
+            with torch.no_grad():
+                test_start_time = time()
+                # use validation set
+                trainer.set_eval()
+                trainer.reset_eval_result()
+                for i, data in enumerate(testing_data_loader):
+                    trainer.set_input(**data)
+                    trainer.evaluate()
+
+                t = time() - test_start_time
+                test_result = trainer.get_current_eval_result()
+
+                trainer.update_best_eval_result(epoch, test_result)
+                info('eval at epoch %d : '%epoch + ' | '.join(
+                    ['{}: {:.02f}'.format(k, v) for k, v in test_result.items()]) +
+                      ' | time {:d} sec'.format(int(t)))
+
+                info('best at epoch %d : '%trainer.best_epoch + ' | '.join(
+                    ['{}: {:.02f}'.format(k, v) for k, v in trainer.best_eval.items()]))
+
+                if trainer.best_epoch == epoch:
+                    if len(trainer.best_eval) > 1:
+                        best_key = [
+                            k for k in trainer.best_eval
+                            if trainer.best_eval[k] == test_result[k]
+                        ]
+                    else:
+                        best_key = list(trainer.best_eval.keys())
+                    trainer.save('best_' + '_'.join(best_key))
+
+                trainer.set_train()
 
 
 def change_dict_type(dct, intype, otype):

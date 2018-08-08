@@ -13,7 +13,6 @@ class Visualizer():
         if use_visdom:
             import visdom
             self.vis = visdom.Visdom(port=port, env=self.name)
-            print('start visom python -m visdom.server -port {}'.format(port))
 
         if self.use_html:
             self.web_dir = os.path.join('data/checkpoints', self.name, 'web')

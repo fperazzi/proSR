@@ -50,7 +50,7 @@ def info(message, *lines):
         string = "{}{}: " + message + ("{}\n" if lines else
                                        "{}") + "\n".join(lines) + "{}"
         print(
-            string.format(ansi.WHITE_B,
+            string.format(ansi.WHITE,
                           time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime()),
                           ansi.WHITE, ansi.ENDC))
     else:

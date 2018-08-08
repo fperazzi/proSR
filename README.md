@@ -207,8 +207,10 @@ usage: train.py [-h] (-m {prosr,prosrs,prosrgan} | -c CONFIG) [--name NAME]
 optional arguments:
 ```
   -h, --help            show this help message and exit
-  -m {prosr,prosrs,prosrgan,edsr}, --model {prosr,prosrs,prosrgan,edsr}
+  -m {prosr,prosrs,prosrgan}, --model {prosr,prosrs,prosrgan}
                         model
+  -c CONFIG, --config CONFIG
+                        Configuration file in 'yaml' format.
   --name NAME           name of this training experiment
   --upscale-factor UPSCALE_FACTOR [UPSCALE_FACTOR ...]
                         upscale factor
@@ -216,8 +218,6 @@ optional arguments:
                         start from epoch x
   --resume RESUME       checkpoint to resume from. E.g. --resume
                         'best_psnr_x4' for best_psnr_x4_net_G.pth
-  --eval-dataset EVAL_DATASET
-                        dataset for evaluation
   -v VISDOM, --visdom VISDOM
                         use visdom to visualize
   -p VISDOM_PORT, --visdom-port VISDOM_PORT
