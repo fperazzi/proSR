@@ -42,10 +42,11 @@ def parse_args():
         help="Configuration file in 'yaml' format.")
 
     parser.add_argument(
-        '--name',
+        '-e',
+        '--experiment-id',
         type=str,
         help='name of this training experiment',
-        default=strftime("%Y-%m-%d-%H:%M:%S", localtime()))
+        required=True)
     parser.add_argument(
         '--upscale-factor',
         type=int,
@@ -139,7 +140,7 @@ def main(args):
 
     next_eval_epoch = 1
     save_model_freq = 10
-    print_errors_freq = 100
+    print_errors_freq = 10
 
     ############# start training ###############
     info('start training from epoch %d, learning rate %e' %
@@ -223,14 +224,6 @@ def main(args):
             trainer.set_train()
 
 
-def change_dict_type(dct, intype, otype):
-    dct = otype(dct)
-    for k, v in dct.items():
-        if isinstance(v, intype):
-            dct[k] = change_dict_type(v, intype, otype)
-    return dct
-
-
 if __name__ == '__main__':
 
     # Parse command-line arguments
@@ -249,13 +242,12 @@ if __name__ == '__main__':
     # Add command line arguments
     params.cmd = edict(vars(args))
 
-    params.cmd.experiment_id = '{}_{}'.format(args.model, args.name)
     checkpoint_dir = osp.join(CHECKPOINT_DIR, params.cmd.experiment_id)
     if not osp.isdir(checkpoint_dir):
         os.makedirs(checkpoint_dir)
     np.save(osp.join(checkpoint_dir, 'params'), params)
 
-    info('{}'.format(params.cmd.experiment_id))
+    info('Experiment ID: {}'.format(params.cmd.experiment_id))
 
     if args.visdom:
         from prosr.visualizer import Visualizer
