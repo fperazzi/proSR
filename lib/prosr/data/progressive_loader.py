@@ -12,15 +12,16 @@ from .util import *
 class Dataset(object):
     """docstring for Dataset"""
 
-    def __init__(self, phase, source, target, upscale_factor, crop_size, mean, stddev,
+    def __init__(self, phase, source, target, upscale_factor, input_size, mean, stddev,
                  **kwargs):
 
         super(Dataset, self).__init__()
         self.phase = phase
         self.scale = upscale_factor if isinstance(upscale_factor, Iterable) else [upscale_factor]
-        self.crop_size = [crop_size]*len(self.scale) if not isinstance(crop_size, Iterable) else crop_size
-        assert len(self.crop_size) == len(self.scale)
-        self.crop_size = dict([(s, size) for s, size in zip(self.scale, self.crop_size)])
+        self.input_size = [input_size]*len(self.scale) if not isinstance(input_size, Iterable) else input_size
+        if phase == Phase.TRAIN:
+            assert len(self.input_size) == len(self.scale)
+        self.input_size = dict([(s, size) for s, size in zip(self.scale, self.input_size)])
         self.mean = mean
         self.stddev = stddev
 
@@ -77,13 +78,13 @@ class Dataset(object):
             ret_data['input_fn'] = self.target_fns[index]
 
         # Crop image
-        if self.crop_size[scale]:
+        if self.input_size[scale]:
             if self.phase == Phase.TRAIN:
                 ret_data['target'], ret_data['input'] = random_crop_pairs(
-                        self.crop_size[scale], scale, ret_data['target'], ret_data['input'])
+                        self.input_size[scale], scale, ret_data['target'], ret_data['input'])
             else:
                 ret_data['target'], ret_data['input'] = center_crop(
-                        self.crop_size[scale], scale, ret_data['target'], ret_data['input'])
+                        self.input_size[scale], scale, ret_data['target'], ret_data['input'])
 
         if self.augment:  # TODO FIX
             ret_data['input'], ret_data['target'] = augment_pairs(ret_data['input'], ret_data['target'])

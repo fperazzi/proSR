@@ -3,6 +3,7 @@ from __future__ import print_function
 import collections
 import glob
 import os
+import os.path as osp
 
 import numpy as np
 from PIL import Image
@@ -19,20 +20,18 @@ IMG_EXTENSIONS = [
 def get_filenames(source, image_format):
 
     # If image_format is a list
-    if isinstance(image_format,list):
-        source_fns = []
-        for fmt in image_format:
-            source_fns += get_filenames(source,fmt)
-        return sorted(source_fns)
-
     if source is None:
         return []
     # Seamlessy load single file, list of files and files from directories.
     source_fns = []
     if isinstance(source, str):
         if os.path.isdir(source):
-            source_fns = sorted(
-                glob.glob("{}/*.{}".format(source, image_format)))
+            if isinstance(image_format,list):
+                for fmt in image_format:
+                    source_fns += get_filenames(source,fmt)
+            else:
+                source_fns = sorted(
+                    glob.glob("{}/*.{}".format(source, image_format)))
         elif os.path.isfile(source):
             source_fns = [source]
         assert(all([is_image_file(f) for f in source_fns])), "Given files contain files with unsupported format"

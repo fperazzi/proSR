@@ -139,6 +139,7 @@ def main(args):
     trainer.reset_curriculum_for_dataloader()
 
     next_eval_epoch = 1
+    max_eval_frequency = 10
     save_model_freq = 10
     print_errors_freq = 100
 
@@ -147,8 +148,6 @@ def main(args):
          (trainer.start_epoch, trainer.lr))
 
     for epoch in range(trainer.start_epoch+1, args.train.epochs+1):
-        epoch_start_time = time()
-
         iter_start_time = time()
         for i, data in enumerate(trainer.training_dataset):
             trainer.set_input(**data)
@@ -190,7 +189,7 @@ def main(args):
 
         ################# test with validation set ##############
         if next_eval_epoch == epoch:
-            next_eval_epoch = min(next_eval_epoch*2,16)
+            next_eval_epoch = min(next_eval_epoch*2,max_eval_frequency)
             with torch.no_grad():
                 test_start_time = time()
                 # use validation set
