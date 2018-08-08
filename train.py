@@ -157,7 +157,7 @@ def main(args):
             if total_steps % 100 == 0:
                 errors = trainer.get_current_errors()
                 t = time() - iter_start_time
-                iter_start_time = 0
+                iter_start_time = time()
                 print_current_errors(
                     epoch, total_steps, errors, t, log_name=log_file)
 
