@@ -140,13 +140,13 @@ def main(args):
 
     next_eval_epoch = 1
     save_model_freq = 10
-    print_errors_freq = 10
+    print_errors_freq = 100
 
     ############# start training ###############
     info('start training from epoch %d, learning rate %e' %
          (trainer.start_epoch, trainer.lr))
 
-    for epoch in range(trainer.start_epoch, args.train.epochs):
+    for epoch in range(trainer.start_epoch+1, args.train.epochs+1):
         epoch_start_time = time()
 
         iter_start_time = time()
@@ -164,10 +164,10 @@ def main(args):
                     epoch, total_steps, errors, t, log_name=log_file)
 
         # Save model
-        if (epoch + 1) % save_model_freq == 0:
+        if (epoch) % save_model_freq == 0:
             info('saving the model at the end of epoch %d, iters %d' %
-                  (epoch + 1, total_steps))
-            trainer.save(str(epoch + 1))
+                  (epoch, total_steps),bold=True)
+            trainer.save(str(epoch))
 
 
         ################# update learning rate  #################
@@ -176,21 +176,21 @@ def main(args):
             trainer.update_learning_rate()
 
         ################ visualize ###############
-        if args.cmd.visdom:
-            lrs = {
-                'lr%d' % i: param_group['lr']
-                for i, param_group in enumerate(
-                    trainer.optimizer_G.param_groups)
-            }
-            visualizer.display_current_results(
-                trainer.get_current_test_result(), epoch)
-            visualizer.plot(lrs, epoch, 3)
-            visualizer.plot(test_result, epoch, 2)
+
+        # if args.cmd.visdom:
+        #     lrs = {
+        #         'lr%d' % i: param_group['lr']
+        #         for i, param_group in enumerate(
+        #             trainer.optimizer_G.param_groups)
+        #     }
+        #     visualizer.display_current_results(
+        #         trainer.get_current_test_result(), epoch)
+        #     visualizer.plot(lrs, epoch, 3)
+        #     visualizer.plot(test_result, epoch, 2)
 
         ################# test with validation set ##############
-        # if next_eval_epoch == epoch:
-        if True:
-            next_eval_epoch = max(next_eval_epoch*2,16)
+        if next_eval_epoch == epoch:
+            next_eval_epoch = min(next_eval_epoch*2,16)
             with torch.no_grad():
                 test_start_time = time()
                 # use validation set
@@ -206,10 +206,10 @@ def main(args):
                 trainer.update_best_eval_result(epoch, test_result)
                 info('eval at epoch %d : '%epoch + ' | '.join(
                     ['{}: {:.02f}'.format(k, v) for k, v in test_result.items()]) +
-                      ' | time {:d} sec'.format(int(t)))
+                      ' | time {:d} sec'.format(int(t)),bold=True)
 
                 info('best at epoch %d : '%trainer.best_epoch + ' | '.join(
-                    ['{}: {:.02f}'.format(k, v) for k, v in trainer.best_eval.items()]))
+                    ['{}: {:.02f}'.format(k, v) for k, v in trainer.best_eval.items()]),bold=True)
 
                 if trainer.best_epoch == epoch:
                     if len(trainer.best_eval) > 1:
@@ -247,7 +247,7 @@ if __name__ == '__main__':
         os.makedirs(checkpoint_dir)
     np.save(osp.join(checkpoint_dir, 'params'), params)
 
-    info('Experiment ID: {}'.format(params.cmd.experiment_id))
+    info('experiment ID: {}'.format(params.cmd.experiment_id))
 
     if args.visdom:
         from prosr.visualizer import Visualizer

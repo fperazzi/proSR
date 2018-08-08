@@ -45,12 +45,16 @@ def warn(message, *lines):
                           ansi.ENDC))
 
 
-def info(message, *lines):
+def info(message,bold=False, *lines):
+    if bold:
+        color=ansi.WHITE_B
+    else:
+        color=ansi.WHITE
     if message:
         string = "{}{}: " + message + ("{}\n" if lines else
                                        "{}") + "\n".join(lines) + "{}"
         print(
-            string.format(ansi.WHITE,
+            string.format(color,
                           time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime()),
                           ansi.WHITE, ansi.ENDC))
     else:
@@ -59,6 +63,7 @@ def info(message, *lines):
             string.format(ansi.WHITE,
                           time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime()),
                           ansi.ENDC))
+
 
 
 def success(message, *lines):
