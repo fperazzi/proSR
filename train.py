@@ -154,12 +154,13 @@ def main(args):
             trainer.optimize_parameters()
 
             total_steps += 1
-            if total_steps % 100 == 0:
+            if total_steps % 10 == 0:
                 errors = trainer.get_current_errors()
                 t = time() - iter_start_time
                 iter_start_time = time()
                 print_current_errors(
                     epoch, total_steps, errors, t, log_name=log_file)
+                break
 
         # Save model
         if (epoch + 1) % save_model_freq == 0:
@@ -186,7 +187,8 @@ def main(args):
             visualizer.plot(test_result, epoch, 2)
 
         ################# test with validation set ##############
-        if next_eval_epoch == epoch:
+        # if next_eval_epoch == epoch:
+        if True:
             next_eval_epoch = max(next_eval_epoch*2,16)
             with torch.no_grad():
                 test_start_time = time()
@@ -218,7 +220,7 @@ def main(args):
                         best_key = list(trainer.best_eval.keys())
                     trainer.save('best_' + '_'.join(best_key))
 
-                trainer.set_train()
+            trainer.set_train()
 
 
 def change_dict_type(dct, intype, otype):
