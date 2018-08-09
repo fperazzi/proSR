@@ -136,7 +136,7 @@ def main(args):
         args,
         training_data_loader,
         save_dir=args.cmd.output,
-        resume_from=args.cmd.resume)
+        resume_from=args.cmd.checkpoint)
     trainer.set_train()
 
     log_file = os.path.join(args.cmd.output,'loss_log.txt')
@@ -180,7 +180,7 @@ def main(args):
             trainer.save(str(epoch),epoch,trainer.lr)
 
         ################# update learning rate  #################
-        if (epoch - trainer.best_epoch) >= 0:
+        if (epoch - trainer.best_epoch) > args.train.lr_schedule_patience:
             trainer.save('last_lr_%g' % trainer.lr,epoch,trainer.lr)
             trainer.update_learning_rate()
 

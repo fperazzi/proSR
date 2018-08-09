@@ -203,7 +203,7 @@ class CurriculumLearningTrainer(object):
         save_path = os.path.join(self.save_dir, save_filename)
         to_save = {'state_dict': network.state_dict(),
                    'params':    self.opt,
-                   'class_name': self.net_G.class_name(),
+                   'class_name': network.class_name(),
                    }
         torch.save(to_save, save_path)
 
