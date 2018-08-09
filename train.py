@@ -145,8 +145,7 @@ def main(args):
     total_steps = trainer.start_epoch * steps_per_epoch
     trainer.reset_curriculum_for_dataloader()
 
-    next_eval_epoch = 1
-
+    next_eval_epoch = 2
     max_eval_frequency = 10
     print_errors_freq  = 100
     save_model_freq    = 100
@@ -169,7 +168,6 @@ def main(args):
                 iter_start_time = time()
                 print_current_errors(
                     epoch, total_steps, errors, t, log_name=log_file)
-                break
 
         # Save model
         if (epoch) % save_model_freq == 0:
@@ -198,7 +196,7 @@ def main(args):
         #     visualizer.plot(test_result, epoch, 2)
 
         ################# test with validation set ##############
-        if next_eval_epoch == epoch:
+        if next_eval_epoch % epoch == 0:
             next_eval_epoch = min(next_eval_epoch * 2, max_eval_frequency)
             with torch.no_grad():
                 test_start_time = time()
