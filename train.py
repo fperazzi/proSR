@@ -277,4 +277,4 @@ if __name__ == '__main__':
     #         port=args.visdom_port,
     #         use_html=args.use_html)
 
-    # main(params)
+    main(params)
