@@ -146,9 +146,9 @@ def main(args):
     trainer.reset_curriculum_for_dataloader()
 
     next_eval_epoch = 2
-    max_eval_frequency = 10
+    max_eval_frequency = 5
     print_errors_freq  = 100
-    save_model_freq    = 100
+    save_model_freq    = 10
 
     ############# start training ###############
     info('start training from epoch %d, learning rate %e' %
@@ -196,7 +196,7 @@ def main(args):
         #     visualizer.plot(test_result, epoch, 2)
 
         ################# test with validation set ##############
-        if next_eval_epoch % epoch == 0:
+        if epoch % next_eval_epoch == 0:
             next_eval_epoch = min(next_eval_epoch * 2, max_eval_frequency)
             with torch.no_grad():
                 test_start_time = time()

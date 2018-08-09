@@ -192,7 +192,7 @@ class CurriculumLearningTrainer(object):
             k: max(self.best_eval[k], eval_result[k]) for k in self.best_eval
         }
         is_best_sofar = any(
-            [eval_result[k] == v for k, v in self.best_eval.items()])
+            [eval_result[k] > v for k, v in self.best_eval.items()])
         if is_best_sofar:
             self.best_epoch = epoch
 
