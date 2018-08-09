@@ -84,7 +84,7 @@ def parse_args():
 
     ############# set up trainer ######################
     if args.checkpoint:
-        args.output = osp.basename(osp.dirname(args.checkpoint))
+        args.output = osp.dirname(args.checkpoint)
 
 
     return args
@@ -170,7 +170,7 @@ def main(args):
                     epoch, total_steps, errors, t, log_name=log_file)
 
         # Save model
-        if (epoch) % save_model_freq == 0:
+        if epoch % save_model_freq == 0:
             info(
                 'saving the model at the end of epoch %d, iters %d' %
                 (epoch, total_steps),
