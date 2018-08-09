@@ -23,10 +23,11 @@ prosr_params = \
             },
             'epochs': 450*16,  # different to paper
             'batch_size': 16,
-            'input_size': [48, 36, 24],  # reduce input size for 4x and 8x to save memory
             'growing_steps': [0.12, 0.25, 0.45, 0.6, 1.00],
             'lr_schedule_patience': 30,
             'lr': 0.0001,
+            'lr_decay': 0.5,
+            'smallest_lr': 1e-5,
             'l1_loss_weight': 1.0,
         },
         'G': {
@@ -55,6 +56,7 @@ prosr_params = \
             },
         },
         'data': {
+            'input_size': [48, 36, 24],  # reduce input size for 4x and 8x to save memory
             'max_scale': 8,
             'scale': [2, 4, 8]
         }

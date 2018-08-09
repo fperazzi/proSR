@@ -200,13 +200,8 @@ python train.py --config CONFIG.yaml
 
 Configurations files for the architectures proposed in the papers are can be found in `PROJECT_ROOT/options`
 
-To resume training from a checkpoint, e.g. `data/checkpoints/pretrained_net_G.pth`.
 
-By default, all available GPUs are used. To use specific GPUs use `VISIBLE_CUDA_DEVICES`, e.g. `VISIBLE_CUDA_DEVICES=0,1 python train.py ...
-
-```
-python train.py -m MODEL --resume data/checkpoints/pretrained
-```
+By default, all available GPUs are used. To use specific GPUs use `VISIBLE_CUDA_DEVICES`, e.g. `VISIBLE_CUDA_DEVICES=0,1 python train.py `...
 
 See `train.py`
 ```
@@ -235,6 +230,13 @@ optional arguments:
                         port used by visdom
   --use-html USE_HTML   save log images to html
 ```
+
+### Resume Training
+To resume training from a checkpoint, e.g. `data/checkpoints/<pretrained>_net_G.pth`.
+```
+python train.py -m MODEL --resume data/checkpoints/<pretrained>
+```
+
 
 #### Visualization
 To visualize intermediate results (optional) run the `visdom.server` in a separate terminal (see below) and enable visualization passing the command line arguments: `--visdom True --visdom-port PORT-NUMBER`.

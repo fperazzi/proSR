@@ -64,8 +64,7 @@ if __name__ == '__main__':
     args = parse_args()
 
     checkpoint = torch.load(args.checkpoint)
-    # cls_model = getattr(prosr.models, checkpoint['class_name'])
-    cls_model = prosr.ProSR
+    cls_model = getattr(prosr.models, checkpoint['class_name'])
 
     model = cls_model(**checkpoint['params']['G'])
     model.load_state_dict(checkpoint['state_dict'])

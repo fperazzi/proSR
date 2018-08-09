@@ -23,6 +23,7 @@ cmd:
   visdom: false
   visdom_port: 8067
 data:
+  input_size: [48, 36, 24]
   max_scale: 8
   scale: [2, 4, 8]
 test:
@@ -38,7 +39,8 @@ train:
     stddev: [0.0039215, 0.0039215, 0.0039215]
   epochs: 7200
   growing_steps: [0.12, 0.25, 0.45, 0.6, 1.0]
-  input_size: [48, 36, 24]
   l1_loss_weight: 1.0
   lr: 0.0001
+  lr_decay: 0.5
+  smallest_lr: 1e-5
   lr_schedule_patience: 30

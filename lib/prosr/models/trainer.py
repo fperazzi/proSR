@@ -10,11 +10,11 @@ from .generators import ProSR
 
 
 class CurriculumLearningTrainer(object):
-    def __init__(self, opt, training_dataset, start_epoch=0, save_dir='data/checkpoints', resume_from=None):
+    def __init__(self, opt, training_dataset, save_dir='data/checkpoints', resume_from=None):
         self.opt = opt
         self.save_dir = save_dir
         self.training_dataset = training_dataset
-        self.start_epoch = start_epoch
+        self.start_epoch = 0
         self.progress = self.start_epoch / opt.train.epochs
         self.blend = 1
         # training variables
@@ -48,13 +48,10 @@ class CurriculumLearningTrainer(object):
             try:
                 self.load_network(self.net_G, 'G', resume_from)
                 self.load_optimizer(self.optimizer_G, 'G', resume_from)
-                for param_group in self.optimizer_G.param_groups:
-                    self.lr = param_group['lr']
-                    break
                 info('Set lr = %e' % self.lr)
             except Exception as e:
-                warn(str(e))
-                self.set_learning_rate(self.lr, self.optimizer_G)
+                warn("Error loading pretrained network. "+str(e))
+                exit(0)
 
         ########### define loss functions  ############
         self.l1_criterion = torch.nn.L1Loss()
@@ -168,9 +165,9 @@ class CurriculumLearningTrainer(object):
 
         return d
 
-    def save(self, epoch):
-        self.save_network(self.net_G, 'G', epoch)
-        self.save_optimizer(self.optimizer_G, 'G', epoch)
+    def save(self, epoch_label, epoch, lr):
+        self.save_network(self.net_G, 'G', epoch_label )
+        self.save_optimizer(self.optimizer_G, 'G', epoch_label, epoch, lr)
 
     def get_current_eval_result(self):
         eval_result = OrderedDict()
@@ -206,14 +203,14 @@ class CurriculumLearningTrainer(object):
         save_path = os.path.join(self.save_dir, save_filename)
         to_save = {'state_dict': network.state_dict(),
                    'params':    self.opt,
-                   'class_name': type(self.net_G).__name__,
+                   'class_name': self.net_G.class_name(),
                    }
         torch.save(to_save, save_path)
 
     def load_network(self, network, network_label, epoch_label):
         network = network.module if isinstance(network, torch.nn.DataParallel) else network
         save_path = '%s_net_%s.pth' % (epoch_label, network_label)
-        loaded_state = torch.load(save_path)['state_dict']
+        loaded_state     = torch.load(save_path)['state_dict']
         loaded_param_names = set(loaded_state.keys())
 
         # allow loaded states to contain keys that don't exist in current model
@@ -229,18 +226,30 @@ class CurriculumLearningTrainer(object):
             network.load_state_dict(loaded_state)
         except KeyError as e:
             print(e)
-        info('Loaded network state from ' + save_path)
+        info('loaded network state from ' + save_path)
 
-    def save_optimizer(self, optimizer, label, epoch_label):
+    def save_optimizer(self, optimizer, label, epoch_label, epoch, lr):
         save_filename = '%s_optim_%s.pth' % (epoch_label, label)
         save_path = os.path.join(self.save_dir, save_filename)
-        torch.save(optimizer.state_dict(), save_path)
+
+        to_save = {'state_dict': optimizer.state_dict(),
+                   'epoch':epoch,
+                   'lr': lr
+                   }
+        torch.save(to_save,save_path)
 
     def load_optimizer(self, optimizer, label, epoch_label):
         save_path = '%s_optim_%s.pth' % (epoch_label, label)
-        loaded_state = torch.load(save_path)
+
+        data = torch.load(save_path)
+        loaded_state = data['state_dict']
         optimizer.load_state_dict(loaded_state)
-        info('Loaded optimizer state from ' + save_path)
+
+        # Load more params
+        self.start_epoch = data['epoch']
+        self.lr = data['lr']
+
+        info('loaded optimizer state from ' + save_path)
 
     def set_learning_rate(self, lr, optimizer):
         for param_group in optimizer.param_groups:

@@ -21,7 +21,6 @@ from prosr.logger import info
 from prosr.models.trainer import CurriculumLearningTrainer
 from prosr.utils import get_filenames, print_current_errors, IMG_EXTENSIONS
 
-CHECKPOINT_DIR = 'data/checkpoints'
 
 
 def parse_args():
@@ -41,26 +40,28 @@ def parse_args():
         type=str,
         help="Configuration file in 'yaml' format.")
 
-    parser.add_argument(
-        '-e',
-        '--experiment-id',
+    group.add_argument(
+        '-ckpt',
+        '--checkpoint',
         type=str,
         help='name of this training experiment',
-        required=True)
+        )
+
+    parser.add_argument(
+        '-o',
+        '--output',
+        type=str,
+        help='name of this training experiment',
+        default=None
+        )
+
     parser.add_argument(
         '--upscale-factor',
         type=int,
         help='upscale factor',
         default=[2, 4, 8],
         nargs='+')
-    parser.add_argument(
-        '--start-epoch', type=int, help='start from epoch x', default=0)
-    parser.add_argument(
-        '--resume',
-        type=str,
-        help=
-        'checkpoint to resume from. E.g. --resume \'best_psnr_x4\' for best_psnr_x4_net_G.pth '
-    )
+
     parser.add_argument(
         '-v',
         '--visdom',
@@ -77,6 +78,14 @@ def parse_args():
         '--use-html', type=bool, help='save log images to html', default=False)
 
     args = parser.parse_args()
+
+    if (args.model or args.config) and args.output is None:
+        parser.error("--model and --config requires --output.")
+
+    ############# set up trainer ######################
+    if args.checkpoint:
+        args.output = osp.basename(osp.dirname(args.checkpoint))
+
 
     return args
 
@@ -103,7 +112,7 @@ def main(args):
         prosr.Phase.TRAIN, [],
         train_files,
         args.cmd.upscale_factor,
-        crop_size=args.train.input_size,
+        input_size=args.data.input_size,
         **args.train.dataset)
 
     training_data_loader = DataLoader(
@@ -116,32 +125,31 @@ def main(args):
             prosr.Phase.VAL, [],
             test_files,
             s,
-            crop_size=None,
+            input_size=None,
             **args.test.dataset) for s in args.cmd.upscale_factor
     ])
     testing_data_loader = torch.utils.data.DataLoader(testing_dataset)
     info('validation images = %d' % len(testing_data_loader))
 
-    ############# set up trainer ######################
+
     trainer = CurriculumLearningTrainer(
         args,
         training_data_loader,
-        start_epoch=args.cmd.start_epoch,
-        save_dir=osp.join(CHECKPOINT_DIR, args.cmd.experiment_id),
+        save_dir=args.cmd.output,
         resume_from=args.cmd.resume)
     trainer.set_train()
 
-    log_file = os.path.join(CHECKPOINT_DIR, params.cmd.experiment_id,
-                            'loss_log.txt')
+    log_file = os.path.join(args.cmd.output,'loss_log.txt')
 
     steps_per_epoch = len(trainer.training_dataset)
     total_steps = trainer.start_epoch * steps_per_epoch
     trainer.reset_curriculum_for_dataloader()
 
     next_eval_epoch = 1
+
     max_eval_frequency = 10
-    save_model_freq = 10
-    print_errors_freq = 100
+    print_errors_freq  = 100
+    save_model_freq    = 100
 
     ############# start training ###############
     info('start training from epoch %d, learning rate %e' %
@@ -161,6 +169,7 @@ def main(args):
                 iter_start_time = time()
                 print_current_errors(
                     epoch, total_steps, errors, t, log_name=log_file)
+                break
 
         # Save model
         if (epoch) % save_model_freq == 0:
@@ -168,11 +177,11 @@ def main(args):
                 'saving the model at the end of epoch %d, iters %d' %
                 (epoch, total_steps),
                 bold=True)
-            trainer.save(str(epoch))
+            trainer.save(str(epoch),epoch,trainer.lr)
 
         ################# update learning rate  #################
-        if (epoch - trainer.best_epoch) > args.train.lr_schedule_patience:
-            trainer.save('last_lr_%g' % trainer.lr)
+        if (epoch - trainer.best_epoch) >= 0:
+            trainer.save('last_lr_%g' % trainer.lr,epoch,trainer.lr)
             trainer.update_learning_rate()
 
         ################ visualize ###############
@@ -226,7 +235,7 @@ def main(args):
                         ]
                     else:
                         best_key = list(trainer.best_eval.keys())
-                    trainer.save('best_' + '_'.join(best_key))
+                    trainer.save('best_' + '_'.join(best_key),epoch,trainer.lr)
 
             trainer.set_train()
 
@@ -243,24 +252,29 @@ if __name__ == '__main__':
             except yaml.YAMLError as exc:
                 print(exc)
                 sys.exit(0)
-    else:
+    elif args.model is not None:
         params = edict(getattr(prosr, args.model + '_params'))
+
+    else:
+        params = torch.load(args.checkpoint + '_net_G.pth')['params']
 
     # Add command line arguments
     params.cmd = edict(vars(args))
+    pprint(params)
 
-    checkpoint_dir = osp.join(CHECKPOINT_DIR, params.cmd.experiment_id)
-    if not osp.isdir(checkpoint_dir):
-        os.makedirs(checkpoint_dir)
-    np.save(osp.join(checkpoint_dir, 'params'), params)
+    if not osp.isdir(args.output):
+        os.makedirs(args.output)
+    np.save(osp.join(args.output, 'params'), params)
 
-    info('experiment ID: {}'.format(params.cmd.experiment_id))
+    experiment_id = osp.basename(args.output)
 
-    if args.visdom:
-        from prosr.visualizer import Visualizer
-        visualizer = Visualizer(
-            params.cmd.experiment_id,
-            port=args.visdom_port,
-            use_html=args.use_html)
+    info('experiment ID: {}'.format(experiment_id))
 
-    main(params)
+    # if args.visdom:
+    #     from prosr.visualizer import Visualizer
+    #     visualizer = Visualizer(
+    #         experiment_id,
+    #         port=args.visdom_port,
+    #         use_html=args.use_html)
+
+    # main(params)

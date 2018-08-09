@@ -163,6 +163,9 @@ class ProSR(nn.Module):
             block['final_conv'] = Conv2d(in_channels, in_channels, (3, 3))
             out_channels = in_channels
         return nn.Sequential(block), out_channels
+    def class_name(self):
+        return 'ProSR'
+
 
 
 class EDSR(nn.Module):
@@ -212,3 +215,6 @@ class EDSR(nn.Module):
         output = self.reconst(output)
 
         return output
+
+    def class_name(self):
+        return 'ESDR'
