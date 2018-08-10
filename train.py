@@ -141,8 +141,8 @@ def main(args):
 
     ############# output settings ##############
     next_eval_epoch = 1
-    max_eval_frequency = 5
-    print_errors_freq = 100
+    max_eval_frequency = 1
+    print_errors_freq = 10
     save_model_freq = 10
 
     ############# start training ###############
@@ -183,7 +183,8 @@ def main(args):
                         trainer.get_current_visuals(), epoch)
                     visualizer.plot(errors_accum, total_steps, 'loss')
                     visualizer.plot(lrs, total_steps, 'lr rate', 'lr')
-                    errors_accum = defaultdict(list)
+
+                errors_accum = defaultdict(list)
 
         # Save model
         if epoch % save_model_freq == 0:

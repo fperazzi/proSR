@@ -218,14 +218,14 @@ class CurriculumLearningTrainer(object):
             eval_result = self.get_current_eval_result()
         else:
             eval_result = current_eval_result
-        self.best_eval = {
-            k: max(self.best_eval[k], eval_result[k])
-            for k in self.best_eval
-        }
         is_best_sofar = any(
             [eval_result[k] > v for k, v in self.best_eval.items()])
         if is_best_sofar:
             self.best_epoch = epoch
+            self.best_eval = {
+                k: max(self.best_eval[k], eval_result[k])
+                for k in self.best_eval
+            }
 
     # helper saving function that can be used by subclasses
     def save_network(self, network, network_label, epoch_label):
