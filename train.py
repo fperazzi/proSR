@@ -184,7 +184,6 @@ def main(args):
                     visualizer.plot(errors_accum, total_steps, 'loss')
                     visualizer.plot(lrs, total_steps, 'lr rate', 'lr')
                     errors_accum = defaultdict(list)
-                    break
 
         # Save model
         if epoch % save_model_freq == 0:
