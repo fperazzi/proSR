@@ -19,8 +19,6 @@ cmd:
   resume: null
   start_epoch: 0
   upscale_factor: [2, 4, 8]
-  use_html: false
-  visdom: false
   visdom_port: 8067
 data:
   input_size: [48, 36, 24]

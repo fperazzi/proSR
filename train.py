@@ -69,14 +69,13 @@ def parse_args():
         type=bool,
         help='use visdom to visualize',
         default=False)
+
     parser.add_argument(
         '-p',
         '--visdom-port',
         type=int,
         help='port used by visdom',
         default=8067)
-    parser.add_argument(
-        '--use-html', type=bool, help='save log images to html', default=False)
 
     args = parser.parse_args()
 
@@ -146,10 +145,11 @@ def main(args):
     total_steps = trainer.start_epoch * steps_per_epoch
     trainer.reset_curriculum_for_dataloader()
 
-    next_eval_epoch = 1
-    max_eval_frequency = 5 #5
-    print_errors_freq  = 100 #100
-    save_model_freq    = 10 #10
+    ############# output settings ##############
+    next_eval_epoch    = 1
+    max_eval_frequency = 5
+    print_errors_freq  = 100
+    save_model_freq    = 10
 
     ############# start training ###############
     info('start training from epoch %d, learning rate %e' %
@@ -291,7 +291,7 @@ if __name__ == '__main__':
         from prosr.visualizer import Visualizer
         visualizer = Visualizer(
             experiment_id,
-            port=args.visdom_port,
-            use_html=args.use_html)
+            port=args.visdom_port
+            )
 
     main(params)

@@ -5,21 +5,13 @@ import skimage.io as io
 from .utils import html
 
 class Visualizer():
-    def __init__(self, name, port=8067, use_html=False, use_visdom=True):
-        self.use_html = use_html
+    def __init__(self, name, port=8067, use_visdom=True):
         self.win_size = 192
         self.name = name
         self.plot_data = {}
         if use_visdom:
             import visdom
             self.vis = visdom.Visdom(port=port, env=self.name)
-
-        if self.use_html:
-            self.web_dir = os.path.join('data/checkpoints', self.name, 'web')
-            self.img_dir = os.path.join(self.web_dir, 'images')
-            print('create web directory %s...' % self.web_dir)
-            os.makedirs(self.web_dir)
-            os.makedirs(self.img_dir)
 
     # |visuals|: dictionary of images to display or save
     def display_current_results(self, visuals, epoch):

@@ -228,7 +228,6 @@ optional arguments:
                         use visdom to visualize
   -p VISDOM_PORT, --visdom-port VISDOM_PORT
                         port used by visdom
-  --use-html USE_HTML   save log images to html
 ```
 
 ### Resume Training
