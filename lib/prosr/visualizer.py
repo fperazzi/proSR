@@ -22,42 +22,13 @@ class Visualizer():
             os.makedirs(self.img_dir)
 
     # |visuals|: dictionary of images to display or save
-    def display_current_results(self, visuals, epoch, iter=0, display_id=1):
-        idx = 1
+    def display_current_results(self, visuals, epoch):
         for label, item in visuals.items():
-            if 'pc' in label:
-                self.vis.scatter(np.transpose(item),
-                                 Y=None,
-                                 opts=dict(title=label, markersize=0.5),
-                                 win=display_id + idx)
-            elif 'img' in label:
-                # the transpose: HxWxC -> CxHxW
-                self.vis.image(np.transpose(item, (2,0,1)), opts=dict(title=label),
-                               win=display_id + idx)
-            idx += 1
-
-        if self.use_html:  # save images to a html file
-            for label, image_numpy in visuals.items():
-                img_path = os.path.join(self.img_dir, 'epoch%.3d-%d_%s.png' % (epoch, iter, label))
-                io.imsave(image_numpy, img_path)
-            # update website
-            webpage = html.HTML(self.web_dir, 'Experiment name = %s' % self.name, reflesh=1)
-            for n in range(epoch, 0, -1):
-                webpage.add_header('epoch [%d]' % n)
-                ims = []
-                txts = []
-                links = []
-
-                for label, image_numpy in visuals.items():
-                    img_path = 'epoch%.3d-%d_%s.png' % (n, iter, label)
-                    ims.append(img_path)
-                    txts.append(label)
-                    links.append(img_path)
-                webpage.add_images(ims, txts, links, width=self.win_size)
-            webpage.save()
+            self.vis.image(np.transpose(item, (2,0,1)), opts=dict(title=label),
+                           win=label)
 
     # errors: dictionary of error labels and values
-    def plot(self, data, epoch, display_id):
+    def plot(self, data, epoch, display_id,ylabel='value'):
         if display_id not in self.plot_data:
             self.plot_data[display_id] = {'X': [], 'Y': [], 'legend': list(data.keys())}
         mdata = self.plot_data[display_id]
@@ -67,10 +38,11 @@ class Visualizer():
             X=np.stack([np.array(mdata['X'])] * len(mdata['legend']), 1),
             Y=np.array(self.plot_data[display_id]['Y']),
             opts={
-                'title': ' + '.join(mdata['legend']),
+                'title': display_id,
+                'ytickmax': 1e-4,
                 'legend': mdata['legend'],
                 'xlabel': 'epoch',
-                'ylabel': 'value'},
+                'ylabel': ylabel},
             win=(display_id))
 
     # save image to the disk

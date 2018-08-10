@@ -1,4 +1,5 @@
 import os
+from collections import defaultdict
 import os.path as osp
 from argparse import ArgumentParser
 import yaml
@@ -145,14 +146,17 @@ def main(args):
     total_steps = trainer.start_epoch * steps_per_epoch
     trainer.reset_curriculum_for_dataloader()
 
-    next_eval_epoch = 2
-    max_eval_frequency = 5
-    print_errors_freq  = 100
-    save_model_freq    = 10
+    next_eval_epoch = 1
+    max_eval_frequency = 5 #5
+    print_errors_freq  = 100 #100
+    save_model_freq    = 10 #10
 
     ############# start training ###############
     info('start training from epoch %d, learning rate %e' %
          (trainer.start_epoch, trainer.lr))
+
+    steps_per_epoch = len(trainer.training_dataset)
+    errors_accum = defaultdict(list)
 
     for epoch in range(trainer.start_epoch + 1, args.train.epochs + 1):
         iter_start_time = time()
@@ -161,13 +165,32 @@ def main(args):
             trainer.forward()
             trainer.optimize_parameters()
 
+            errors = trainer.get_current_errors()
+            for key,item in errors.items():
+                errors_accum[key].append(item)
+
             total_steps += 1
             if total_steps % print_errors_freq == 0:
-                errors = trainer.get_current_errors()
+                for key,item in errors.items():
+                    errors_accum[key] = np.average(errors_accum[key])
                 t = time() - iter_start_time
                 iter_start_time = time()
                 print_current_errors(
-                    epoch, total_steps, errors, t, log_name=log_file)
+                    epoch, total_steps, errors_accum, t, log_name=log_file)
+
+                if args.cmd.visdom:
+                    lrs = {
+                        'lr%d' % i: param_group['lr']
+                        for i, param_group in enumerate(
+                            trainer.optimizer_G.param_groups)
+                    }
+                    real_epoch = float(total_steps)/steps_per_epoch
+                    visualizer.display_current_results(
+                        trainer.get_current_visuals(), epoch)
+                    visualizer.plot(errors_accum,total_steps,'loss')
+                    visualizer.plot(lrs,total_steps,'lr rate','lr')
+                    errors_accum = defaultdict(list)
+                    break
 
         # Save model
         if epoch % save_model_freq == 0:
@@ -177,23 +200,12 @@ def main(args):
                 bold=True)
             trainer.save(str(epoch),epoch,trainer.lr)
 
+
         ################# update learning rate  #################
         if (epoch - trainer.best_epoch) > args.train.lr_schedule_patience:
             trainer.save('last_lr_%g' % trainer.lr,epoch,trainer.lr)
             trainer.update_learning_rate()
 
-        ################ visualize ###############
-
-        # if args.cmd.visdom:
-        #     lrs = {
-        #         'lr%d' % i: param_group['lr']
-        #         for i, param_group in enumerate(
-        #             trainer.optimizer_G.param_groups)
-        #     }
-        #     visualizer.display_current_results(
-        #         trainer.get_current_test_result(), epoch)
-        #     visualizer.plot(lrs, epoch, 3)
-        #     visualizer.plot(test_result, epoch, 2)
 
         ################# test with validation set ##############
         if epoch % next_eval_epoch == 0:
@@ -209,6 +221,12 @@ def main(args):
 
                 t = time() - test_start_time
                 test_result = trainer.get_current_eval_result()
+
+                ################ visualize ###############
+                if args.cmd.visdom:
+                    visualizer.plot(
+                        test_result,
+                        float(total_steps)/steps_per_epoch,'eval','psnr')
 
                 trainer.update_best_eval_result(epoch, test_result)
                 info(
@@ -234,6 +252,7 @@ def main(args):
                     else:
                         best_key = list(trainer.best_eval.keys())
                     trainer.save('best_' + '_'.join(best_key),epoch,trainer.lr)
+
 
             trainer.set_train()
 
@@ -268,11 +287,11 @@ if __name__ == '__main__':
 
     info('experiment ID: {}'.format(experiment_id))
 
-    # if args.visdom:
-    #     from prosr.visualizer import Visualizer
-    #     visualizer = Visualizer(
-    #         experiment_id,
-    #         port=args.visdom_port,
-    #         use_html=args.use_html)
+    if args.visdom:
+        from prosr.visualizer import Visualizer
+        visualizer = Visualizer(
+            experiment_id,
+            port=args.visdom_port,
+            use_html=args.use_html)
 
     main(params)
