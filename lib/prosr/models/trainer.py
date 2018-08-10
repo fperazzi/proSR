@@ -1,16 +1,20 @@
-import torch
-from collections import OrderedDict
-import os
-from bisect import bisect_left
-
-from ..utils import print_network, tensor2im
-from ..logger import warn, info
+from ..logger import info, warn
 from ..metrics import eval_psnr_and_ssim
+from ..utils import print_network, tensor2im
 from .generators import ProSR
+from bisect import bisect_left
+from collections import OrderedDict
+
+import os
+import torch
 
 
 class CurriculumLearningTrainer(object):
-    def __init__(self, opt, training_dataset, save_dir='data/checkpoints', resume_from=None):
+    def __init__(self,
+                 opt,
+                 training_dataset,
+                 save_dir='data/checkpoints',
+                 resume_from=None):
         self.opt = opt
         self.save_dir = save_dir
         self.training_dataset = training_dataset
@@ -18,12 +22,18 @@ class CurriculumLearningTrainer(object):
         self.progress = self.start_epoch / opt.train.epochs
         self.blend = 1
         # training variables
-        self.input = torch.zeros(opt.train.batch_size, 3, 48, 48, dtype=torch.float32).cuda(non_blocking=True)
-        self.label = torch.zeros_like(self.input, dtype=torch.float32).cuda(non_blocking=True)
-        self.interpolated = torch.zeros_like(self.label, dtype=torch.float32).cuda(non_blocking=True)
+        self.input = torch.zeros(
+            opt.train.batch_size, 3, 48, 48,
+            dtype=torch.float32).cuda(non_blocking=True)
+        self.label = torch.zeros_like(
+            self.input, dtype=torch.float32).cuda(non_blocking=True)
+        self.interpolated = torch.zeros_like(
+            self.label, dtype=torch.float32).cuda(non_blocking=True)
         # for evaluation
-        self.best_eval = OrderedDict([('psnr_x%d' % s, 0.0) for s in opt.data.scale])
-        self.eval_dict = OrderedDict([('psnr_x%d' % s, []) for s in opt.data.scale])
+        self.best_eval = OrderedDict(
+            [('psnr_x%d' % s, 0.0) for s in opt.data.scale])
+        self.eval_dict = OrderedDict(
+            [('psnr_x%d' % s, []) for s in opt.data.scale])
 
         self.tensor2im = lambda t: tensor2im(t, mean=training_dataset.dataset.mean,
                                              stddev=training_dataset.dataset.stddev)
@@ -41,7 +51,9 @@ class CurriculumLearningTrainer(object):
 
         self.optimizer_G = torch.optim.Adam(
             [p for p in self.net_G.parameters() if p.requires_grad],
-            lr=self.opt.train.lr, betas=(0.9, 0.999), eps=1.0e-08)
+            lr=self.opt.train.lr,
+            betas=(0.9, 0.999),
+            eps=1.0e-08)
         self.lr = self.opt.train.lr
 
         if resume_from:
@@ -50,7 +62,7 @@ class CurriculumLearningTrainer(object):
                 self.load_optimizer(self.optimizer_G, 'G', resume_from)
                 info('Set lr = %e' % self.lr)
             except Exception as e:
-                warn("Error loading pretrained network. "+str(e))
+                warn("Error loading pretrained network. " + str(e))
                 exit(0)
 
         ########### define loss functions  ############
@@ -62,10 +74,12 @@ class CurriculumLearningTrainer(object):
 
     def reset_curriculum_for_dataloader(self):
         """ set data loader to load correct scales"""
-        assert len(self.opt.train.growing_steps) == len(self.opt.data.scale) * 2 - 1
-        self.current_scale_idx = (bisect_left(self.opt.train.growing_steps, self.progress) + 1) // 2
+        assert len(
+            self.opt.train.growing_steps) == len(self.opt.data.scale) * 2 - 1
+        self.current_scale_idx = (
+            bisect_left(self.opt.train.growing_steps, self.progress) + 1) // 2
         self.net_G.current_scale_idx = self.current_scale_idx
-        training_scales = self.opt.data.scale[:(self.current_scale_idx+1)]
+        training_scales = self.opt.data.scale[:(self.current_scale_idx + 1)]
         self.training_dataset.random_vars.clear()
         for s in training_scales:
             self.training_dataset.random_vars.append(s)
@@ -94,24 +108,35 @@ class CurriculumLearningTrainer(object):
 
     def forward(self):
         if self.current_scale_idx != 0:
-            lo, hi = self.opt.train.growing_steps[
-                self.max_scale_idx * 2 - 2: self.max_scale_idx * 2]
+            lo, hi = self.opt.train.growing_steps[self.max_scale_idx * 2 -
+                                                  2:self.max_scale_idx * 2]
             self.blend = min((self.progress - lo) / (hi - lo), 1)
             assert self.blend >= 0 and self.blend <= 1
         else:
             self.blend = 1
-        self.output = self.net_G(self.input, upscale_factor=self.model_scale, blend=self.blend)+self.interpolated
+        self.output = self.net_G(
+            self.input, upscale_factor=self.model_scale,
+            blend=self.blend) + self.interpolated
 
     def evaluate(self):
         if isinstance(self.net_G, torch.nn.DataParallel):
             # TODO: fix this silly way to pass 1 instance to multiple gpu (self.net_G.module.forward wouldn't work)
-            self.output = self.net_G(torch.cat([self.input for _ in range(torch.cuda.device_count())]), upscale_factor=self.model_scale, blend=self.blend)[:1]+self.interpolated
+            self.output = self.net_G(
+                torch.cat(
+                    [self.input for _ in range(torch.cuda.device_count())]),
+                upscale_factor=self.model_scale,
+                blend=self.blend)[:1] + self.interpolated
         else:
-            self.output = self.net_G(self.input, upscale_factor=self.model_scale, blend=self.blend)+self.interpolated
+            self.output = self.net_G(
+                self.input, upscale_factor=self.model_scale,
+                blend=self.blend) + self.interpolated
 
         im1 = self.tensor2im(self.label)
         im2 = self.tensor2im(self.output)
-        eval_res = {'psnr_x%d' % self.model_scale: eval_psnr_and_ssim(im1, im2, self.model_scale)[0]}
+        eval_res = {
+            'psnr_x%d' % self.model_scale:
+            eval_psnr_and_ssim(im1, im2, self.model_scale)[0]
+        }
         for k, v in eval_res.items():
             self.eval_dict[k].append(v)
         return eval_res
@@ -135,17 +160,22 @@ class CurriculumLearningTrainer(object):
 
     def increment_training_progress(self):
         """increment self.progress and D, G scale_idx"""
-        self.progress += 1/len(self.training_dataset)/self.opt.train.epochs
-        if self.progress > self.opt.train.growing_steps[self.current_scale_idx * 2]:
+        self.progress += 1 / len(self.training_dataset) / self.opt.train.epochs
+        if self.progress > self.opt.train.growing_steps[self.current_scale_idx
+                                                        * 2]:
             if self.current_scale_idx < len(self.opt.data.scale) - 1:
                 self.current_scale_idx += 1
                 self.net_G.current_scale_idx = self.current_scale_idx
 
-                training_scales = [self.opt.data.scale[i] for i in range(self.current_scale_idx + 1)]
+                training_scales = [
+                    self.opt.data.scale[i]
+                    for i in range(self.current_scale_idx + 1)
+                ]
                 self.training_dataset.random_vars.clear()
                 for s in training_scales:
                     self.training_dataset.random_vars.append(s)
-                info('start training with scales: {}'.format(str(training_scales)))
+                info('start training with scales: {}'.format(
+                    str(training_scales)))
 
     def get_current_visuals(self):
         disp = OrderedDict()
@@ -166,7 +196,7 @@ class CurriculumLearningTrainer(object):
         return d
 
     def save(self, epoch_label, epoch, lr):
-        self.save_network(self.net_G, 'G', epoch_label )
+        self.save_network(self.net_G, 'G', epoch_label)
         self.save_optimizer(self.optimizer_G, 'G', epoch_label, epoch, lr)
 
     def get_current_eval_result(self):
@@ -189,7 +219,8 @@ class CurriculumLearningTrainer(object):
         else:
             eval_result = current_eval_result
         self.best_eval = {
-            k: max(self.best_eval[k], eval_result[k]) for k in self.best_eval
+            k: max(self.best_eval[k], eval_result[k])
+            for k in self.best_eval
         }
         is_best_sofar = any(
             [eval_result[k] > v for k, v in self.best_eval.items()])
@@ -198,19 +229,22 @@ class CurriculumLearningTrainer(object):
 
     # helper saving function that can be used by subclasses
     def save_network(self, network, network_label, epoch_label):
-        network = network.module if isinstance(network, torch.nn.DataParallel) else network
+        network = network.module if isinstance(
+            network, torch.nn.DataParallel) else network
         save_filename = '%s_net_%s.pth' % (epoch_label, network_label)
         save_path = os.path.join(self.save_dir, save_filename)
-        to_save = {'state_dict': network.state_dict(),
-                   'params':    self.opt,
-                   'class_name': network.class_name(),
-                   }
+        to_save = {
+            'state_dict': network.state_dict(),
+            'params': self.opt,
+            'class_name': network.class_name(),
+        }
         torch.save(to_save, save_path)
 
     def load_network(self, network, network_label, epoch_label):
-        network = network.module if isinstance(network, torch.nn.DataParallel) else network
+        network = network.module if isinstance(
+            network, torch.nn.DataParallel) else network
         save_path = '%s_net_%s.pth' % (epoch_label, network_label)
-        loaded_state     = torch.load(save_path)['state_dict']
+        loaded_state = torch.load(save_path)['state_dict']
         loaded_param_names = set(loaded_state.keys())
 
         # allow loaded states to contain keys that don't exist in current model
@@ -232,11 +266,12 @@ class CurriculumLearningTrainer(object):
         save_filename = '%s_optim_%s.pth' % (epoch_label, label)
         save_path = os.path.join(self.save_dir, save_filename)
 
-        to_save = {'state_dict': optimizer.state_dict(),
-                   'epoch':epoch,
-                   'lr': lr
-                   }
-        torch.save(to_save,save_path)
+        to_save = {
+            'state_dict': optimizer.state_dict(),
+            'epoch': epoch,
+            'lr': lr
+        }
+        torch.save(to_save, save_path)
 
     def load_optimizer(self, optimizer, label, epoch_label):
         save_path = '%s_optim_%s.pth' % (epoch_label, label)

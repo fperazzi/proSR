@@ -1,17 +1,15 @@
-import os
+from ..config import phase
+from ..logger import info
+from ..metrics import eval_psnr
+from ..misc.util import tensor2im
 from collections import OrderedDict
 from easydict import EasyDict as edict
 
+import os
 import torch
-
-from ..config import phase
-from ..logger import info
-from ..misc.util import tensor2im
-from ..metrics import eval_psnr
 
 
 class BaseModel():
-
     def get_current_errors(self):
         return {}
 
@@ -35,7 +33,8 @@ class BaseModel():
         else:
             eval_result = current_eval_result
         self.best_eval = {
-            k: max(self.best_eval[k], eval_result[k]) for k in self.best_eval
+            k: max(self.best_eval[k], eval_result[k])
+            for k in self.best_eval
         }
         is_best_sofar = any(
             [eval_result[k] == v for k, v in self.best_eval.items()])
@@ -52,9 +51,12 @@ class BaseModel():
     def save_network(self, network, network_label, epoch_label):
         save_filename = '%s_net_%s.pth' % (epoch_label, network_label)
         save_path = os.path.join(self.save_dir, save_filename)
-        to_save = edict({'state_dict': network.cpu().state_dict(),
-                         'params':     {'G': self.opt.G}
-                         })
+        to_save = edict({
+            'state_dict': network.cpu().state_dict(),
+            'params': {
+                'G': self.opt.G
+            }
+        })
         torch.save(to_save, save_path)
         if torch.cuda.is_available():
             network.cuda()

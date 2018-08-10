@@ -1,8 +1,8 @@
 from collections import OrderedDict
+from torchvision import models
 
 import torch
 import torch.nn as nn
-from torchvision import models
 
 
 class ToVggInput(nn.Module):
@@ -10,11 +10,15 @@ class ToVggInput(nn.Module):
 
     def __init__(self, orig_mean, orig_mul):
         super(ToVggInput, self).__init__()
-        self.orig_mean = nn.Parameter(torch.Tensor(orig_mean).view(1, 3, 1, 1), requires_grad=False)
-        self.orig_mul = nn.Parameter(torch.Tensor([orig_mul]), requires_grad=False)
-        self.mean = nn.Parameter(torch.Tensor([[[0.485]], [[0.456]], [[0.406]]]),
+        self.orig_mean = nn.Parameter(
+            torch.Tensor(orig_mean).view(1, 3, 1, 1), requires_grad=False)
+        self.orig_mul = nn.Parameter(
+            torch.Tensor([orig_mul]), requires_grad=False)
+        self.mean = nn.Parameter(
+            torch.Tensor([[[0.485]], [[0.456]], [[0.406]]]),
             requires_grad=False)
-        self.std = nn.Parameter(torch.Tensor([[[0.229]], [[0.224]], [[0.225]]]),
+        self.std = nn.Parameter(
+            torch.Tensor([[[0.229]], [[0.224]], [[0.225]]]),
             requires_grad=False)
 
     def forward(self, x):
@@ -22,7 +26,12 @@ class ToVggInput(nn.Module):
 
 
 class Vgg16(nn.Module):
-    def __init__(self, orig_mean, orig_mul, upto=5, mean_pool=False, requires_grad=False):
+    def __init__(self,
+                 orig_mean,
+                 orig_mul,
+                 upto=5,
+                 mean_pool=False,
+                 requires_grad=False):
         super(Vgg16, self).__init__()
         self.upto = upto
         vgg_pretrained_features = models.vgg16(pretrained=True).features
@@ -55,7 +64,7 @@ class Vgg16(nn.Module):
             acquire = [self.upto]
         x = self.data_conversion(x)
         output = []
-        for i in range(1, self.upto+1):
+        for i in range(1, self.upto + 1):
             x = getattr(self, 'relu_%d' % i)(x)
             if i in acquire:
                 output.append(x)

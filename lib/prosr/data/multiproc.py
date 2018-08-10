@@ -1,14 +1,13 @@
+from torch.utils.data.sampler import RandomSampler, SequentialSampler
+
 import collections
 import queue
+import random
 import sys
 import threading
-import traceback
-import random
-
 import torch
 import torch.multiprocessing as multiprocessing
-from torch.utils.data.sampler import (RandomSampler, SequentialSampler)
-
+import traceback
 """
 A hacky way to schedule different scales with dataset.get()
 """
@@ -37,7 +36,8 @@ def _worker_loop(dataset, index_queue, data_queue, collate_fn):
             break
         idx, random_var, batch_indices = r
         try:
-            samples = collate_fn([dataset.get(i, random_var) for i in batch_indices])
+            samples = collate_fn(
+                [dataset.get(i, random_var) for i in batch_indices])
         except Exception:
             data_queue.put((idx, ExceptionWrapper(sys.exc_info())))
         else:
@@ -104,14 +104,15 @@ def default_collate(batch):
         return batch
     elif isinstance(batch[0], collections.Mapping):
         return {
-            key: default_collate([d[key] for d in batch]) for key in batch[0]
+            key: default_collate([d[key] for d in batch])
+            for key in batch[0]
         }
     elif isinstance(batch[0], collections.Sequence):
         transposed = zip(*batch)
         return [default_collate(samples) for samples in transposed]
 
-    raise TypeError(
-        ("batch must contain tensors, numbers, dicts or lists; found {}".format(
+    raise TypeError((
+        "batch must contain tensors, numbers, dicts or lists; found {}".format(
             type(batch[0]))))
 
 

@@ -1,10 +1,9 @@
 # This implementation is based on the DenseNet-BC implementation in torchvision
 # https://github.com/pytorch/vision/blob/master/torchvision/models/densenet.py
-import collections
 from math import ceil, floor, log2
 
+import collections
 import numpy as np
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -56,7 +55,9 @@ class Conv2d(nn.Module):
         except Exception as e:
             raise e
 
-        conv_block += [nn.Conv2d(*args, padding=p, dilation=dilation, **kwargs)]
+        conv_block += [
+            nn.Conv2d(*args, padding=p, dilation=dilation, **kwargs)
+        ]
         self.conv = nn.Sequential(*conv_block)
 
     def forward(self, x):
@@ -124,8 +125,8 @@ class ResidualBlock(nn.Module):
     def forward(self, x):
         return self.res_factor * self.m(x) + x
 
-class _DenseLayer(nn.Sequential):
 
+class _DenseLayer(nn.Sequential):
     def __init__(self, num_input_features, growth_rate, bn_size):
         super(_DenseLayer, self).__init__()
         num_output_features = bn_size * growth_rate
@@ -140,7 +141,9 @@ class _DenseLayer(nn.Sequential):
                 bias=True)),
 
         self.add_module('relu_2', nn.ReLU(inplace=True)),
-        self.add_module('conv_2', Conv2d(num_output_features, growth_rate, 3, stride=1, bias=True)),
+        self.add_module(
+            'conv_2',
+            Conv2d(num_output_features, growth_rate, 3, stride=1, bias=True)),
 
     def forward(self, x):
         new_features = super(_DenseLayer, self).forward(x)
@@ -148,12 +151,7 @@ class _DenseLayer(nn.Sequential):
 
 
 class _DenseBlock(nn.Sequential):
-
-    def __init__(self,
-                 num_layers,
-                 num_input_features,
-                 bn_size,
-                 growth_rate):
+    def __init__(self, num_layers, num_input_features, bn_size, growth_rate):
         super(_DenseBlock, self).__init__()
         for i in range(num_layers):
             layer = _DenseLayer(num_input_features + i * growth_rate,
@@ -162,7 +160,6 @@ class _DenseBlock(nn.Sequential):
 
 
 class DenseResidualBlock(nn.Sequential):
-
     def __init__(self, **kwargs):
         super(DenseResidualBlock, self).__init__()
         self.res_factor = kwargs.pop('res_factor')
@@ -178,11 +175,11 @@ class DenseResidualBlock(nn.Sequential):
     def forward(self, x, identity_x=None):
         if identity_x is None:
             identity_x = x
-        return self.res_factor * super(DenseResidualBlock, self).forward(x) + identity_x
+        return self.res_factor * super(DenseResidualBlock,
+                                       self).forward(x) + identity_x
 
 
 class CompressionBlock(nn.Sequential):
-
     def __init__(self, in_planes, out_planes, dropRate=0.0):
         super(CompressionBlock, self).__init__()
         self.conv1 = nn.Conv2d(

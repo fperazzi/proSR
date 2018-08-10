@@ -1,21 +1,14 @@
 from __future__ import print_function
+from PIL import Image
 
 import collections
 import glob
+import numpy as np
 import os
 import os.path as osp
 
-import numpy as np
-from PIL import Image
+IMG_EXTENSIONS = ['jpg', 'jpeg', 'png', 'ppm', 'bmp', 'tiff']
 
-IMG_EXTENSIONS = [
-    'jpg',
-    'jpeg',
-    'png',
-    'ppm',
-    'bmp',
-    'tiff'
-]
 
 def get_filenames(source, image_format):
 
@@ -26,15 +19,16 @@ def get_filenames(source, image_format):
     source_fns = []
     if isinstance(source, str):
         if os.path.isdir(source):
-            if isinstance(image_format,list):
+            if isinstance(image_format, list):
                 for fmt in image_format:
-                    source_fns += get_filenames(source,fmt)
+                    source_fns += get_filenames(source, fmt)
             else:
                 source_fns = sorted(
                     glob.glob("{}/*.{}".format(source, image_format)))
         elif os.path.isfile(source):
             source_fns = [source]
-        assert(all([is_image_file(f) for f in source_fns])), "Given files contain files with unsupported format"
+        assert (all([is_image_file(f) for f in source_fns
+                     ])), "Given files contain files with unsupported format"
     elif len(source) and isinstance(source[0], str):
         for s in source:
             source_fns.extend(get_filenames(s, image_format=image_format))
@@ -42,22 +36,25 @@ def get_filenames(source, image_format):
 
 
 def is_image_file(filename):
-    return any(filename.lower().endswith(extension) for extension in IMG_EXTENSIONS)
+    return any(
+        filename.lower().endswith(extension) for extension in IMG_EXTENSIONS)
 
 
 # Converts a Tensor into a Numpy array
 # |imtype|: the desired type of the converted numpy array
 def tensor2im(image_tensor, mean=(0.5, 0.5, 0.5), stddev=2.):
     image_numpy = image_tensor[0].cpu().float().numpy()
-    image_numpy = (
-        np.transpose(image_numpy, (1, 2, 0)) * stddev + np.array(mean)) * 255.0
+    image_numpy = (np.transpose(image_numpy,
+                                (1, 2, 0)) * stddev + np.array(mean)) * 255.0
     image_numpy = image_numpy.clip(0, 255)
     return np.around(image_numpy).astype(np.uint8)
+
 
 def mod_crop(im, scale):
     h, w = im.shape[:2]
     # return im[(h % scale):, (w % scale):, ...]
     return im[:h - (h % scale), :w - (w % scale), ...]
+
 
 def print_network(net):
     num_params = 0
@@ -92,13 +89,13 @@ def spatial_resize(x, size=None, scale_factor=None):
     # scale_factor has to be integer
     assert (size is not None) or (
         scale_factor is not None), 'must specify scale or scale_factor'
-    assert (size is None) or (scale_factor is
-                              None), 'cannot specify both size and scale_factor'
+    assert (size is None) or (
+        scale_factor is None), 'cannot specify both size and scale_factor'
     if size is None:
         h, w = x.size()[-2:]
         size = int(h * scale_factor), int(w * scale_factor)
     if h < size[0] and w < size[0]:
-        return F.upsample(x, size=size, mode='bilinear',align_corners=True)
+        return F.upsample(x, size=size, mode='bilinear', align_corners=True)
     else:
         if size[0] % h != 0 or size[1] % w != 0:
             return F.adaptive_avg_pool2d(x, output_size=size)
@@ -133,11 +130,13 @@ def print_current_errors(epoch, i, errors, t, log_name=None):
         with open(log_name, "a") as log_file:
             log_file.write('%s\n' % message)
 
+
 def crop_boundaries(im, cs):
     if cs > 1:
         return im[cs:-cs, cs:-cs, ...]
     else:
         return im
+
 
 def print_evaluation(filename, psnr, ssim, iid=None, n_images=None):
     from prosr.logger import info
@@ -147,5 +146,3 @@ def print_evaluation(filename, psnr, ssim, iid=None, n_images=None):
             osp.splitext(filename)[0], psnr, ssim))
     else:
         info('{} | psnr: {:.2f} | ssim: {:.2f}'.format(filename, psnr, ssim))
-
-

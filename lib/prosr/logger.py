@@ -20,8 +20,8 @@ class ansi:
 
 
 def error(message, *lines):
-    string = "{}{}: " + message + ("{}\n"
-                                   if lines else "{}") + "\n".join(lines) + "{}"
+    string = "{}{}: " + message + ("{}\n" if lines else
+                                   "{}") + "\n".join(lines) + "{}"
     print(
         string.format(ansi.RED_B,
                       time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime()),
@@ -45,11 +45,11 @@ def warn(message, *lines):
                           ansi.ENDC))
 
 
-def info(message,bold=False, *lines):
+def info(message, bold=False, *lines):
     if bold:
-        color=ansi.WHITE_B
+        color = ansi.WHITE_B
     else:
-        color=ansi.WHITE
+        color = ansi.WHITE
     if message:
         string = "{}{}: " + message + ("{}\n" if lines else
                                        "{}") + "\n".join(lines) + "{}"
@@ -63,7 +63,6 @@ def info(message,bold=False, *lines):
             string.format(ansi.WHITE,
                           time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime()),
                           ansi.ENDC))
-
 
 
 def success(message, *lines):

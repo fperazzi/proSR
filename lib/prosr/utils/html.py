@@ -1,5 +1,6 @@
-import dominate
 from dominate.tags import *
+
+import dominate
 import os
 
 
@@ -35,10 +36,14 @@ class HTML:
         with self.t:
             with tr():
                 for im, txt, link in zip(ims, txts, links):
-                    with td(style="word-wrap: break-word;", halign="center", valign="top"):
+                    with td(
+                            style="word-wrap: break-word;",
+                            halign="center",
+                            valign="top"):
                         with p():
                             with a(href=os.path.join('images', link)):
-                                img(style="width:%dpx" % width, src=os.path.join('images', im))
+                                img(style="width:%dpx" % width,
+                                    src=os.path.join('images', im))
                             br()
                             p(txt)
 

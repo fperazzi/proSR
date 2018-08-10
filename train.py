@@ -1,27 +1,24 @@
-import os
-from collections import defaultdict
-import os.path as osp
 from argparse import ArgumentParser
-import yaml
-from pprint import pprint
-from time import localtime, strftime, time
-import sys
-
+from collections import defaultdict
 from easydict import EasyDict as edict
-import numpy as np
-import random
-
-import torch
-
-# BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-# sys.path.append(osp.join(BASE_DIR, 'lib'))
-
-import prosr
+from pprint import pprint
 from prosr.data import DataLoader, Dataset
 from prosr.logger import info
 from prosr.models.trainer import CurriculumLearningTrainer
-from prosr.utils import get_filenames, print_current_errors, IMG_EXTENSIONS
+from prosr.utils import get_filenames, IMG_EXTENSIONS, print_current_errors
+from time import localtime, strftime, time
 
+import numpy as np
+import os
+import os.path as osp
+import prosr
+import random
+import sys
+import torch
+import yaml
+
+# BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# sys.path.append(osp.join(BASE_DIR, 'lib'))
 
 
 def parse_args():
@@ -46,15 +43,14 @@ def parse_args():
         '--checkpoint',
         type=str,
         help='name of this training experiment',
-        )
+    )
 
     parser.add_argument(
         '-o',
         '--output',
         type=str,
         help='name of this training experiment',
-        default=None
-        )
+        default=None)
 
     parser.add_argument(
         '--upscale-factor',
@@ -85,7 +81,6 @@ def parse_args():
     ############# set up trainer ######################
     if args.checkpoint:
         args.output = osp.dirname(args.checkpoint)
-
 
     return args
 
@@ -131,7 +126,6 @@ def main(args):
     testing_data_loader = torch.utils.data.DataLoader(testing_dataset)
     info('validation images = %d' % len(testing_data_loader))
 
-
     trainer = CurriculumLearningTrainer(
         args,
         training_data_loader,
@@ -139,17 +133,17 @@ def main(args):
         resume_from=args.cmd.checkpoint)
     trainer.set_train()
 
-    log_file = os.path.join(args.cmd.output,'loss_log.txt')
+    log_file = os.path.join(args.cmd.output, 'loss_log.txt')
 
     steps_per_epoch = len(trainer.training_dataset)
     total_steps = trainer.start_epoch * steps_per_epoch
     trainer.reset_curriculum_for_dataloader()
 
     ############# output settings ##############
-    next_eval_epoch    = 1
+    next_eval_epoch = 1
     max_eval_frequency = 5
-    print_errors_freq  = 100
-    save_model_freq    = 10
+    print_errors_freq = 100
+    save_model_freq = 10
 
     ############# start training ###############
     info('start training from epoch %d, learning rate %e' %
@@ -166,12 +160,12 @@ def main(args):
             trainer.optimize_parameters()
 
             errors = trainer.get_current_errors()
-            for key,item in errors.items():
+            for key, item in errors.items():
                 errors_accum[key].append(item)
 
             total_steps += 1
             if total_steps % print_errors_freq == 0:
-                for key,item in errors.items():
+                for key, item in errors.items():
                     errors_accum[key] = np.average(errors_accum[key])
                 t = time() - iter_start_time
                 iter_start_time = time()
@@ -184,11 +178,11 @@ def main(args):
                         for i, param_group in enumerate(
                             trainer.optimizer_G.param_groups)
                     }
-                    real_epoch = float(total_steps)/steps_per_epoch
+                    real_epoch = float(total_steps) / steps_per_epoch
                     visualizer.display_current_results(
                         trainer.get_current_visuals(), epoch)
-                    visualizer.plot(errors_accum,total_steps,'loss')
-                    visualizer.plot(lrs,total_steps,'lr rate','lr')
+                    visualizer.plot(errors_accum, total_steps, 'loss')
+                    visualizer.plot(lrs, total_steps, 'lr rate', 'lr')
                     errors_accum = defaultdict(list)
                     break
 
@@ -198,14 +192,12 @@ def main(args):
                 'saving the model at the end of epoch %d, iters %d' %
                 (epoch, total_steps),
                 bold=True)
-            trainer.save(str(epoch),epoch,trainer.lr)
-
+            trainer.save(str(epoch), epoch, trainer.lr)
 
         ################# update learning rate  #################
         if (epoch - trainer.best_epoch) > args.train.lr_schedule_patience:
-            trainer.save('last_lr_%g' % trainer.lr,epoch,trainer.lr)
+            trainer.save('last_lr_%g' % trainer.lr, epoch, trainer.lr)
             trainer.update_learning_rate()
-
 
         ################# test with validation set ##############
         if epoch % next_eval_epoch == 0:
@@ -224,9 +216,9 @@ def main(args):
 
                 ################ visualize ###############
                 if args.cmd.visdom:
-                    visualizer.plot(
-                        test_result,
-                        float(total_steps)/steps_per_epoch,'eval','psnr')
+                    visualizer.plot(test_result,
+                                    float(total_steps) / steps_per_epoch,
+                                    'eval', 'psnr')
 
                 trainer.update_best_eval_result(epoch, test_result)
                 info(
@@ -251,8 +243,8 @@ def main(args):
                         ]
                     else:
                         best_key = list(trainer.best_eval.keys())
-                    trainer.save('best_' + '_'.join(best_key),epoch,trainer.lr)
-
+                    trainer.save('best_' + '_'.join(best_key), epoch,
+                                 trainer.lr)
 
             trainer.set_train()
 
@@ -289,9 +281,6 @@ if __name__ == '__main__':
 
     if args.visdom:
         from prosr.visualizer import Visualizer
-        visualizer = Visualizer(
-            experiment_id,
-            port=args.visdom_port
-            )
+        visualizer = Visualizer(experiment_id, port=args.visdom_port)
 
     main(params)

@@ -1,8 +1,10 @@
 # /usr/bin/env python
 # from enum import Enum
 from easydict import EasyDict as edict
-import copy
 from enum import Enum
+
+import copy
+
 
 class phase(Enum):
     TRAIN = 'train'
@@ -82,8 +84,10 @@ prosrgan_params.D = edict({
     'use_lsgan': True,
     'ndf': 64,
     'act_type': 'LRELU',
-    'act_params': {'negative_slope': 0.2},
-        })
+    'act_params': {
+        'negative_slope': 0.2
+    },
+})
 prosrgan_params.train.D_lr = 0.0001
 prosrgan_params.train.vgg_loss_weight = [0.5, 2]
 prosrgan_params.train.gan_loss_weight = 1

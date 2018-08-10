@@ -1,8 +1,10 @@
+from .utils import html
+
+import ntpath
 import numpy as np
 import os
-import ntpath
 import skimage.io as io
-from .utils import html
+
 
 class Visualizer():
     def __init__(self, name, port=8067, use_visdom=True):
@@ -16,16 +18,23 @@ class Visualizer():
     # |visuals|: dictionary of images to display or save
     def display_current_results(self, visuals, epoch):
         for label, item in visuals.items():
-            self.vis.image(np.transpose(item, (2,0,1)), opts=dict(title=label),
-                           win=label)
+            self.vis.image(
+                np.transpose(item, (2, 0, 1)),
+                opts=dict(title=label),
+                win=label)
 
     # errors: dictionary of error labels and values
-    def plot(self, data, epoch, display_id,ylabel='value'):
+    def plot(self, data, epoch, display_id, ylabel='value'):
         if display_id not in self.plot_data:
-            self.plot_data[display_id] = {'X': [], 'Y': [], 'legend': list(data.keys())}
+            self.plot_data[display_id] = {
+                'X': [],
+                'Y': [],
+                'legend': list(data.keys())
+            }
         mdata = self.plot_data[display_id]
         mdata['X'].append(epoch)
-        mdata['Y'].append([data[k] for k in self.plot_data[display_id]['legend']])
+        mdata['Y'].append(
+            [data[k] for k in self.plot_data[display_id]['legend']])
         self.vis.line(
             X=np.stack([np.array(mdata['X'])] * len(mdata['legend']), 1),
             Y=np.array(self.plot_data[display_id]['Y']),
@@ -34,7 +43,8 @@ class Visualizer():
                 'ytickmax': 1e-4,
                 'legend': mdata['legend'],
                 'xlabel': 'epoch',
-                'ylabel': ylabel},
+                'ylabel': ylabel
+            },
             win=(display_id))
 
     # save image to the disk

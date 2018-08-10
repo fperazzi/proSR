@@ -1,6 +1,6 @@
-from PIL import Image
 from argparse import ArgumentParser
 from math import floor
+from PIL import Image
 
 
 def downscale_by_ratio(img, ratio, method=Image.BICUBIC, magic_crop=False):

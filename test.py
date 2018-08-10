@@ -1,22 +1,22 @@
-import os
-import numpy as np
-import os.path as osp
 from argparse import ArgumentParser
 from pprint import pprint
-import sys
-
-import skimage.io as io
-import torch
-
-# BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-# sys.path.append(osp.join(BASE_DIR, 'lib'))
-
-import prosr
 from prosr import Phase
 from prosr.data import DataLoader, Dataset
 from prosr.logger import info
 from prosr.metrics import eval_psnr_and_ssim
-from prosr.utils import get_filenames, tensor2im, IMG_EXTENSIONS,print_evaluation
+from prosr.utils import (get_filenames, IMG_EXTENSIONS, print_evaluation,
+                         tensor2im)
+
+import numpy as np
+import os
+import os.path as osp
+import prosr
+import skimage.io as io
+import sys
+import torch
+
+# BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# sys.path.append(osp.join(BASE_DIR, 'lib'))
 
 
 def parse_args():
@@ -117,11 +117,11 @@ if __name__ == '__main__':
                 ssim_mean += ssim_val
             else:
                 print_evaluation(
-                    osp.basename(data['input_fn'][0]), np.nan, np.nan, iid+1,
+                    osp.basename(data['input_fn'][0]), np.nan, np.nan, iid + 1,
                     len(dataset))
 
             fn = osp.join(args.output_dir, osp.basename(data['input_fn'][0]))
-            io.imsave(fn,sr_img)
+            io.imsave(fn, sr_img)
 
         if len(args.target):
             psnr_mean /= len(dataset)

@@ -1,14 +1,13 @@
-import os.path as osp
 from argparse import ArgumentParser
-
-import numpy as np
-import skimage.io as io
-import torch
-
-import prosr
 from prosr.logger import error, info
 from prosr.metrics import eval_psnr_and_ssim
-from prosr.utils import get_filenames,IMG_EXTENSIONS,print_evaluation
+from prosr.utils import get_filenames, IMG_EXTENSIONS, print_evaluation
+
+import numpy as np
+import os.path as osp
+import prosr
+import skimage.io as io
+import torch
 
 
 def parse_args():
@@ -45,8 +44,7 @@ def parse_args():
         error("Did not find images in: {}".format(args.input))
 
     if len(args.input) != len(args.target):
-        error(
-            "Inconsistent number of images between 'input' and 'target'")
+        error("Inconsistent number of images between 'input' and 'target'")
 
     return args
 
