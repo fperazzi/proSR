@@ -141,8 +141,8 @@ def main(args):
 
     ############# output settings ##############
     next_eval_epoch = 1
-    max_eval_frequency = 1
-    print_errors_freq = 10
+    max_eval_frequency = 5
+    print_errors_freq = 100
     save_model_freq = 10
 
     ############# start training ###############
