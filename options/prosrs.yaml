@@ -35,7 +35,7 @@ train:
     mean: [0.4488, 0.4371, 0.404]
     path: data/datasets/DIV2K/DIV2K_train_HR
     stddev: [0.0039215, 0.0039215, 0.0039215]
-  epochs: 7200
+  epochs: 600
   growing_steps: [0.12, 0.25, 0.45, 0.6, 1.0]
   l1_loss_weight: 1.0
   lr: 0.0001
