@@ -18,7 +18,6 @@ class phase(Enum):
 prosr_params = \
     edict({
         'train': {
-            'curriculum': True,
             'dataset': {
                 'path': 'data/datasets/DIV2K/DIV2K_train_HR',
                 'mean': [0.4488, 0.4371, 0.4040],  # mean value to extract from the (0, 1) image values

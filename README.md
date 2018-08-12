@@ -217,6 +217,7 @@ optional arguments:
                         model
   -c CONFIG, --config CONFIG
                         Configuration file in 'yaml' format.
+  --curriculum          enable curriculum learning
   --name NAME           name of this training experiment
   --upscale-factor UPSCALE_FACTOR [UPSCALE_FACTOR ...]
                         upscale factor

@@ -39,6 +39,11 @@ def parse_args():
         help="Configuration file in 'yaml' format.")
 
     group.add_argument(
+        '--curriculum',
+        default=True,
+        type=bool,
+        help="enable curriculum learning")
+    group.add_argument(
         '-ckpt',
         '--checkpoint',
         type=str,
@@ -126,7 +131,7 @@ def main(args):
     testing_data_loader = torch.utils.data.DataLoader(testing_dataset)
     info('validation images = %d' % len(testing_data_loader))
 
-    if args.train.curriculum:
+    if args.curriculum:
         TRAINER = CurriculumLearningTrainer
     else:
         TRAINER = SimultaneousMultiscaleTrainer
