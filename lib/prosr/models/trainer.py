@@ -8,13 +8,14 @@ from collections import OrderedDict
 import os
 import torch
 
-
-class CurriculumLearningTrainer(object):
+class SimultaneousMultiscaleTrainer(object):
+    """multiscale training without curriculum scheduling"""
     def __init__(self,
-                 opt,
-                 training_dataset,
-                 save_dir='data/checkpoints',
-                 resume_from=None):
+                opt,
+                training_dataset,
+                save_dir="data/checkpoints",
+                resume_from=None):
+        super(SimultaneousMultiscaleTrainer, self).__init__()
         self.opt = opt
         self.save_dir = save_dir
         self.training_dataset = training_dataset
@@ -72,21 +73,8 @@ class CurriculumLearningTrainer(object):
         # print_network(self.net_G)
         # print('-----------------------------------------------')
 
-    def reset_curriculum_for_dataloader(self):
-        """ set data loader to load correct scales"""
-        assert len(
-            self.opt.train.growing_steps) == len(self.opt.data.scale) * 2 - 1
-        self.current_scale_idx = (
-            bisect_left(self.opt.train.growing_steps, self.progress) + 1) // 2
-        self.net_G.current_scale_idx = self.current_scale_idx
-        training_scales = self.opt.data.scale[:(self.current_scale_idx + 1)]
-        self.training_dataset.random_vars.clear()
-        for s in training_scales:
-            self.training_dataset.random_vars.append(s)
-        info('start training with scales: {}'.format(str(training_scales)))
-
     def name(self):
-        return 'CurriculumLearningTrainer'
+        return 'SimultaneousMultiscaleTrainer'
 
     def set_train(self):
         self.net_G.train()
@@ -107,20 +95,13 @@ class CurriculumLearningTrainer(object):
         self.model_scale = kwargs['scale'][0].item()
 
     def forward(self):
-        if self.current_scale_idx != 0:
-            lo, hi = self.opt.train.growing_steps[self.max_scale_idx * 2 -
-                                                  2:self.max_scale_idx * 2]
-            self.blend = min((self.progress - lo) / (hi - lo), 1)
-            assert self.blend >= 0 and self.blend <= 1
-        else:
-            self.blend = 1
         self.output = self.net_G(
-            self.input, upscale_factor=self.model_scale,
-            blend=self.blend) + self.interpolated
+            self.input, upscale_factor=self.model_scale) + self.interpolated
 
     def evaluate(self):
         if isinstance(self.net_G, torch.nn.DataParallel):
-            # TODO: fix this silly way to pass 1 instance to multiple gpu (self.net_G.module.forward wouldn't work)
+            # TODO: fix this silly way to pass 1 instance to multiple gpu
+            # (self.net_G.module.forward wouldn't work)
             self.output = self.net_G(
                 torch.cat(
                     [self.input for _ in range(torch.cuda.device_count())]),
@@ -155,27 +136,6 @@ class CurriculumLearningTrainer(object):
         self.optimizer_G.zero_grad()
         self.backward()
         self.optimizer_G.step()
-        # update progress
-        self.increment_training_progress()
-
-    def increment_training_progress(self):
-        """increment self.progress and D, G scale_idx"""
-        self.progress += 1 / len(self.training_dataset) / self.opt.train.epochs
-        if self.progress > self.opt.train.growing_steps[self.current_scale_idx
-                                                        * 2]:
-            if self.current_scale_idx < len(self.opt.data.scale) - 1:
-                self.current_scale_idx += 1
-                self.net_G.current_scale_idx = self.current_scale_idx
-
-                training_scales = [
-                    self.opt.data.scale[i]
-                    for i in range(self.current_scale_idx + 1)
-                ]
-                self.training_dataset.random_vars.clear()
-                for s in training_scales:
-                    self.training_dataset.random_vars.append(s)
-                info('start training with scales: {}'.format(
-                    str(training_scales)))
 
     def get_current_visuals(self):
         disp = OrderedDict()
@@ -298,3 +258,76 @@ class CurriculumLearningTrainer(object):
         self.set_learning_rate(lr, self.optimizer_G)
         info('update learning rate: %f -> %f' % (self.lr, lr))
         self.lr = lr
+
+
+class CurriculumLearningTrainer(object):
+    def __init__(self,
+                opt,
+                training_dataset,
+                save_dir="data/checkpoints",
+                resume_from=None):
+        super(CurriculumLearningTrainer, self).__init__()
+        self.reset_curriculum_for_dataloader()
+
+    def reset_curriculum_for_dataloader(self):
+        """ set data loader to load correct scales"""
+        assert len(
+            self.opt.train.growing_steps) == len(self.opt.data.scale) * 2 - 1
+        self.current_scale_idx = (
+            bisect_left(self.opt.train.growing_steps, self.progress) + 1) // 2
+        self.net_G.current_scale_idx = self.current_scale_idx
+        training_scales = self.opt.data.scale[:(self.current_scale_idx + 1)]
+        self.training_dataset.random_vars.clear()
+        for s in training_scales:
+            self.training_dataset.random_vars.append(s)
+        info('start training with scales: {}'.format(str(training_scales)))
+
+    def name(self):
+        return 'CurriculumLearningTrainer'
+
+    def set_input(self, **kwargs):
+        lr = kwargs['input']
+        hr = kwargs['target']
+        interpolated = kwargs['bicubic']
+
+        self.input.resize_(lr.size()).copy_(lr)
+        self.label.resize_(hr.size()).copy_(hr)
+        self.interpolated.resize_(interpolated.size()).copy_(interpolated)
+        self.model_scale = kwargs['scale'][0].item()
+
+    def forward(self):
+        if self.current_scale_idx != 0:
+            lo, hi = self.opt.train.growing_steps[self.current_scale_idx * 2 -
+                                                  2:self.current_scale_idx * 2]
+            self.blend = min((self.progress - lo) / (hi - lo), 1)
+            assert self.blend >= 0 and self.blend <= 1
+        else:
+            self.blend = 1
+        self.output = self.net_G(
+            self.input, upscale_factor=self.model_scale,
+            blend=self.blend) + self.interpolated
+
+    def optimize_parameters(self):
+        """call this function after forward()"""
+        super().optimize_parameters()
+        # update progress
+        self.increment_training_progress()
+
+    def increment_training_progress(self):
+        """increment self.progress and D, G scale_idx"""
+        self.progress += 1 / len(self.training_dataset) / self.opt.train.epochs
+        if self.progress > self.opt.train.growing_steps[self.current_scale_idx
+                                                        * 2]:
+            if self.current_scale_idx < len(self.opt.data.scale) - 1:
+                self.current_scale_idx += 1
+                self.net_G.current_scale_idx = self.current_scale_idx
+
+                training_scales = [
+                    self.opt.data.scale[i]
+                    for i in range(self.current_scale_idx + 1)
+                ]
+                self.training_dataset.random_vars.clear()
+                for s in training_scales:
+                    self.training_dataset.random_vars.append(s)
+                info('start training with scales: {}'.format(
+                    str(training_scales)))

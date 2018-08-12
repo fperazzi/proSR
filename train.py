@@ -4,9 +4,9 @@ from easydict import EasyDict as edict
 from pprint import pprint
 from prosr.data import DataLoader, Dataset
 from prosr.logger import info
-from prosr.models.trainer import CurriculumLearningTrainer
+from prosr.models.trainer import CurriculumLearningTrainer, SimultaneousMultiscaleTrainer
 from prosr.utils import get_filenames, IMG_EXTENSIONS, print_current_errors
-from time import localtime, strftime, time
+from time import time
 
 import numpy as np
 import os
@@ -126,7 +126,12 @@ def main(args):
     testing_data_loader = torch.utils.data.DataLoader(testing_dataset)
     info('validation images = %d' % len(testing_data_loader))
 
-    trainer = CurriculumLearningTrainer(
+    if args.train.curriculum:
+        TRAINER = CurriculumLearningTrainer
+    else:
+        TRAINER = SimultaneousMultiscaleTrainer
+
+    trainer = TRAINER(
         args,
         training_data_loader,
         save_dir=args.cmd.output,
@@ -137,7 +142,6 @@ def main(args):
 
     steps_per_epoch = len(trainer.training_dataset)
     total_steps = trainer.start_epoch * steps_per_epoch
-    trainer.reset_curriculum_for_dataloader()
 
     ############# output settings ##############
     next_eval_epoch = 1
@@ -180,9 +184,9 @@ def main(args):
                     }
                     real_epoch = float(total_steps) / steps_per_epoch
                     visualizer.display_current_results(
-                        trainer.get_current_visuals(), epoch)
-                    visualizer.plot(errors_accum, total_steps, 'loss')
-                    visualizer.plot(lrs, total_steps, 'lr rate', 'lr')
+                        trainer.get_current_visuals(), real_epoch)
+                    visualizer.plot(errors_accum, real_epoch, 'loss')
+                    visualizer.plot(lrs, real_epoch, 'lr rate', 'lr')
 
                 errors_accum = defaultdict(list)
 
