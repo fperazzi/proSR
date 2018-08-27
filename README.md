@@ -186,14 +186,16 @@ optional arguments:
 ```
 
 ## Training
-Download the datasets as previously described and execute the command:
+Download the datasets as previously described.
+
+To train models described in the paper:
 
 ```
-python train.py --model MODEL --visdom true
+python train.py --model <model-name> --output <name-of-experiment> --visdom true
 ```
 `MODEL` is one of `prosr`, `prosrs` and `prosrgan`. Model configurations is loaded from `prosr/config.py`. Checkpoints and log files are stored under `data/checkpoints/NAME`
 
-Alternatively, we provide configuration files:
+Alternatively, we provide configuration files to customize model and training parameters:
 ```
 python train.py --config CONFIG.yaml
 ```
@@ -201,7 +203,7 @@ python train.py --config CONFIG.yaml
 Configurations files for the architectures proposed in the papers are can be found in `PROJECT_ROOT/options`
 
 
-By default, all available GPUs are used. To use specific GPUs use `VISIBLE_CUDA_DEVICES`, e.g. `VISIBLE_CUDA_DEVICES=0,1 python train.py `...
+By default, all available GPUs are used. To use specific GPUs use `CUDA_VISIBLE_DEVICES`, e.g. `CUDA_VISIBLE_DEVICES=0,1 python train.py `...
 
 See `train.py`
 ```

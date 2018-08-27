@@ -39,16 +39,17 @@ def parse_args():
         help="Configuration file in 'yaml' format.")
 
     group.add_argument(
-        '--curriculum',
-        default=True,
-        type=bool,
-        help="enable curriculum learning")
-    group.add_argument(
         '-ckpt',
         '--checkpoint',
         type=str,
         help='name of this training experiment',
     )
+    parser.add_argument(
+        '--disable-curriculum',
+        dest='curriculum',
+        action='store_false',
+        help="enable curriculum learning")
+
 
     parser.add_argument(
         '-o',
@@ -119,19 +120,18 @@ def main(args):
         training_dataset, batch_size=args.train.batch_size)
 
     info('training images = %d' % len(training_data_loader))
+    __import__('pdb').set_trace()
 
-    testing_dataset = torch.utils.data.ConcatDataset([
-        Dataset(
+    testing_dataset = Dataset(
             prosr.Phase.VAL, [],
             test_files,
-            s,
+            args.cmd.upscale_factor,
             input_size=None,
-            **args.test.dataset) for s in args.cmd.upscale_factor
-    ])
-    testing_data_loader = torch.utils.data.DataLoader(testing_dataset)
+            **args.test.dataset)
+    testing_data_loader = DataLoader(testing_dataset, batch_size=1)
     info('validation images = %d' % len(testing_data_loader))
 
-    if args.curriculum:
+    if args.cmd.curriculum:
         TRAINER = CurriculumLearningTrainer
     else:
         TRAINER = SimultaneousMultiscaleTrainer
@@ -141,7 +141,6 @@ def main(args):
         training_data_loader,
         save_dir=args.cmd.output,
         resume_from=args.cmd.checkpoint)
-    trainer.set_train()
 
     log_file = os.path.join(args.cmd.output, 'loss_log.txt')
 
@@ -163,6 +162,7 @@ def main(args):
 
     for epoch in range(trainer.start_epoch + 1, args.train.epochs + 1):
         iter_start_time = time()
+        trainer.set_train()
         for i, data in enumerate(trainer.training_dataset):
             trainer.set_input(**data)
             trainer.forward()
@@ -255,7 +255,6 @@ def main(args):
                     trainer.save('best_' + '_'.join(best_key), epoch,
                                  trainer.lr)
 
-            trainer.set_train()
 
 
 if __name__ == '__main__':

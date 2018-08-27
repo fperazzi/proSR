@@ -87,12 +87,12 @@ if __name__ == '__main__':
         args.target,
         args.upscale_factor,
         input_size=None,
-        **params['train']['dataset'])
+        **params['test']['dataset'])
 
     data_loader = DataLoader(dataset, batch_size=1)
 
-    mean = params['train']['dataset']['mean']
-    stddev = params['train']['dataset']['stddev']
+    mean = params['test']['dataset']['mean']
+    stddev = params['test']['dataset']['stddev']
 
     if not osp.isdir(args.output_dir):
         os.makedirs(args.output_dir)

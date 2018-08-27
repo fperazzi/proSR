@@ -260,13 +260,13 @@ class SimultaneousMultiscaleTrainer(object):
         self.lr = lr
 
 
-class CurriculumLearningTrainer(object):
+class CurriculumLearningTrainer(SimultaneousMultiscaleTrainer):
     def __init__(self,
                 opt,
                 training_dataset,
                 save_dir="data/checkpoints",
                 resume_from=None):
-        super(CurriculumLearningTrainer, self).__init__()
+        super(CurriculumLearningTrainer, self).__init__(opt, training_dataset, save_dir, resume_from)
         self.reset_curriculum_for_dataloader()
 
     def reset_curriculum_for_dataloader(self):

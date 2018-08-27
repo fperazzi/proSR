@@ -45,6 +45,13 @@ class Dataset(object):
         self.source_fns = source
         self.target_fns = target
 
+        # In testing and validation phase, append fns with target scales
+        if self.phase != Phase.TRAIN:
+            if len(self.source_fns) > 0:
+                self.source_fns = self.source_fns * len(self.scale)
+            if len(self.source_fns) > 0:
+                self.target_fns = self.target_fns * len(self.scale)
+
         # Input normalization
         self.normalize_fn = transforms.Compose([
             transforms.ToTensor(),
@@ -55,13 +62,16 @@ class Dataset(object):
         return len(self.source_fns) or len(self.target_fns)
 
     def __getitem__(self, index):
-        return self.get(index, random.choice(self.scale))
+        return self.get(index)
 
     def get(self, index, scale=None):
         if scale:
             assert scale in self.scale, "scale {}".format(scale)
+        elif self.phase != Phase.TRAIN:
+            scale = self.scale[index % len(self.scale)]
         else:
             scale = random.choice(self.scale)
+
         ret_data = {}
         ret_data['scale'] = scale
 
@@ -108,7 +118,7 @@ class Dataset(object):
         return ret_data
 
 
-class DataLoader(multiproc._DataLoader):
+class DataLoader(multiproc.MyDataLoader):
     """Hacky way to progressively load scales"""
 
     def __init__(self, dataset, batch_size, upscale_factor=None):
@@ -117,14 +127,14 @@ class DataLoader(multiproc._DataLoader):
         if self.dataset.phase == Phase.TRAIN:
             self.dataset.target_fns = self.dataset.target_fns * batch_size
             self.dataset.source_fns = self.dataset.source_fns * batch_size
-
         self.phase = dataset.phase
+
         super(DataLoader, self).__init__(
             self.dataset,
             batch_size=batch_size,
-            pin_memory=True,
-            shuffle=self.phase == Phase.TRAIN,
+            shuffle=(self.phase == Phase.TRAIN),
             num_workers=16,
             random_vars=dataset.scale if self.phase == Phase.TRAIN else None,
             drop_last=True,
             sampler=None)
+

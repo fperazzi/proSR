@@ -52,7 +52,7 @@ prosr_params = \
         },
         'test': {
             'dataset': {
-                'path': 'data/datasets/Set14',
+                'path': 'data/datasets/Set14/HR',
                 'mean': [0.4488, 0.4371, 0.4040],  # mean value to extract from the (0, 1) image values
                 'stddev': [0.0039215, 0.0039215, 0.0039215]  # multiply the image value by this factor, resulting value range of image [-127.5, 127.5]
             },
