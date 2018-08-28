@@ -109,6 +109,11 @@ def main(args):
     test_files = get_filenames(
         args.test.dataset.path, image_format=IMG_EXTENSIONS)
 
+    # reduce validation size for faster training cycles
+    if len(test_files) > 20:
+        random.shuffle(test_files)
+        test_files = test_files[:20]
+
     training_dataset = Dataset(
         prosr.Phase.TRAIN, [],
         train_files,
