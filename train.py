@@ -125,7 +125,6 @@ def main(args):
         training_dataset, batch_size=args.train.batch_size)
 
     info('training images = %d' % len(training_data_loader))
-    __import__('pdb').set_trace()
 
     testing_dataset = Dataset(
             prosr.Phase.VAL, [],
