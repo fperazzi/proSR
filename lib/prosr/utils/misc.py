@@ -146,3 +146,14 @@ def print_evaluation(filename, psnr, ssim, iid=None, n_images=None):
             osp.splitext(filename)[0], psnr, ssim))
     else:
         info('{} | psnr: {:.2f} | ssim: {:.2f}'.format(filename, psnr, ssim))
+
+
+def set_seed(seed):
+    import torch,random,numpy
+    if torch.cuda.device_count() == 1:
+        torch.cuda.manual_seed(seed)
+    else:
+        torch.cuda.manual_seed_all(seed)
+    random.seed(seed)
+    torch.manual_seed(seed)
+    numpy.random.seed(seed)

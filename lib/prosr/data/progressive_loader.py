@@ -13,7 +13,7 @@ class Dataset(object):
     """docstring for Dataset"""
 
     def __init__(self, phase, source, target, upscale_factor, input_size, mean,
-                 stddev, **kwargs):
+                 stddev, downscale, **kwargs):
 
         super(Dataset, self).__init__()
         self.phase = phase
@@ -31,6 +31,7 @@ class Dataset(object):
         self.augment = self.phase == Phase.TRAIN
 
         self.image_loader = pil_loader
+        self.downscale=downscale
 
         if len(target) and len(source) and len(source) != len(target):
             error(
@@ -87,6 +88,10 @@ class Dataset(object):
         if len(self.source_fns):
             ret_data['input'] = self.image_loader(self.source_fns[index])
             ret_data['input_fn'] = self.source_fns[index]
+
+            if self.downscale:
+                ret_data['input'] = downscale_by_ratio(
+                    ret_data['input'], scale, method=Image.BICUBIC)
         else:
             ret_data['input'] = downscale_by_ratio(
                 ret_data['target'], scale, method=Image.BICUBIC)

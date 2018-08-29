@@ -19,7 +19,11 @@ prosr_params = \
     edict({
         'train': {
             'dataset': {
-                'path': 'data/datasets/DIV2K/DIV2K_train_HR',
+                'path': {
+                    'source':'',
+                    'target':'data/datasets/DIV2K/DIV2K_train_HR'
+                },
+                'downscale':False,
                 'mean': [0.4488, 0.4371, 0.4040],  # mean value to extract from the (0, 1) image values
                 'stddev': [0.0039215, 0.0039215, 0.0039215]  # multiply the image value by this factor, resulting value range of image [-127.5, 127.5]
             },
@@ -52,7 +56,11 @@ prosr_params = \
         },
         'test': {
             'dataset': {
-                'path': 'data/datasets/DIV2K/DIV2K_valid_HR',
+                'path': {
+                    'source':'',
+                    'target':'data/datasets/DIV2K/DIV2K_valid_HR'
+                },
+                'downscale':False,
                 'mean': [0.4488, 0.4371, 0.4040],  # mean value to extract from the (0, 1) image values
                 'stddev': [0.0039215, 0.0039215, 0.0039215]  # multiply the image value by this factor, resulting value range of image [-127.5, 127.5]
             },
@@ -94,3 +102,4 @@ prosrgan_params.train.gan_loss_weight = 1
 prosrgan_params.train.l1_loss_weight = 0
 prosrgan_params.G.vgg = [2, 4]
 prosrgan_params.G.vgg_mean_pool = True
+

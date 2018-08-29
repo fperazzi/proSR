@@ -5,7 +5,7 @@ from pprint import pprint
 from prosr.data import DataLoader, Dataset
 from prosr.logger import info
 from prosr.models.trainer import CurriculumLearningTrainer, SimultaneousMultiscaleTrainer
-from prosr.utils import get_filenames, IMG_EXTENSIONS, print_current_errors
+from prosr.utils import get_filenames, IMG_EXTENSIONS, print_current_errors,set_seed
 from time import time
 
 import numpy as np
@@ -49,7 +49,6 @@ def parse_args():
         action='store_true',
         help="disable curriculum learning")
 
-
     parser.add_argument(
         '-o',
         '--output',
@@ -65,6 +64,12 @@ def parse_args():
         nargs='+')
 
     parser.add_argument(
+        '--fast-validation',
+        type=int,
+        help='truncate number of validation images',
+        default=0)
+
+    parser.add_argument(
         '-v',
         '--visdom',
         action='store_true',
@@ -76,6 +81,7 @@ def parse_args():
         type=int,
         help='port used by visdom',
         default=8067)
+
 
     args = parser.parse_args()
 
@@ -89,33 +95,34 @@ def parse_args():
     return args
 
 
-def set_seed():
-    if torch.cuda.device_count() == 1:
-        torch.cuda.manual_seed(128)
-    else:
-        torch.cuda.manual_seed_all(128)
-    torch.manual_seed(128)
-    random.seed(128)
+def load_dataset(args):
+    files = {'train':{},'test':{}}
 
+    for phase in ['train','test']:
+        for ft in ['source','target']:
+            if args[phase].dataset.path[ft]:
+                files[phase][ft] = get_filenames(
+                    args[phase].dataset.path[ft], image_format=IMG_EXTENSIONS)
+            else:
+                files[phase][ft] = []
+
+    return files['train'],files['test']
 
 def main(args):
-    set_seed()
+    set_seed(128)
 
-    ############### training loader and test loader #################
-    train_files = get_filenames(
-        args.train.dataset.path, image_format=IMG_EXTENSIONS)
-    test_files = get_filenames(
-        args.test.dataset.path, image_format=IMG_EXTENSIONS)
+    ############### loading datasets #################
+    train_files,test_files = load_dataset(args)
 
     # reduce validation size for faster training cycles
-    if len(test_files) > 20:
-        random.shuffle(test_files)
-        test_files = test_files[:20]
+    if args.cmd.fast_validation:
+        for ft in ['source','target']:
+            test_files[ft] = test_files[ft][:args.cmd.fast_validation]
 
     training_dataset = Dataset(
-        prosr.Phase.TRAIN, [],
-        train_files,
-        args.cmd.upscale_factor,
+        prosr.Phase.TRAIN,
+        **train_files,
+        upscale_factor=args.cmd.upscale_factor,
         input_size=args.data.input_size,
         **args.train.dataset)
 
@@ -125,9 +132,9 @@ def main(args):
     info('training images = %d' % len(training_data_loader))
 
     testing_dataset = Dataset(
-            prosr.Phase.VAL, [],
-            test_files,
-            args.cmd.upscale_factor,
+            prosr.Phase.VAL,
+            **test_files,
+            upscale_factor=args.cmd.upscale_factor,
             input_size=None,
             **args.test.dataset)
     testing_data_loader = DataLoader(testing_dataset, batch_size=1)
