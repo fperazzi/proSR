@@ -64,6 +64,12 @@ def parse_args():
         nargs='+')
 
     parser.add_argument(
+        '--seed',
+        type=int,
+        help='reproducible experiments',
+        default=128)
+
+    parser.add_argument(
         '--fast-validation',
         type=int,
         help='truncate number of validation images',
@@ -109,7 +115,7 @@ def load_dataset(args):
     return files['train'],files['test']
 
 def main(args):
-    set_seed(128)
+    set_seed(args.cmd.seed)
 
     ############### loading datasets #################
     train_files,test_files = load_dataset(args)
@@ -263,8 +269,6 @@ def main(args):
                         best_key = list(trainer.best_eval.keys())
                     trainer.save('best_' + '_'.join(best_key), epoch,
                                  trainer.lr)
-
-
 
 if __name__ == '__main__':
 
