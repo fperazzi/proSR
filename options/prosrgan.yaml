@@ -31,15 +31,21 @@ data:
 test:
   dataset:
     mean: [0.4488, 0.4371, 0.404]
-    path: data/datasets/DIV2K/DIV2K_valid_HR
     stddev: [0.0039215, 0.0039215, 0.0039215]
+    path:
+      source:
+      target: data/datasets/DIV2K/DIV2K_valid_HR
+    downscale: False
 train:
   D_lr: 0.0001
   batch_size: 16
   dataset:
     mean: [0.4488, 0.4371, 0.404]
-    path: data/datasets/DIV2K/DIV2K_train_HR
     stddev: [0.0039215, 0.0039215, 0.0039215]
+    path:
+      source:
+      target: data/datasets/DIV2K/DIV2K_train_HR
+    downscale: False
   epochs: 600
   gan_loss_weight: 1
   growing_steps: [0.12, 0.25, 0.45, 0.6, 1.0]
