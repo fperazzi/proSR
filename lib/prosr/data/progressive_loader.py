@@ -5,6 +5,7 @@ from .util import *
 from collections import Iterable
 from PIL import Image
 
+import copy
 import random
 import torchvision.transforms as transforms
 
@@ -139,7 +140,7 @@ class DataLoader(multiproc.MyDataLoader):
             batch_size=batch_size,
             shuffle=(self.phase == Phase.TRAIN),
             num_workers=16,
-            random_vars=dataset.scale if self.phase == Phase.TRAIN else None,
+            random_vars=copy.deepcopy(dataset.scale) if self.phase == Phase.TRAIN else None,
             drop_last=True,
             sampler=None)
 
