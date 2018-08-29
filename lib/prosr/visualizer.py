@@ -7,13 +7,14 @@ import skimage.io as io
 
 
 class Visualizer():
-    def __init__(self, name, port=8067, use_visdom=True):
+    def __init__(self, name, port=8067, use_visdom=True,use_incoming_socket=False):
         self.win_size = 192
         self.name = name
         self.plot_data = {}
         if use_visdom:
             import visdom
-            self.vis = visdom.Visdom(port=port, env=self.name)
+            self.vis = visdom.Visdom(port=port, env=self.name,
+                                     use_incoming_socket=use_incoming_socket)
 
     # |visuals|: dictionary of images to display or save
     def display_current_results(self, visuals, epoch):

@@ -46,9 +46,8 @@ def parse_args():
     )
     parser.add_argument(
         '--disable-curriculum',
-        dest='curriculum',
-        action='store_false',
-        help="enable curriculum learning")
+        action='store_true',
+        help="disable curriculum learning")
 
 
     parser.add_argument(
@@ -68,8 +67,7 @@ def parse_args():
     parser.add_argument(
         '-v',
         '--visdom',
-        type=bool,
-        help='use visdom to visualize',
+        action='store_true',
         default=False)
 
     parser.add_argument(
@@ -135,10 +133,10 @@ def main(args):
     testing_data_loader = DataLoader(testing_dataset, batch_size=1)
     info('validation images = %d' % len(testing_data_loader))
 
-    if args.cmd.curriculum:
-        TRAINER = CurriculumLearningTrainer
-    else:
+    if args.cmd.disable_curriculum:
         TRAINER = SimultaneousMultiscaleTrainer
+    else:
+        TRAINER = CurriculumLearningTrainer
 
     trainer = TRAINER(
         args,
