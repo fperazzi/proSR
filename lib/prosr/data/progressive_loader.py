@@ -12,13 +12,13 @@ import torchvision.transforms as transforms
 class Dataset(object):
     """docstring for Dataset"""
 
-    def __init__(self, phase, source, target, upscale_factor, input_size, mean,
+    def __init__(self, phase, source, target, scale, input_size, mean,
                  stddev, downscale, **kwargs):
 
         super(Dataset, self).__init__()
         self.phase = phase
-        self.scale = upscale_factor if isinstance(
-            upscale_factor, Iterable) else [upscale_factor]
+        self.scale = scale if isinstance(
+            scale, Iterable) else [scale]
         self.input_size = [input_size] * len(self.scale) if not isinstance(
             input_size, Iterable) else input_size
         if phase == Phase.TRAIN:
@@ -126,7 +126,7 @@ class Dataset(object):
 class DataLoader(multiproc.MyDataLoader):
     """Hacky way to progressively load scales"""
 
-    def __init__(self, dataset, batch_size, upscale_factor=None):
+    def __init__(self, dataset, batch_size, scale=None):
         self.dataset = dataset
         # this keeps consistent with experiments in the paper
         if self.dataset.phase == Phase.TRAIN:

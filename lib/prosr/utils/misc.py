@@ -18,7 +18,7 @@ def get_filenames(source, image_format):
     # Seamlessy load single file, list of files and files from directories.
     source_fns = []
     if isinstance(source, str):
-        if os.path.isdir(source):
+        if os.path.isdir(source) or source[-1] == '*':
             if isinstance(image_format, list):
                 for fmt in image_format:
                     source_fns += get_filenames(source, fmt)

@@ -57,13 +57,6 @@ def parse_args():
         default=None)
 
     parser.add_argument(
-        '--upscale-factor',
-        type=int,
-        help='upscale factor',
-        default=[2, 4, 8],
-        nargs='+')
-
-    parser.add_argument(
         '--seed',
         type=int,
         help='reproducible experiments',
@@ -128,7 +121,7 @@ def main(args):
     training_dataset = Dataset(
         prosr.Phase.TRAIN,
         **train_files,
-        upscale_factor=args.cmd.upscale_factor,
+        scale=args.data.scale,
         input_size=args.data.input_size,
         **args.train.dataset)
 
@@ -140,7 +133,7 @@ def main(args):
     testing_dataset = Dataset(
             prosr.Phase.VAL,
             **test_files,
-            upscale_factor=args.cmd.upscale_factor,
+            scale=args.data.scale,
             input_size=None,
             **args.test.dataset)
     testing_data_loader = DataLoader(testing_dataset, batch_size=1)
