@@ -30,7 +30,7 @@ def parse_args():
         '--model',
         type=str,
         help='model',
-        choices=['prosr', 'prosrs', 'prosrgan'])
+        choices=['prosr', 'prosrs', 'debug'])
 
     group.add_argument(
         '-c',
@@ -66,7 +66,7 @@ def parse_args():
         '--fast-validation',
         type=int,
         help='truncate number of validation images',
-        default=0)
+        default=None)
 
     parser.add_argument(
         '-v',
@@ -114,9 +114,12 @@ def main(args):
     train_files,test_files = load_dataset(args)
 
     # reduce validation size for faster training cycles
-    if args.cmd.fast_validation:
+    if args.test.fast_validation > -1:
         for ft in ['source','target']:
-            test_files[ft] = test_files[ft][:args.cmd.fast_validation]
+            test_files[ft] = test_files[ft][:args.test.fast_validation]
+
+    info('training images = %d' % len(train_files['target']))
+    info('validation images = %d' % len(test_files['target']))
 
     training_dataset = Dataset(
         prosr.Phase.TRAIN,
@@ -128,23 +131,25 @@ def main(args):
     training_data_loader = DataLoader(
         training_dataset, batch_size=args.train.batch_size)
 
-    info('training images = %d' % len(training_data_loader))
+    if len(test_files['target']):
+        testing_dataset = Dataset(
+                prosr.Phase.VAL,
+                **test_files,
+                scale=args.data.scale,
+                input_size=None,
+                **args.test.dataset)
+        testing_data_loader = DataLoader(testing_dataset, batch_size=1)
+    else:
+        testing_dataset = None
+        testing_data_loader = None
 
-    testing_dataset = Dataset(
-            prosr.Phase.VAL,
-            **test_files,
-            scale=args.data.scale,
-            input_size=None,
-            **args.test.dataset)
-    testing_data_loader = DataLoader(testing_dataset, batch_size=1)
-    info('validation images = %d' % len(testing_data_loader))
 
     if args.cmd.disable_curriculum:
-        TRAINER = SimultaneousMultiscaleTrainer
+        Trainer_cl = SimultaneousMultiscaleTrainer
     else:
-        TRAINER = CurriculumLearningTrainer
+        Trainer_cl = CurriculumLearningTrainer
 
-    trainer = TRAINER(
+    trainer = Trainer_cl(
         args,
         training_data_loader,
         save_dir=args.cmd.output,
@@ -155,11 +160,6 @@ def main(args):
     steps_per_epoch = len(trainer.training_dataset)
     total_steps = trainer.start_epoch * steps_per_epoch
 
-    ############# output settings ##############
-    next_eval_epoch = 1
-    max_eval_frequency = 5
-    print_errors_freq = 100
-    save_model_freq = 10
 
     ############# start training ###############
     info('start training from epoch %d, learning rate %e' %
@@ -181,7 +181,7 @@ def main(args):
                 errors_accum[key].append(item)
 
             total_steps += 1
-            if total_steps % print_errors_freq == 0:
+            if total_steps % args.train.io.print_errors_freq == 0:
                 for key, item in errors.items():
                     errors_accum[key] = np.average(errors_accum[key])
                 t = time() - iter_start_time
@@ -204,7 +204,7 @@ def main(args):
                 errors_accum = defaultdict(list)
 
         # Save model
-        if epoch % save_model_freq == 0:
+        if epoch % args.train.io.save_model_freq == 0:
             info(
                 'saving the model at the end of epoch %d, iters %d' %
                 (epoch, total_steps),
@@ -216,9 +216,12 @@ def main(args):
             trainer.save('last_lr_%g' % trainer.lr, epoch, trainer.lr)
             trainer.update_learning_rate()
 
+        # eval epochs incrementally
+        eval_epoch_freq = 1
+
         ################# test with validation set ##############
-        if epoch % next_eval_epoch == 0:
-            next_eval_epoch = min(next_eval_epoch * 2, max_eval_frequency)
+        if testing_data_loader and epoch % eval_epoch_freq  == 0:
+            eval_epoch_freq = min(eval_epoch_freq * 2, args.train.io.eval_epoch_freq)
             with torch.no_grad():
                 test_start_time = time()
                 # use validation set
@@ -281,8 +284,13 @@ if __name__ == '__main__':
     else:
         params = torch.load(args.checkpoint + '_net_G.pth')['params']
 
+    # parameters overring
+    if args.fast_validation is not None:
+        params.test.fast_validation = args.fast_validation
+
     # Add command line arguments
     params.cmd = edict(vars(args))
+
     pprint(params)
 
     if not osp.isdir(args.output):

@@ -35,6 +35,13 @@ prosr_params = \
             'lr_decay': 0.5,
             'smallest_lr': 1e-5,
             'l1_loss_weight': 1.0,
+            'fast_validation':-1, #-1 full validation, 0 no validation, x: max files validation
+            ############# output settings ##############
+            'io': {
+                'save_model_freq':10,
+                'eval_epoch_freq': 10,
+                'print_errors_freq': 100
+            },
         },
         'G': {
             'max_scale': 8,
@@ -102,4 +109,12 @@ prosrgan_params.train.gan_loss_weight = 1
 prosrgan_params.train.l1_loss_weight = 0
 prosrgan_params.G.vgg = [2, 4]
 prosrgan_params.G.vgg_mean_pool = True
+
+debug_params = copy.deepcopy(prosrs_params)
+debug_params.train.io.eval_epoch_freq = 1
+debug_params.train.io.print_errors_freq = 10
+debug_params.train.io.save_model_freq = 5
+debug_params.train.dataset.path.target = 'data/datasets/DIV2K/DIV2K_debug_HR'
+debug_params.train.epochs = 10
+debug_params.test.fast_validation = 2
 
