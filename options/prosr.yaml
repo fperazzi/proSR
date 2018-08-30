@@ -18,24 +18,23 @@ data:
   scale: [2, 4, 8]
 test:
   dataset:
+    downscale: false
     mean: [0.4488, 0.4371, 0.404]
+    path: {source: '', target: data/datasets/DIV2K/DIV2K_valid_HR}
     stddev: [0.0039215, 0.0039215, 0.0039215]
-    path:
-      source:
-      target: data/datasets/DIV2K/DIV2K_valid_HR
-    downscale: False
 train:
   batch_size: 16
   dataset:
+    downscale: false
     mean: [0.4488, 0.4371, 0.404]
+    path: {source: '', target: data/datasets/DIV2K/DIV2K_train_HR}
     stddev: [0.0039215, 0.0039215, 0.0039215]
-    path:
-      source:
-      target: data/datasets/DIV2K/DIV2K_train_HR
-    downscale: False
   epochs: 600
+  fast_validation: -1
   growing_steps: [0.12, 0.25, 0.45, 0.6, 1.0]
+  io: {eval_epoch_freq: 10, print_errors_freq: 100, save_model_freq: 10}
   l1_loss_weight: 1.0
   lr: 0.0001
   lr_decay: 0.5
   lr_schedule_patience: 30
+  smallest_lr: 1.0e-05
