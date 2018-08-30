@@ -251,7 +251,7 @@ def main(args):
                     bold=True)
 
                 info(
-                    'best at epoch %d : ' % trainer.best_epoch + ' | '.join([
+                    'best so far      : ' + ' | '.join([
                         '{}: {:.02f}'.format(k, v)
                         for k, v in trainer.best_eval.items()
                     ]),
@@ -267,6 +267,7 @@ def main(args):
                         best_key = list(trainer.best_eval.keys())
                     trainer.save('best_' + '_'.join(best_key), epoch,
                                  trainer.lr)
+
 
 if __name__ == '__main__':
 
