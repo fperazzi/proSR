@@ -45,7 +45,7 @@ def parse_args():
         help='name of this training experiment',
     )
     parser.add_argument(
-        '--disable-curriculum',
+        '--no-curriculum',
         action='store_true',
         help="disable curriculum learning")
 
@@ -144,10 +144,12 @@ def main(args):
         testing_data_loader = None
 
 
-    if args.cmd.disable_curriculum:
+    if args.cmd.no_curriculum or len(args.data.scale) == 1:
         Trainer_cl = SimultaneousMultiscaleTrainer
     else:
         Trainer_cl = CurriculumLearningTrainer
+
+    args.G.max_scale = np.max(args.data.scale)
 
     trainer = Trainer_cl(
         args,

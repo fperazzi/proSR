@@ -43,7 +43,6 @@ prosr_params = \
             },
         },
         'G': {
-            'max_scale': 8,
             'residual_denseblock': True,  # ProSR_l and ProSRGan uses residual links, ProSR_l doesn't
             # densenet hyperparameters
             'num_init_features': 160,
@@ -73,9 +72,8 @@ prosr_params = \
             },
         },
         'data': {
-            'input_size': [48, 36, 24],  # reduce input size for 4x and 8x to save memory
-            'max_scale': 8,
-            'scale': [2, 4, 8]
+            'scale': [2, 4, 8],
+            'input_size': [48, 36, 24]  # reduce input size for 4x and 8x to save memory
         }
     })
 prosrs_params = copy.deepcopy(prosr_params)

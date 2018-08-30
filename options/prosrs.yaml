@@ -8,14 +8,12 @@ G:
   - [6, 6]
   - [6]
   max_num_feature: 312
-  max_scale: 8
   num_init_features: 24
   ps_woReLU: false
   res_factor: 1.0
   residual_denseblock: false
 data:
   input_size: [48, 36, 24]
-  max_scale: 8
   scale: [2, 4, 8]
 test:
   dataset:
@@ -23,15 +21,15 @@ test:
     mean: [0.4488, 0.4371, 0.404]
     path: {source: '', target: data/datasets/DIV2K/DIV2K_valid_HR}
     stddev: [0.0039215, 0.0039215, 0.0039215]
+  fast_validation: -1
 train:
-  batch_size: 64
+  batch_size: 16
   dataset:
     downscale: false
     mean: [0.4488, 0.4371, 0.404]
     path: {source: '', target: data/datasets/DIV2K/DIV2K_train_HR}
     stddev: [0.0039215, 0.0039215, 0.0039215]
-  epochs: 150
-  fast_validation: -1
+  epochs: 300
   growing_steps: [0.12, 0.25, 0.45, 0.6, 1.0]
   io: {eval_epoch_freq: 10, print_errors_freq: 100, save_model_freq: 10}
   l1_loss_weight: 1.0
