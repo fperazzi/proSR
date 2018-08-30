@@ -27,7 +27,7 @@ prosr_params = \
                 'mean': [0.4488, 0.4371, 0.4040],  # mean value to extract from the (0, 1) image values
                 'stddev': [0.0039215, 0.0039215, 0.0039215]  # multiply the image value by this factor, resulting value range of image [-127.5, 127.5]
             },
-            'epochs': 300,  # different to paper
+            'epochs': 600,  # different to paper
             'batch_size': 16,
             'growing_steps': [0.12, 0.25, 0.45, 0.6, 1.00],
             'lr_schedule_patience': 30,
@@ -87,6 +87,7 @@ prosrs_params.G.block_compression = 0.4
 prosrs_params.G.level_compression = 0.5
 prosrs_params.G.residual_denseblock = False
 prosrs_params.G.res_factor = 1.0
+prosrs_params.train.epochs = 300
 
 prosrgan_params = copy.deepcopy(prosr_params)
 prosrgan_params.D = edict({
