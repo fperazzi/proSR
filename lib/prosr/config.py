@@ -27,7 +27,7 @@ prosr_params = \
                 'mean': [0.4488, 0.4371, 0.4040],  # mean value to extract from the (0, 1) image values
                 'stddev': [0.0039215, 0.0039215, 0.0039215]  # multiply the image value by this factor, resulting value range of image [-127.5, 127.5]
             },
-            'epochs': 600,  # different to paper
+            'epochs': 300,  # different from paper
             'batch_size': 16,
             'growing_steps': [0.12, 0.25, 0.45, 0.6, 1.00],
             'lr_schedule_patience': 30,
@@ -35,7 +35,6 @@ prosr_params = \
             'lr_decay': 0.5,
             'smallest_lr': 1e-5,
             'l1_loss_weight': 1.0,
-            'fast_validation':-1, #-1 full validation, 0 no validation, x: max files validation
             ############# output settings ##############
             'io': {
                 'save_model_freq':10,
@@ -62,6 +61,7 @@ prosr_params = \
             'res_factor': 0.2,  # scale residual
         },
         'test': {
+            'fast_validation':-1, #-1 full validation, 0 no validation, x: max files validation
             'dataset': {
                 'path': {
                     'source':'',
