@@ -287,6 +287,7 @@ if __name__ == '__main__':
     # parameters overring
     if args.fast_validation is not None:
         params.test.fast_validation = args.fast_validation
+    del args.fast_validation
 
     # Add command line arguments
     params.cmd = edict(vars(args))
