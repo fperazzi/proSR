@@ -149,7 +149,7 @@ class SimultaneousMultiscaleTrainer(object):
         d = OrderedDict()
         for s in self.opt.data.scale:
             if self.opt.train.l1_loss_weight > 0:
-                d['l1_x%d' % s] = 0.0
+                d['l1_x%d' % s] = np.nan
 
         if hasattr(self, 'l1_loss'):
             d['l1_x%d' % self.model_scale] = self.l1_loss.item()

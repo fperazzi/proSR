@@ -169,6 +169,7 @@ def main(args):
 
     steps_per_epoch = len(trainer.training_dataset)
     errors_accum = defaultdict(list)
+    errors_accum_prev = defaultdict(lambda: 0)
 
     for epoch in range(trainer.start_epoch + 1, args.train.epochs + 1):
         iter_start_time = time()
@@ -185,7 +186,10 @@ def main(args):
             total_steps += 1
             if total_steps % args.train.io.print_errors_freq == 0:
                 for key, item in errors.items():
-                    errors_accum[key] = np.average(errors_accum[key])
+                    errors_accum[key] = np.nanmean(errors_accum[key])
+                    if np.isnan(errors_accum[key]):
+                        errors_accum[key] = errors_accum_prev[key]
+                errors_accum_prev = errors_accum
                 t = time() - iter_start_time
                 iter_start_time = time()
                 print_current_errors(
