@@ -51,7 +51,7 @@ class Dataset(object):
         if self.phase != Phase.TRAIN:
             if len(self.source_fns) > 0:
                 self.source_fns = self.source_fns * len(self.scale)
-            if len(self.source_fns) > 0:
+            if len(self.target_fns) > 0:
                 self.target_fns = self.target_fns * len(self.scale)
 
         # Input normalization

@@ -64,7 +64,7 @@ prosr_params = \
             'dataset': {
                 'path': {
                     'source':'',
-                    'target':'data/datasets/DIV2K/DIV2K_valid_HR'
+                    'target':'data/datasets/Set14',
                 },
                 'downscale':False,
                 'mean': [0.4488, 0.4371, 0.4040],  # mean value to extract from the (0, 1) image values
@@ -110,8 +110,8 @@ prosrgan_params.G.vgg_mean_pool = True
 debug_params = copy.deepcopy(prosrs_params)
 debug_params.train.io.eval_epoch_freq = 1
 debug_params.train.io.print_errors_freq = 10
-debug_params.train.io.save_model_freq = 5
+debug_params.train.io.save_model_freq = 1
 debug_params.train.dataset.path.target = 'data/datasets/DIV2K/DIV2K_debug_HR'
 debug_params.train.epochs = 10
-debug_params.test.fast_validation = 2
+debug_params.test.fast_validation = -1
 
