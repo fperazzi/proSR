@@ -7,6 +7,7 @@ from collections import OrderedDict
 
 import os
 import torch
+import numpy as np
 
 class SimultaneousMultiscaleTrainer(object):
     """multiscale training without curriculum scheduling"""
@@ -179,7 +180,7 @@ class SimultaneousMultiscaleTrainer(object):
         else:
             eval_result = current_eval_result
         is_best_sofar = any(
-            [eval_result[k] > v for k, v in self.best_eval.items()])
+            [np.round(eval_result[k],2) > np.round(v,2) for k, v in self.best_eval.items()])
         if is_best_sofar:
             self.best_epoch = epoch
             self.best_eval = {

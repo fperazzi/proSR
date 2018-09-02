@@ -251,7 +251,7 @@ def main(args):
                     bold=True)
 
                 info(
-                    'best so far      : ' + ' | '.join([
+                    'best so far %d : ' % trainer.best_epoch + ' | '.join([
                         '{}: {:.02f}'.format(k, v)
                         for k, v in trainer.best_eval.items()
                     ]),
