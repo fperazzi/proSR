@@ -186,7 +186,8 @@ def main(args):
             total_steps += 1
             if total_steps % args.train.io.print_errors_freq == 0:
                 for key, item in errors.items():
-                    errors_accum[key] = np.nanmean(errors_accum[key])
+                    if len(errors_accum[key]):
+                        errors_accum[key] = np.nanmean(errors_accum[key])
                     if np.isnan(errors_accum[key]):
                         errors_accum[key] = errors_accum_prev[key]
                 errors_accum_prev = errors_accum

@@ -21,13 +21,13 @@ prosr_params = \
             'dataset': {
                 'path': {
                     'source':'',
-                    'target':'data/datasets/DIV2K/DIV2K_train_HR'
+                    'target':'data/datasets/Ensemble/**'
                 },
                 'downscale':False,
                 'mean': [0.4488, 0.4371, 0.4040],  # mean value to extract from the (0, 1) image values
                 'stddev': [0.0039215, 0.0039215, 0.0039215]  # multiply the image value by this factor, resulting value range of image [-127.5, 127.5]
             },
-            'epochs': 300,  # different from paper
+            'epochs': 500,  # different from paper
             'batch_size': 16,
             'growing_steps': [0.12, 0.25, 0.45, 0.6, 1.00],
             'lr_schedule_patience': 30,
@@ -37,7 +37,7 @@ prosr_params = \
             'l1_loss_weight': 1.0,
             ############# output settings ##############
             'io': {
-                'save_model_freq':10,
+                'save_model_freq':20,
                 'eval_epoch_freq': 10,
                 'print_errors_freq': 100
             },
@@ -64,7 +64,8 @@ prosr_params = \
             'dataset': {
                 'path': {
                     'source':'',
-                    'target':'data/datasets/Set14',
+                    'target':'data/datasets/Set14'
+
                 },
                 'downscale':False,
                 'mean': [0.4488, 0.4371, 0.4040],  # mean value to extract from the (0, 1) image values
@@ -110,8 +111,8 @@ prosrgan_params.G.vgg_mean_pool = True
 debug_params = copy.deepcopy(prosrs_params)
 debug_params.train.io.eval_epoch_freq = 1
 debug_params.train.io.print_errors_freq = 10
-debug_params.train.io.save_model_freq = 1
+debug_params.train.io.save_model_freq = 5
 debug_params.train.dataset.path.target = 'data/datasets/DIV2K/DIV2K_debug_HR'
 debug_params.train.epochs = 10
-debug_params.test.fast_validation = -1
+debug_params.test.fast_validation = 2
 
