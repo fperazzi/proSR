@@ -264,13 +264,21 @@ def main(args):
 
                 if trainer.best_epoch == epoch:
                     if len(trainer.best_eval) > 1:
-                        best_key = [
-                            k for k in trainer.best_eval
-                            if trainer.best_eval[k] == test_result[k]
-                        ]
+                        if not isinstance(trainer, CurriculumLearningTrainer):
+                            best_key = [
+                                k for k in trainer.best_eval
+                                if trainer.best_eval[k] == test_result[k]
+                            ]
+                        else:
+                            # select only upto current training scale
+                            best_key = ["psnr_x%d" % trainer.opt.data.scale[s_idx]
+                                    for s_idx in range(trainer.current_scale_idx+1)]
+                            best_key = [k for k in best_key
+                                    if trainer.best_eval[k] == test_result[k]]
+
                     else:
                         best_key = list(trainer.best_eval.keys())
-                    trainer.save('best_' + '_'.join(best_key), epoch,
+                    trainer.save(str(epoch) + '_best_' + '_'.join(best_key), epoch,
                                  trainer.lr)
 
 
