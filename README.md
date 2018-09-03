@@ -83,8 +83,6 @@ Following wide-spread protocol, the quantitative results are obtained converting
 
 Colleagues from [EDSR](https://github.com/thstkdgus35/EDSR-PyTorch) made available a package containing all of the above datasets: [benchmark.tar](https://cv.snu.ac.kr/research/EDSR/benchmark.tar)
 
-See the next section to evaluate **ProSR** on one of these benchmarks.
-
 ## Training
 You can train your own model using the script `train.py`:
 ```
