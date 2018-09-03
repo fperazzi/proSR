@@ -21,13 +21,14 @@ prosr_params = \
             'dataset': {
                 'path': {
                     'source':'',
-                    'target':'data/datasets/Ensemble/**'
+                    'target':'data/datasets/DIV2K/DIV2K_train_HR'
+                    # 'target':'data/datasets/Ensemble/**'
                 },
                 'downscale':False,
                 'mean': [0.4488, 0.4371, 0.4040],  # mean value to extract from the (0, 1) image values
                 'stddev': [0.0039215, 0.0039215, 0.0039215]  # multiply the image value by this factor, resulting value range of image [-127.5, 127.5]
             },
-            'epochs': 500,  # different from paper
+            'epochs': 500,  #
             'batch_size': 16,
             'growing_steps': [0.12, 0.25, 0.45, 0.6, 1.00],
             'lr_schedule_patience': 30,
