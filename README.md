@@ -58,16 +58,20 @@ Furthermore, we evaluated the performance of ProSR on the following benchmark da
 * [B100 - Martin et al. ICCV 2001](https://www2.eecs.berkeley.edu/Research/Projects/CS/vision/bsds/)
 * [Urban100 - Huang et al. CVPR 2015](https://sites.google.com/site/jbhuang0604/publications/struct_sr)
 
+A package containing all the above benchmark datasets was conveniently made available by the [EDSR](https://github.com/thstkdgus35/EDSR-PyTorch) colleagues: [benchmark.tar](https://cv.snu.ac.kr/research/EDSR/benchmark.tar)
+
 ### Pretrained Models
 We provide the following pretrained models:
 
-* [ProSR](https://www.dropbox.com/s/hlgunvtmkvylc4h/proSR.pth?dl=0) - This is the full size model that ranked 2nd and 4th place respectively in terms of PSNR and SSIM on the "Track 1" of the [NTIRE Super-Resolution Challenge 2018](https://competitions.codalab.org/competitions/18015).
-* [ProSRs](https://www.dropbox.com/s/deww1i4liva717z/proSRs.pth?dl=0) - A lightweight version of ProSR. Best speed / accuracy tradeoff.
-* [ProSRGAN]() - ProSR trained with an adversarial loss. Lower PSNR but higher details.
-* [ProSR-NCL](...) - ProSRs trained without curriculum learning.
-* [ProSR+](...) - Same as ProSR, trained on DIV2K and Flick2K.
-* [ProSRs+](https://www.dropbox.com/s/deww1i4liva717z/proSRs.pth?dl=0) - Same as ProSR, trained on DIV2K and Flick2K.
+* [proSR](https://www.dropbox.com/s/hlgunvtmkvylc4h/proSR.pth?dl=0) - This is the full size model that ranked 2nd and 4th place respectively in terms of PSNR and SSIM on the "Track 1" of the [NTIRE Super-Resolution Challenge 2018](https://competitions.codalab.org/competitions/18015).
+* [proSRs](https://www.dropbox.com/s/deww1i4liva717z/proSRs.pth?dl=0) - A lightweight version of ProSR. Best speed / accuracy tradeoff.
+* [proSRGAN]() - ProSR trained with an adversarial loss. Lower PSNR but higher details.
+* [proSR-NCL](...) - ProSRs trained without curriculum learning.
+* [proSR+](...) - Same as ProSR, trained on DIV2K and Flick2K.
+* [proSRs+](https://www.dropbox.com/s/deww1i4liva717z/proSRs.pth?dl=0) - Same as ProSR, trained on DIV2K and Flick2K.
 ![](docs/figures/prosr-arch.jpg)
+
+The above models performs well across different upscaling ratios [2,4,8]. However, best performance can be achived using scale specific models. These models are available in the same folder and are post-fixed with `_xSCALE` (e.g. `proSR_x8.pth`) to indicate at which regime perform best.
 
 ## Results
 Following wide-spread protocol, the quantitative results are obtained converting RGB images to YCbCr and evaluating the PSNR and SSIM on the Y channel only. Refer to `eval.py` for further details about the evaluation.
@@ -86,21 +90,22 @@ See the next section to evaluate **ProSR** on one of these benchmarks.
 ## Training
 You can train your own model using the script `train.py`:
 ```
-# Train from default params
+# Train using default params
 python train.py --model MODEL --output DIR
 ```
 
 `MODEL` is one of `prosr` or `prosrs`. Model configurations is loaded from `prosr/config.py`. Checkpoints and log files are stored in `DIR`. Alternatively, we provide configuration files to customize model and training parameters:
 ```
-# Train from configuration file.
+# Train with configuration file.
 python train.py --config CONFIG.yaml
 ```
+Configurations files of the architectures proposed in the paper are avaiable in `PROJECT_ROOT/options`.
+
+### Loading the dataset
+Make sure that the path in `params.train.path{source,target}` is set correctly.
 
 
-Configurations files replicating the architectures proposed in the paper are avaiable in `PROJECT_ROOT/options`
-
-
-See `train.py`
+See `train.py` for more options:
 ```
 usage: train.py [-h] (-m {prosr,prosrs,debug} | -c CONFIG | -ckpt CHECKPOINT)
                 [--no-curriculum] [-o OUTPUT] [--seed SEED]
@@ -125,25 +130,7 @@ optional arguments:
   -p VISDOM_PORT, --visdom-port VISDOM_PORT
                         port used by visdom
 ```
-#### Resume Training
-To resume training from a checkpoint, e.g. `data/checkpoints/PRETRAINED_net_G.pth`.
-```
-python train.py --checkpoint data/checkpoints/PRETRAINED
-```
-
-#### MultiGPU Training
-By default, all available GPUs are used. To use specific GPUs use `CUDA_VISIBLE_DEVICES`, e.g. `CUDA_VISIBLE_DEVICES=0,1 python train.py `...
-
-#### Visualization
-To visualize intermediate results (optional) run the `visdom.server` in a separate terminal (see below) and enable visualization passing the command line arguments: `--visdom True --visdom-port PORT-NUMBER`.
-
-```
-# Run the server
-python -m visdom.server -port 8067
-```
-
-
-#### Replicate Training
+#### Training Paper Experiments
 ```
 # ProSRs (training time 16hrs on 4 NVIDIA Xp)
 python train.py --model prosrs --output proSRs
@@ -159,6 +146,24 @@ python train.py --config options/prosr+.yaml--output proSR
 
 
 ```
+#### Resume Training
+To resume training from a checkpoint, e.g. `data/checkpoints/PRETRAINED_net_G.pth`.
+```
+python train.py --checkpoint data/checkpoints/PRETRAINED
+```
+
+#### MultiGPU Training
+By default, all available GPUs are used. To use specific GPUs use `CUDA_VISIBLE_DEVICES`, e.g. `export CUDA_VISIBLE_DEVICES=0,1`
+
+#### Visualization
+To visualize intermediate results (optional) run the `visdom.server` in a separate terminal and enable visualization passing the command line arguments: `--visdom True --visdom-port PORT-NUMBER`.
+
+```
+# Run the server in a separate terminal
+python -m visdom.server -port 8067
+```
+
+
 
 
 
@@ -168,7 +173,7 @@ python train.py --config options/prosr+.yaml--output proSR
 The available options for each of the provided models ProSR, ProSRs and ProSRGAN are available in the folder `PROJECT_ROOT/options`. Note that the same configuration file is embedded as a dictionary in the respective *.pth. file. You can print the configuration file, as well as the log and evaluation history using the command:
 
 ```
-python print_info.py --config data/checkpoints/proSR.pths
+python print_info.py --config data/checkpoints/proSR.pth
 ```
 
 
