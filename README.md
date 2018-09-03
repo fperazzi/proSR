@@ -49,7 +49,7 @@ pip install easydict html
 The script `get_data.sh`, found in `PROJECT_ROOT/data`, downloads the pretrained models and datasets that we used in this project. This is a large download of approximately 10GB that might take a while to complete. If you would rather download individual files, continue reading the next section.
 
 ### Datasets
-The results reported in the paper are trained on [DIV2K](https://data.vision.ee.ethz.ch/cvl/DIV2K) ([7.1GB](https://data.vision.ee.ethz.ch/cvl/DIV2K/)). Improved performance, at the expenses of longer training time can be obtained adding [Flickr2K](http://cv.snu.ac.kr/research/EDSR/Flickr2K.tar) to the training data.
+The results reported in the paper are trained on [DIV2K](https://data.vision.ee.ethz.ch/cvl/DIV2K) ([7.1GB](https://data.vision.ee.ethz.ch/cvl/DIV2K/)). Improved performance, at the expenses of longer training time can be obtained adding [Flickr2K](http://cv.snu.ac.kr/research/EDSR/Flickr2K.tar) to the training data. The pretrained network available in this repository have been trained with DIVK and Flickr2K.
 
 Furthermore, we evaluated the performance of ProSR on the following benchmark datasets:
 
@@ -66,13 +66,11 @@ We provide the following pretrained models:
 * [proSR](https://www.dropbox.com/s/hlgunvtmkvylc4h/proSR.pth?dl=0) - This is the full size model that ranked 2nd and 4th place respectively in terms of PSNR and SSIM on the "Track 1" of the [NTIRE Super-Resolution Challenge 2018](https://competitions.codalab.org/competitions/18015).
 * [proSRs](https://www.dropbox.com/s/deww1i4liva717z/proSRs.pth?dl=0) - A lightweight version of ProSR. Best speed / accuracy tradeoff.
 * [proSRGAN]() - ProSR trained with an adversarial loss. Lower PSNR but higher details.
-* [proSR-NCL](...) - ProSRs trained without curriculum learning.
-* [proSR+](...) - Same as ProSR, trained on DIV2K and Flick2K.
-* [proSRs+](https://www.dropbox.com/s/deww1i4liva717z/proSRs.pth?dl=0) - Same as ProSR, trained on DIV2K and Flick2K.
-![](docs/figures/prosr-arch.jpg)
+
 
 The above models performs well across different upscaling ratios [2,4,8]. However, best performance can be achived using scale specific models. These models are available in the same folder and are post-fixed with `_xSCALE` (e.g. `proSR_x8.pth`) to indicate at which regime perform best.
 
+![](docs/figures/prosr-arch.jpg)
 ## Results
 Following wide-spread protocol, the quantitative results are obtained converting RGB images to YCbCr and evaluating the PSNR and SSIM on the Y channel only. Refer to `eval.py` for further details about the evaluation.
 
@@ -102,8 +100,9 @@ python train.py --config CONFIG.yaml
 Configurations files of the architectures proposed in the paper are avaiable in `PROJECT_ROOT/options`.
 
 ### Loading the dataset
-Make sure that the path in `params.train.path{source,target}` is set correctly.
+Set the path to the dataset in `configs.py:prosr_params.train.path{source,target}`. To **train on multiple datasets** create a new folder containing soft links to the datasets you want to use for training. For example: `ensemble/{DIV2K_train_HR,Flickr2K}`.
 
+`train.path.source` is optional. If left empty, the dataloader will downsample the target images found in `train.path.target` to the predefined lower resolution.
 
 See `train.py` for more options:
 ```
