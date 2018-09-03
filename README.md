@@ -58,7 +58,7 @@ We provide the following pretrained models:
 ![](docs/figures/prosr-arch.jpg)
 
 ### Datasets
-We trained our models on [DIV2K](https://data.vision.ee.ethz.ch/cvl/DIV2K) ([7.1GB](https://data.vision.ee.ethz.ch/cvl/DIV2K/))
+We trained the models reported in the paper on [DIV2K](https://data.vision.ee.ethz.ch/cvl/DIV2K) ([7.1GB](https://data.vision.ee.ethz.ch/cvl/DIV2K/)). Additionally we provide **ProSR+** and **ProSRs+** jointly trained on DIV2K and [Flickr2K](http://cv.snu.ac.kr/research/EDSR/Flickr2K.tar)
 
 Additionally, we evaluated the performance of ProSR on the following benchmark datasets:
 
@@ -66,6 +66,8 @@ Additionally, we evaluated the performance of ProSR on the following benchmark d
 * [Set14 - Zeyde et al. LNCS 2010](https://sites.google.com/site/romanzeyde/research-interests)
 * [B100 - Martin et al. ICCV 2001](https://www2.eecs.berkeley.edu/Research/Projects/CS/vision/bsds/)
 * [Urban100 - Huang et al. CVPR 2015](https://sites.google.com/site/jbhuang0604/publications/struct_sr)
+
+Colleagues from [EDSR](https://github.com/thstkdgus35/EDSR-PyTorch) made available a package containing all of the above datasets: [benchmark.tar](https://cv.snu.ac.kr/research/EDSR/benchmark.tar)
 
 See the next section to evaluate **ProSR** on one of these benchmarks.
 
