@@ -75,6 +75,7 @@ The above models performs well across different upscaling ratios [2,4,8]. Howeve
 
 ## Results
 Following wide-spread protocol, the quantitative results are obtained converting RGB images to YCbCr and evaluating the PSNR and SSIM on the Y channel only. Refer to `eval.py` for further details about the evaluation.
+
 | Model  |**2x** | S14 | B100 | U100 | DIV2K | **4x** |S14 | B100 | U100 | DIV2K | **8x**| S14| B100 | U100 | DIV2K |
 |--------|-------|-----|------|------|-------|--------|----|------|------|---------|----|-----|---------|---------|---------|
 MsLapSRN | | 33.28 | 32.05 | 31.15 | 35.62 | | 28.26 | 27.43 | 25.51 | 30.39 | | 24.57 | 24.65 | 22.06 | 26.52 |
