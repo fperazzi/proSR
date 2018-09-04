@@ -41,11 +41,13 @@ def parse_args():
         required=False,
         default=[])
     parser.add_argument(
-        '-u',
-        '--upscale-factor',
+        '-s',
+        '--scale',
         help='upscale ratio e.g. 2, 4 or 8',
         type=int,
         required=True)
+    parser.add_argument(
+        '-d', '--downscale', help='Bicubic downscaling of input to LR', action='store_true')
     parser.add_argument(
         '-f', '--fmt', help='Image file format', type=str, default='*')
     parser.add_argument(
@@ -85,14 +87,16 @@ if __name__ == '__main__':
         Phase.TEST,
         args.input,
         args.target,
-        args.upscale_factor,
+        args.scale,
         input_size=None,
-        **params['test']['dataset'])
+        mean   = params['train']['dataset']['mean'],
+        stddev = params['train']['dataset']['stddev'],
+        downscale = args.downscale)
 
     data_loader = DataLoader(dataset, batch_size=1)
 
-    mean = params['test']['dataset']['mean']
-    stddev = params['test']['dataset']['stddev']
+    mean = params['train']['dataset']['mean']
+    stddev = params['train']['dataset']['stddev']
 
     if not osp.isdir(args.output_dir):
         os.makedirs(args.output_dir)
@@ -104,12 +108,12 @@ if __name__ == '__main__':
 
         for iid, data in enumerate(data_loader):
             output = model(data['input'].cuda(),
-                           args.upscale_factor).cpu() + data['bicubic']
+                           args.scale).cpu() + data['bicubic']
             sr_img = tensor2im(output, mean, stddev)
             if 'target' in data:
                 hr_img = tensor2im(data['target'], mean, stddev)
                 psnr_val, ssim_val = eval_psnr_and_ssim(
-                    sr_img, hr_img, args.upscale_factor)
+                    sr_img, hr_img, args.scale)
                 print_evaluation(
                     osp.basename(data['input_fn'][0]), psnr_val, ssim_val,
                     iid + 1, len(dataset))
