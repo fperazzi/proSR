@@ -103,7 +103,6 @@ python train.py --model prosrs --output data/checkpoints/proSRs
 
 # ProSR from configuration file
 python train.py --config options/prosr.yaml --output data/checkpoints/proSR
-
 ```
 
 ### Loading the dataset
