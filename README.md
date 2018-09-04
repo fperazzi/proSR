@@ -49,9 +49,9 @@ pip install easydict html
 The script `get_data.sh`, found in `PROJECT_ROOT/data`, downloads the pretrained models and datasets that we used in this project. This is a large download of approximately 10GB that might take a while to complete. If you would rather download individual files, continue reading the next section.
 
 ### Datasets
-The results reported in the paper are trained on [DIV2K](https://data.vision.ee.ethz.ch/cvl/DIV2K) ([7.1GB](https://data.vision.ee.ethz.ch/cvl/DIV2K/)). Improved performance, at the expenses of longer training time can be obtained adding [Flickr2K](http://cv.snu.ac.kr/research/EDSR/Flickr2K.tar) to the training data. The pretrained network available in this repository have been trained with DIVK and Flickr2K.
+The results reported in the paper are trained on [DIV2K](https://data.vision.ee.ethz.ch/cvl/DIV2K) ([7.1GB](https://data.vision.ee.ethz.ch/cvl/DIV2K/)). Improved performance, at the expenses of longer training time can be obtained adding [Flickr2K](http://cv.snu.ac.kr/research/EDSR/Flickr2K.tar) to the training set. The pretrained models released in this repository have been trained with DIVK and Flickr2K.
 
-Furthermore, we evaluated the performance of ProSR on the following benchmark datasets:
+We evaluated the performance of ProSR on the following benchmark datasets:
 
 * [Set5 - Bevilacqua et al. BMVC 2012](http://people.rennes.inria.fr/Aline.Roumy/results/SR_BMVC12.html)
 * [Set14 - Zeyde et al. LNCS 2010](https://sites.google.com/site/romanzeyde/research-interests)
@@ -77,71 +77,40 @@ Following wide-spread protocol, the quantitative results are obtained converting
 |--------|-----|------|------|-------|-----|----|----|------|------|-----|----|-----|----|
 |MsLapSRN | 0.2M |33.28 | 32.05 | 31.15 | 35.62 | 28.26 | 27.43 | 25.51 | 30.39 | 24.57 | 24.65 | 22.06 | 26.52 |
 | EDSR   | 40M | 33.92 | 32.32 | 32.93 | 36.47 | 28.80 | 27.71 | 26.64 | 30.71 | 24.96 | 24.83 | 22.53 | 26.96 |
-ProSRs | 3M | 33.36 | 32.02 | 31.42 | 35.80 | 28.59 | 27.58 | 26.01 | 30.39 | 24.93 | 24.80 | 22.43 | 26.88 |
-ProSR | 15M | 34.00 | 32.34 | 32.91 | 36.44 | 28.94 | 27.79 | 26.89 | 30.81 | 25.29 | 24.99 | 23.04 | 27.36 |
+| ProSRs | 3M | 33.36 | 32.02 | 31.42 | 35.80 | 28.59 | 27.58 | 26.01 | 30.39 | 24.93 | 24.80 | 22.43 | 26.88 |
+| ProSR | 15M | 34.00 | 32.34 | 32.91 | 36.44 | 28.94 | 27.79 | 26.89 | 30.81 | 25.29 | 24.99 | 23.04 | 27.36 |
 
 Colleagues from [EDSR](https://github.com/thstkdgus35/EDSR-PyTorch) made available a package containing all of the above datasets: [benchmark.tar](https://cv.snu.ac.kr/research/EDSR/benchmark.tar)
 
 ## Training
-You can train your own model using the script `train.py`:
+Train your own model using the script `train.py`:
 ```
 # Train using default params
 python train.py --model MODEL --output DIR
-```
 
-`MODEL` is one of `prosr` or `prosrs`. Model configurations is loaded from `prosr/config.py`. Checkpoints and log files are stored in `DIR`. Alternatively, we provide configuration files to customize model and training parameters:
-```
 # Train with configuration file.
 python train.py --config CONFIG.yaml
 ```
-Configurations files of the architectures proposed in the paper are avaiable in `PROJECT_ROOT/options`.
+
+`MODEL` is one of `prosr` or `prosrs`. Model configuration is loaded from `prosr/config.py`. Checkpoints and log files are stored in `DIR`. Alternatively, the `--config` flag, reads configuration files in yaml format. In `PROJECT_ROOT/options` we provide config files corresponding architectures proposed in the paper.
+
+See `train.py` for more options.
+
+#### Training Paper Experiments
+```
+# Train ProSRs from params dict
+python train.py --model prosrs --output data/checkpoints/proSRs
+
+# ProSR from configuration file
+python train.py --config options/prosr.yaml --output data/checkpoints/proSR
+
+```
 
 ### Loading the dataset
 Set the path to the dataset in `configs.py:prosr_params.train.path{source,target}`. To **train on multiple datasets** create a new folder containing soft links to the datasets you want to use for training. For example: `ensemble/{DIV2K_train_HR,Flickr2K}`.
 
 `train.path.source` is optional. If left empty, the dataloader will downsample the target images found in `train.path.target` to the predefined lower resolution.
 
-See `train.py` for more options:
-```
-usage: train.py [-h] (-m {prosr,prosrs,debug} | -c CONFIG | -ckpt CHECKPOINT)
-                [--no-curriculum] [-o OUTPUT] [--seed SEED]
-                [--fast-validation FAST_VALIDATION] [-v] [-p VISDOM_PORT]
-```
-optional arguments:
-```
-  -h, --help            show this help message and exit
-  -m {prosr,prosrs,debug}, --model {prosr,prosrs,debug}
-                        model
-  -c CONFIG, --config CONFIG
-                        Configuration file in 'yaml' format.
-  -ckpt CHECKPOINT, --checkpoint CHECKPOINT
-                        path to previous training session
-  --no-curriculum       disable curriculum learning
-  -o OUTPUT, --output OUTPUT
-                        output folder
-  --seed SEED           reproducible experiments
-  --fast-validation FAST_VALIDATION
-                        truncate number of validation images
-  -v, --visdom
-  -p VISDOM_PORT, --visdom-port VISDOM_PORT
-                        port used by visdom
-```
-#### Training Paper Experiments
-```
-# ProSRs (training time 16hrs on 4 NVIDIA Xp)
-python train.py --model prosrs --output proSRs
-
-# ProSR (training time 16hrs on 4 NVIDIA Xp)
-python train.py --model prosr --output proSR
-
-# ProSRs+ (training time 16hrs on 4 NVIDIA Xp)
-python train.py --config options/prosrs+.yaml--output proSR
-
-# ProSR+ (training time 16hrs on 4 NVIDIA Xp)
-python train.py --config options/prosr+.yaml--output proSR
-
-
-```
 #### Resume Training
 To resume training from a checkpoint, e.g. `data/checkpoints/PRETRAINED_net_G.pth`.
 ```
@@ -159,26 +128,10 @@ To visualize intermediate results (optional) run the `visdom.server` in a separa
 python -m visdom.server -port 8067
 ```
 
-
-
-
-
-
-### Configuration
-
-The available options for each of the provided models ProSR, ProSRs and ProSRGAN are available in the folder `PROJECT_ROOT/options`. Note that the same configuration file is embedded as a dictionary in the respective *.pth. file. You can print the configuration file, as well as the log and evaluation history using the command:
-
-```
-python print_info.py --config data/checkpoints/proSR.pth
-```
-
-
-
-
 ## Testing
 Run:
 ```
-python test.py -i LR_INPUT (optional) -t HR_INPUT (optional) --checkpoint CHECKPOINT --upscale-factor NUMBER
+python test.py -i LR_INPUT (optional) -t HR_INPUT (optional) --checkpoint CHECKPOINT --scale NUMBER
 ```
 `LR_INPUT` is the low-resolution input and can be either a folder, an image or a list of images. If high-resolution images are provided (`HR_INPUT`), the script will compute the resulting PSNR and SSIM. Alternatively, if only high-resolution images are given as arguments, the script will scale `HR_INPUT` by the inverse of the upscale factor `NUMBER` and use the result as `LR_INPUT`.
 
@@ -200,58 +153,24 @@ python test.py -t HR_INPUT --checkpoint CHECKPOINT --scale NUMBER
 ```
 # ProSR: Replicate x8 results
 python test.py --checkpoint data/checkpoints/proSR.pth --target data/datasets/DIV2K/DIV2K_valid_HR --scale 8
-
 ```
-
-See `test.py`
-```
-usage: test.py [-h] -c CHECKPOINT [-i [INPUT [INPUT ...]]]
-               [-t [TARGET [TARGET ...]]] -s SCALE [-f FMT] [-o OUTPUT_DIR]
-```
-
-optional arguments:
-```
-  -h, --help            show this help message and exit
-  -c CHECKPOINT, --checkpoint CHECKPOINT
-                        Checkpoint
-  -i [INPUT [INPUT ...]], --input [INPUT [INPUT ...]]
-                        Input images, either list or path to folder. If not
-                        given, use bicubically downsampled target image as
-                        input
-  -t [TARGET [TARGET ...]], --target [TARGET [TARGET ...]]
-                        Target images, either list or path to folder
-  -s SCALE, --scale SCALE
-                        upscale ratio e.g. 2, 4 or 8
-  -f FMT, --fmt FMT     Image file format
-  -o OUTPUT_DIR, --output-dir OUTPUT_DIR
-                        Output folder.
-
-```
-By default, the output images will be saved in `/tmp/<class_name>` where `<class_name>` is the name of the architecture defined in the `checkpoints['params'][class_name]`.
 
 ## Additional Tools
 
+### Configuration
+
+The configuration file and the command-lines options are embedded as a dictionary in the respective *.pth. file. Print the configuration file using the command:
+
+```
+python print_info.py --config data/checkpoints/proSR.pth
+```
+
+
 ### Downscaling
-The models available for download have been trained on images downscaled with a bicubic filter. To replicate the same type of downsampling we provide the script `tools/scale.py`:
+The models available for download have been trained on images downscaled with a bicubic filter. To replicate the same type of downsampling we provide the script `tools/scale.py`.
 
 ```
 python scale.py -i HR_INPUT -o LR_OUTPUT --ratio 8
-```
-
-See `tools/scale.py`
-```
-usage: scale.py [-h] [-i INPUT] [-o OUTPUT] -s RATIO
-```
-optional arguments:
-```
-  -h, --help            show this help message and exit
-  -i INPUT, --input INPUT
-                        Input image
-  -o OUTPUT, --output OUTPUT
-                        Output imag.
-  -s RATIO, --ratio RATIO
-                        scale ratio e.g. 2, 4 or 8
-
 ```
 
 ### Evaluation
@@ -261,24 +180,7 @@ Results can be evaluated in terms of PSNR and SSIM using the script `tools/eval.
 python tools/eval.py -i LR_INPUT -t HR_INPUT --scale NUMBER
 ```
 
-The input can be either a folder, an image or a list of images. The upsampling factor needs to be specified because boundary cropping depends on it.
-
-See `tools/eval.py`:
-
-```
-usage: eval.py [-h] -i [INPUT [INPUT ...]] -t [TARGET [TARGET ...]] -u
-               UPSCALE_FACTOR
-```
-optional arguments:
-```
-  -h, --help            show this help message and exit
-  -i [INPUT [INPUT ...]], --input [INPUT [INPUT ...]]
-                        High-resolution images, either list or path to folder
-  -t [TARGET [TARGET ...]], --target [TARGET [TARGET ...]]
-                        Super-resolution images, either list or path to folder
-  -u UPSCALE_FACTOR, --upscale-factor UPSCALE_FACTOR
-                        upscale ratio e.g. 2, 4 or 8
-```
+The input can be either a folder, an image or a list of images. The upsampling factor is required since the boundary cropping depends on it.
 
 ## Publication
 If this code helps your research, please considering citing the following paper.
