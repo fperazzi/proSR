@@ -29,8 +29,8 @@ def parse_args():
         required=True,
         default=[])
     parser.add_argument(
-        '-u',
-        '--upscale-factor',
+        '-s',
+        '--scale',
         help='upscale ratio e.g. 2, 4 or 8',
         type=int,
         required=True)
@@ -61,8 +61,7 @@ if __name__ == '__main__':
         hr_img = io.imread(hr_filename)
         sr_img = io.imread(sr_filename)
 
-        psnr_val, ssim_val = eval_psnr_and_ssim(sr_img, hr_img,
-                                                args.upscale_factor)
+        psnr_val, ssim_val = eval_psnr_and_ssim(sr_img, hr_img,args.scale)
 
         print_evaluation(
             osp.basename(sr_filename), psnr_val, ssim_val, iid + 1,
