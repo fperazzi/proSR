@@ -101,6 +101,7 @@ if __name__ == '__main__':
 
     if not osp.isdir(args.output_dir):
         os.makedirs(args.output_dir)
+    info('Saving images in: {}'.format(args.output_dir))
 
     with torch.no_grad():
         if len(args.target):

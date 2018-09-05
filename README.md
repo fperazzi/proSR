@@ -64,7 +64,7 @@ A package containing all the above benchmark datasets was conveniently made avai
 We provide the following pretrained models:
 
 * proSR - This is the full size model that ranked 2nd and 4th place respectively in terms of PSNR and SSIM on the "Track 1" of the [NTIRE Super-Resolution Challenge 2018](https://competitions.codalab.org/competitions/18015).
-* proSRs - A lightweight version of ProSR. Best speed / accuracy tradeoff.
+* [proSRs](https://www.dropbox.com/s/ldv397lcr3vn95w/proSRs.zip?dl=0) - A lightweight version of ProSR. Best speed / accuracy tradeoff.
 * proSRGAN - ProSR trained with an adversarial loss. Lower PSNR but higher details.
 
 The above models performs well across different upscaling ratios [2,4,8]. However, best performance can be achived using scale specific models. These models are available in the same folder and are post-fixed with `_xSCALE` (e.g. `proSR_x8.pth`) to indicate at which regime perform best.
@@ -73,12 +73,11 @@ The above models performs well across different upscaling ratios [2,4,8]. Howeve
 ## Results
 Following wide-spread protocol, the quantitative results are obtained converting RGB images to YCbCr and evaluating the PSNR and SSIM on the Y channel only. Refer to `eval.py` for further details about the evaluation.
 
-| Model  | Params | S14 | B100 | U100 | DIV2K | S14 | B100 | U100 | DIV2K | S14| B100 | U100 | DIV2K |
-|--------|-----|------|------|-------|-----|----|----|------|------|-----|----|-----|----|
-|MsLapSRN | 0.2M |33.28 | 32.05 | 31.15 | 35.62 | 28.26 | 27.43 | 25.51 | 30.39 | 24.57 | 24.65 | 22.06 | 26.52 |
-| EDSR   | 40M | 33.92 | 32.32 | 32.93 | 36.47 | 28.80 | 27.71 | 26.64 | 30.71 | 24.96 | 24.83 | 22.53 | 26.96 |
-| ProSRs | 3M | 33.36 | 32.02 | 31.42 | 35.80 | 28.59 | 27.58 | 26.01 | 30.39 | 24.93 | 24.80 | 22.43 | 26.88 |
-| ProSR | 15M | 34.00 | 32.34 | 32.91 | 36.44 | 28.94 | 27.79 | 26.89 | 30.81 | 25.29 | 24.99 | 23.04 | 27.36 |
+| [ProSRs](https://www.dropbox.com/s/ldv397lcr3vn95w/proSRs.zip?dl=0) | DIV2K |  S14  | B100  | U100  |
+|--------|-------|-------|-------|-------|
+| x2     | 35.88 | 33.52 | 32.00 | 31.61 |
+| x4     | 30.39 | 28.64 | 27.50 | 26.02 |
+| x8     | 26.89 | 24.92 | 24.71 | 22.44 |
 
 Colleagues from [EDSR](https://github.com/thstkdgus35/EDSR-PyTorch) made available a package containing all of the above datasets: [benchmark.tar](https://cv.snu.ac.kr/research/EDSR/benchmark.tar)
 
@@ -133,18 +132,6 @@ Run:
 python test.py -i LR_INPUT (optional) -t HR_INPUT (optional) --checkpoint CHECKPOINT --scale NUMBER
 ```
 `LR_INPUT` is the low-resolution input and can be either a folder, an image or a list of images. If high-resolution images are provided (`HR_INPUT`), the script will compute the resulting PSNR and SSIM. Alternatively, if only high-resolution images are given as arguments, the script will scale `HR_INPUT` by the inverse of the upscale factor `NUMBER` and use the result as `LR_INPUT`.
-
-#### Usage
-```
-# upsample LR_DATA
-python test.py -i LR_DATA --checkpoint CHECKPOINT --scale NUMBER
-
-# upsample LR_DATA and evaluate against HR_INPUT
-python test.py -i LR_DATA -t HR_INPUT --checkpoint CHECKPOINT --scale NUMBER
-
-# Dowsample HR_INPUT and evaluate upsampled(downsampled(HR_INPUT)) against HR_INPUT
-python test.py -t HR_INPUT --checkpoint CHECKPOINT --scale NUMBER
-```
 
 `CHECKPOINT` is the path to the pretrained *\*.pth* file.
 
