@@ -62,7 +62,7 @@ We evaluated the performance of ProSR on the following benchmark datasets:
 A package containing all the above benchmark datasets was conveniently made available by the [EDSR](https://github.com/thstkdgus35/EDSR-PyTorch) colleagues: [benchmark.tar](https://cv.snu.ac.kr/research/EDSR/benchmark.tar)
 
 ### Pretrained Models
-We provide the following pretrained models:
+We release the following pretrained models:
 
 * proSR - This is the full size model that ranked 2nd and 4th place respectively in terms of PSNR and SSIM on the "Track 1" of the [NTIRE Super-Resolution Challenge 2018](https://competitions.codalab.org/competitions/18015).
 * [proSRs](https://www.dropbox.com/s/ldv397lcr3vn95w/proSRs.zip?dl=0) - A lightweight version of ProSR. Best speed / accuracy tradeoff.
