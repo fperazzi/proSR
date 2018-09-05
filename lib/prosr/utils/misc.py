@@ -138,14 +138,18 @@ def crop_boundaries(im, cs):
         return im
 
 
-def print_evaluation(filename, psnr, ssim, iid=None, n_images=None):
+def print_evaluation(filename, psnr, ssim, iid=None, n_images=None,time=None):
     from prosr.logger import info
     if iid is not None and n_images:
-        info('[{:03d}/{:03d}] {:10s} | psnr: {:.2f} | ssim: {:.2f}'.format(
+        msg = '[{:03d}/{:03d}] {:10s} | psnr: {:.2f} | ssim: {:.2f}'.format(
             iid, n_images,
-            osp.splitext(filename)[0], psnr, ssim))
+            osp.splitext(filename)[0], psnr, ssim)
     else:
-        info('{} | psnr: {:.2f} | ssim: {:.2f}'.format(filename, psnr, ssim))
+        msg = '{} | psnr: {:.2f} | ssim: {:.2f}'.format(filename, psnr, ssim)
+
+    if time is not None:
+        msg += ' | {:.2f} secs'.format(time)
+    info(msg)
 
 
 def set_seed(seed):

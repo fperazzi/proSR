@@ -9,6 +9,7 @@ from prosr.utils import (get_filenames, IMG_EXTENSIONS, print_evaluation,
 
 import numpy as np
 import os
+import time
 import os.path as osp
 import prosr
 import skimage.io as io
@@ -107,22 +108,24 @@ if __name__ == '__main__':
             ssim_mean = 0
 
         for iid, data in enumerate(data_loader):
+            tic = time.time()
             output = model(data['input'].cuda(),
                            args.scale).cpu() + data['bicubic']
             sr_img = tensor2im(output, mean, stddev)
+            toc = time.time()
             if 'target' in data:
                 hr_img = tensor2im(data['target'], mean, stddev)
                 psnr_val, ssim_val = eval_psnr_and_ssim(
                     sr_img, hr_img, args.scale)
                 print_evaluation(
                     osp.basename(data['input_fn'][0]), psnr_val, ssim_val,
-                    iid + 1, len(dataset))
+                    iid + 1, len(dataset),toc-tic)
                 psnr_mean += psnr_val
                 ssim_mean += ssim_val
             else:
                 print_evaluation(
                     osp.basename(data['input_fn'][0]), np.nan, np.nan, iid + 1,
-                    len(dataset))
+                    len(dataset),toc-tic)
 
             fn = osp.join(args.output_dir, osp.basename(data['input_fn'][0]))
             io.imsave(fn, sr_img)
