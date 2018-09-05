@@ -71,7 +71,7 @@ The above models performs well across different upscaling ratios [2,4,8]. Howeve
 
 ![](docs/figures/prosr-arch.jpg)
 ## Results
-Following wide-spread protocol, the quantitative results are obtained converting RGB images to YCbCr and evaluating the PSNR and SSIM on the Y channel only. Refer to `eval.py` for further details about the evaluation.
+Following wide-spread protocol, the quantitative results are obtained converting RGB images to YCbCr and evaluating the PSNR and SSIM on the Y channel only.
 
 | [ProSRs](https://www.dropbox.com/s/ldv397lcr3vn95w/proSRs.zip?dl=0) | DIV2K |  S14  | B100  | U100  |
 |--------|-------|-------|-------|-------|
