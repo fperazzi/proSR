@@ -47,7 +47,7 @@ pip install easydict html
 `export PYTHONPATH=$PROJECT_ROOT/lib:$PYTHONPATH` to include `proSR` into the search path.
 
 ## Getting the Data
-The script `get_data.sh`, found in `PROJECT_ROOT/data`, downloads the pretrained models and datasets that we used in this project. This is a large download of approximately 10GB that might take a while to complete. If you would rather download individual files, continue reading the next section.
+We provide a script `tools/get_data.sh` to download the pretrained models and datasets that we used in this project. This is a large download of approximately 10GB that might take a while to complete. Individual links to the models and datasets are available in the next sections.
 
 ### Datasets
 The results reported in the paper are trained on [DIV2K](https://data.vision.ee.ethz.ch/cvl/DIV2K) ([7.1GB](https://data.vision.ee.ethz.ch/cvl/DIV2K/)). Improved performance, at the expenses of longer training time can be obtained adding [Flickr2K](http://cv.snu.ac.kr/research/EDSR/Flickr2K.tar) to the training set. The pretrained models released in this repository have been trained with DIVK and Flickr2K.
