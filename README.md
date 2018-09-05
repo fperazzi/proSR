@@ -1,6 +1,7 @@
 # ProSR
 
 ### [A Fully Progressive Approach to Single-Image Super-Resolution](https://fperazzi.github.io/files/publications/prosr.pdf).
+#### Co-winner of the [NTIRE Super-Resolution Challenge 2018](https://competitions.codalab.org/competitions/18015)
 (Unofficial Implementation)
 
 ![](docs/figures/prosr-teaser.jpg)
@@ -73,11 +74,12 @@ The above models performs well across different upscaling ratios [2,4,8]. Howeve
 ## Results
 Following wide-spread protocol, the quantitative results are obtained converting RGB images to YCbCr and evaluating the PSNR and SSIM on the Y channel only.
 
-| [ProSRs](https://www.dropbox.com/s/ldv397lcr3vn95w/proSRs.zip?dl=0) | DIV2K |  S14  | B100  | U100  |
+| [ProSRs](https://www.dropbox.com/s/ldv397lcr3vn95w/proSRs.zip?dl=0) | DIV2K |  S14  | B100  | U100
 |--------|-------|-------|-------|-------|
 | x2     | 35.88 | 33.52 | 32.00 | 31.61 |
 | x4     | 30.39 | 28.64 | 27.50 | 26.02 |
 | x8     | 26.89 | 24.92 | 24.71 | 22.44 |
+
 
 Colleagues from [EDSR](https://github.com/thstkdgus35/EDSR-PyTorch) made available a package containing all of the above datasets: [benchmark.tar](https://cv.snu.ac.kr/research/EDSR/benchmark.tar)
 
