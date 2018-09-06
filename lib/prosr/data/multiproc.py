@@ -1,9 +1,10 @@
 import torch
 import torch.multiprocessing as multiprocessing
-from torch.utils.data.dataloader import _DataLoaderIter, DataLoader, \
-    _worker_manager_loop, _set_SIGCHLD_handler, ExceptionWrapper
-from torch._C import _set_worker_signal_handlers, _update_worker_pids, \
-    _remove_worker_pids, _error_if_any_worker_fails
+from torch.utils.data.dataloader import (_DataLoaderIter, DataLoader,
+    _worker_manager_loop, _set_SIGCHLD_handler, ExceptionWrapper,
+    pin_memory_batch)
+from torch._C import (_set_worker_signal_handlers, _update_worker_pids,
+    _remove_worker_pids, _error_if_any_worker_fails)
 import random
 import threading
 import sys
@@ -198,4 +199,3 @@ class MyDataLoader(DataLoader):
 
     def __len__(self):
         return len(self.batch_sampler)
-
