@@ -1,18 +1,18 @@
 # ProSR
 
-### [A Fully Progressive Approach to Single-Image Super-Resolution](https://fperazzi.github.io/files/publications/prosr.pdf).
-#### Co-winner of the [NTIRE Super-Resolution Challenge 2018](https://competitions.codalab.org/competitions/18015)
+  ## [A Fully Progressive Approach to Single-Image Super-Resolution](https://fperazzi.github.io/files/publications/prosr.pdf)
+### Co-winner of the [NTIRE Super-Resolution Challenge 2018](https://competitions.codalab.org/competitions/18015)
 (Unofficial Implementation)
 
 ![](docs/figures/prosr-teaser.jpg)
 
-**ProSR** is a Single Image Super-Resolution (SISR) method designed upon the principle of multi-scale progressiveness. The architecture resembles an asymmetric pyramidal structure with more layers in the upper levels to enable high upsampling ratios while remaining efficient. The training procedure implements the paradigm of curriculum learning by gradually increasing the difficulty of the task.
+**ProSR** is a Single Image Super-Resolution (SISR) method designed upon the principle of multi-scale progressiveness. The architecture resembles an asymmetric pyramidal structure with more layers in the upper levels, to enable high upsampling ratios while remaining efficient. The training procedure implements the paradigm of curriculum learning by gradually increasing the difficulty of the task.
 
 ## Installation
 Follow the instructions below to get **ProSR** up and running on your machine, both for development and testing purposes.
 
+**ProSR** is developed under Ubuntu 16.04 with CUDA 9.1, cuDNN v7.0 and pytorch-0.4.0. We tested the program on Nvidia Titan X and Tesla K40c GPUs. Parallel processing on multiple GPUs is supported during training.
 ### System Requirements
-**ProSR** is developed under Ubuntu 16.04 with CUDA 9.1, cuDNN v7.0 and pytorch-0.4.0. We tested the program on Nvidia Titan X and Tesla K40c GPUs. Any NVIDIA GPU with ~12GB memory will do. Parallel processing on multiple GPUs is supported during training.
 
 ### Dependencies
   * python 3.x
@@ -26,7 +26,7 @@ Follow the instructions below to get **ProSR** up and running on your machine, b
 
 #### Install Dependencies
 ```
-# Crate virtual environment
+# Create virtual environment
 conda create -n proSR
 
 # Install torch
@@ -47,10 +47,10 @@ pip install easydict html
 `export PYTHONPATH=$PROJECT_ROOT/lib:$PYTHONPATH` to include `proSR` into the search path.
 
 ## Getting the Data
-We provide a script `tools/get_data.sh` to download the pretrained models and datasets that we used in this project. This is a large download of approximately 10GB that might take a while to complete. Individual links to the models and datasets are available in the next sections.
+We provide a script `data/get_data.sh` to download the pretrained models and datasets that we used in this project. This is a large download of approximately 10GB that might take a while to complete. Individual links to the models and datasets are available in the next sections.
 
 ### Datasets
-The results reported in the paper are trained on [DIV2K](https://data.vision.ee.ethz.ch/cvl/DIV2K) ([7.1GB](https://data.vision.ee.ethz.ch/cvl/DIV2K/)). Improved performance, at the expenses of longer training time can be obtained adding [Flickr2K](http://cv.snu.ac.kr/research/EDSR/Flickr2K.tar) to the training set. The pretrained models released in this repository have been trained with DIVK and Flickr2K.
+The results reported in the paper are trained on [DIV2K](https://data.vision.ee.ethz.ch/cvl/DIV2K). Improved performance, at the expenses of longer training time, can be obtained adding [Flickr2K](http://cv.snu.ac.kr/research/EDSR/Flickr2K.tar) to the training set. The pretrained models released in this repository have been trained with DIV2K and Flickr2K.
 
 We evaluated the performance of ProSR on the following benchmark datasets:
 
@@ -59,7 +59,7 @@ We evaluated the performance of ProSR on the following benchmark datasets:
 * [B100 - Martin et al. ICCV 2001](https://www2.eecs.berkeley.edu/Research/Projects/CS/vision/bsds/)
 * [Urban100 - Huang et al. CVPR 2015](https://sites.google.com/site/jbhuang0604/publications/struct_sr)
 
-A package containing all the above benchmark datasets was conveniently made available by the [EDSR](https://github.com/thstkdgus35/EDSR-PyTorch) colleagues: [benchmark.tar](https://cv.snu.ac.kr/research/EDSR/benchmark.tar)
+A package containing all of the above benchmark datasets was made available by the [EDSR](https://github.com/thstkdgus35/EDSR-PyTorch) colleagues: [benchmark.tar](https://cv.snu.ac.kr/research/EDSR/benchmark.tar)
 
 ### Pretrained Models
 We release the following models:
@@ -68,20 +68,26 @@ We release the following models:
 * [proSRs](https://www.dropbox.com/s/ldv397lcr3vn95w/proSRs.zip?dl=0) - A lightweight version of ProSR. Best speed / accuracy tradeoff.
 * proSRGAN - ProSR trained with an adversarial loss. Lower PSNR but higher details.
 
-The above models performs well across different upscaling ratios [2,4,8]. However, best performance can be achived using scale specific models. These models are available in the same folder and are post-fixed with `_xSCALE` (e.g. `proSR_x8.pth`) to indicate at which regime perform best.
+The above models perform well across different upscaling ratios [2,4,8]. However, best performance is achieved using scale specific models. These models are available in the same folder and are post-fixed with `_xSCALE` (e.g. `proSR_x8.pth`) to indicate at which regime they perform best.
 
 ![](docs/figures/prosr-arch.jpg)
 ## Results
 Following wide-spread protocol, the quantitative results are obtained converting RGB images to YCbCr and evaluating the PSNR and SSIM on the Y channel only.
 
-| [ProSRs](https://www.dropbox.com/s/ldv397lcr3vn95w/proSRs.zip?dl=0) | DIV2K |  S14  | B100  | U100
+| [ProSRs](https://www.dropbox.com/s/ldv397lcr3vn95w/proSRs.zip?dl=0) | DIV2K |  Set14  | BSD100  | Urban100
+|--------|-------|-------|-------|-------|
+| x2     | 35.88 | 33.52 | 32.00 | 31.61 |
+| x4     | 30.39 | 28.64 | 27.50 | 26.02 |
+| x8     | 26.89 | 24.92 | 24.71 | 22.44 |
+
+| [ProSR](https://www.dropbox.com/s/ldv397lcr3vn95w/proSRs.zip?dl=0) | DIV2K |  Set14  | BSD100  | Urban100
 |--------|-------|-------|-------|-------|
 | x2     | 35.88 | 33.52 | 32.00 | 31.61 |
 | x4     | 30.39 | 28.64 | 27.50 | 26.02 |
 | x8     | 26.89 | 24.92 | 24.71 | 22.44 |
 
 
-Colleagues from [EDSR](https://github.com/thstkdgus35/EDSR-PyTorch) made available a package containing all of the above datasets: [benchmark.tar](https://cv.snu.ac.kr/research/EDSR/benchmark.tar)
+Results slightly differ from those reported in the paper for several reasons. This is an independent re-implementation. Differently from the paper it was trained on DIV2K and Flickr2K. I picked the best performers validating on Set14 insted of DIV2K.
 
 ## Training
 Train your own model using the script `train.py`:
@@ -89,11 +95,11 @@ Train your own model using the script `train.py`:
 # Train using default params
 python train.py --model MODEL --output DIR
 
-# Train with configuration file.
+# Train with configuration file
 python train.py --config CONFIG.yaml
 ```
 
-`MODEL` is one of `prosr` or `prosrs`. Model configuration is loaded from `prosr/config.py`. Checkpoints and log files are stored in `DIR`. Alternatively, the `--config` flag, reads configuration files in yaml format. In `PROJECT_ROOT/options` we provide config files corresponding architectures proposed in the paper.
+`MODEL` is one of `prosr` or `prosrs`. The configuration is defined in `prosr/config.py`. Checkpoints and log files are stored in `DIR`. Alternatively, the `--config` flag reads configuration files in `yaml` format. In `PROJECT_ROOT/options` we provide config files corresponding to the architectures proposed in the paper.
 
 See `train.py` for more options.
 
@@ -107,12 +113,12 @@ python train.py --config options/prosr.yaml --output data/checkpoints/proSR
 ```
 
 ### Loading the dataset
-Set the path to the dataset in `configs.py:prosr_params.train.path{source,target}`. To **train on multiple datasets** create a new folder containing soft links to the datasets you want to use for training. For example: `ensemble/{DIV2K_train_HR,Flickr2K}`.
+Set the path to the dataset in `configs.py:prosr_params.train.path{source,target}`. To **train on multiple datasets** create a new folder containing soft links to the datasets, you want to use for training. For example: `ensemble/{DIV2K_train_HR,Flickr2K}`.
 
 `train.path.source` is optional. If left empty, the dataloader will downsample the target images found in `train.path.target` to the predefined lower resolution.
 
 #### Resume Training
-To resume training from a checkpoint, e.g. `data/checkpoints/PRETRAINED_net_G.pth`.
+To resume training from a checkpoint, e.g. `data/checkpoints/PRETRAINED_net_G.pth`:
 ```
 python train.py --checkpoint data/checkpoints/PRETRAINED
 ```
@@ -133,7 +139,7 @@ Run:
 ```
 python test.py -i LR_INPUT (optional) -t HR_INPUT (optional) --checkpoint CHECKPOINT --scale NUMBER
 ```
-`LR_INPUT` is the low-resolution input and can be either a folder, an image or a list of images. If high-resolution images are provided (`HR_INPUT`), the script will compute the resulting PSNR and SSIM. Alternatively, if only high-resolution images are given as arguments, the script will scale `HR_INPUT` by the inverse of the upscale factor `NUMBER` and use the result as `LR_INPUT`.
+`LR_INPUT` is the low-resolution input and can be a folder, an image or a list of images. If high-resolution images are provided (`HR_INPUT`), the script will compute the resulting PSNR and SSIM. Alternatively, if only high-resolution images are given as argument, the script will scale `HR_INPUT` by the inverse of the upscale factor `NUMBER` and use the result as `LR_INPUT`.
 
 `CHECKPOINT` is the path to the pretrained *\*.pth* file.
 
@@ -147,10 +153,10 @@ python test.py --checkpoint data/checkpoints/proSR.pth --target data/datasets/DI
 
 ### Configuration
 
-The configuration file and the command-lines options are embedded as a dictionary in the respective *.pth. file. Print the configuration file using the command:
+The configuration file and the command-line options are embedded as a dictionary in the respective *.pth. file. Print the configuration file using the command:
 
 ```
-python print_info.py --config data/checkpoints/proSR.pth
+python tools/print_info.py --config data/checkpoints/proSR.pth
 ```
 
 
@@ -162,7 +168,7 @@ python scale.py -i HR_INPUT -o LR_OUTPUT --ratio 8
 ```
 
 ### Evaluation
-Results can be evaluated in terms of PSNR and SSIM using the script `tools/eval.py`. The command line is similar to `test.py`:
+Results can be evaluated in terms of PSNR and SSIM using the script `tools/eval.py`. The command-line is similar to `test.py`:
 
 ```
 python tools/eval.py -i LR_INPUT -t HR_INPUT --scale NUMBER
@@ -171,9 +177,9 @@ python tools/eval.py -i LR_INPUT -t HR_INPUT --scale NUMBER
 The input can be either a folder, an image or a list of images. The upsampling factor is required since the boundary cropping depends on it.
 
 ## Publication
-If this code helps your research, please considering citing the following paper.
+If this code helps your research, please consider citing the following paper.
 
-A Fully Progressive Approach to Single-Image Super-Resolution - <i>[Y. Wang](https://yifita.github.io), [F. Perazzi](fperazzi.github.io), [B. McWilliams](https://www.inf.ethz.ch/personal/mcbrian/), [A. Sorkine-Hornung](http://www.ahornung.net/), [O. Sorkine-Hornung](http://igl.ethz.ch/people/sorkine/), [C. Schroers](https://www.disneyresearch.com/people/christopher-schroers/)</i> - CVPR Workshops NTIRE 2018.
+**A Fully Progressive Approach to Single-Image Super-Resolution** - <i>[Y. Wang](https://yifita.github.io), [F. Perazzi](fperazzi.github.io), [B. McWilliams](https://www.inf.ethz.ch/personal/mcbrian/), [A. Sorkine-Hornung](http://www.ahornung.net/), [O. Sorkine-Hornung](http://igl.ethz.ch/people/sorkine/), [C. Schroers](https://www.disneyresearch.com/people/christopher-schroers/)</i> - CVPR Workshops NTIRE 2018.
 
 ```
 @InProceedings{Wang_2018_CVPR_Workshops,
