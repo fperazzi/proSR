@@ -8,7 +8,15 @@ mkdir -p $DATADIR/datasets $DATADIR/checkpoints
 ##################################
 
 # ProSR
-wget https://www.dropbox.com/s/hlgunvtmkvylc4h/proSR.pth?dl=0 -O $DATADIR/checkpoints/proSR.pth
+wget https://www.dropbox.com/s/ldv397lcr3vn95w/proSRs.zip?dl=0 -O /tmp
+unzip /tmp/proSRs.zip -P $DATADIR/checkpoints && rm /tmp/proSRs.zip
+
+# ProSRs
+wget https://www.dropbox.com/s/ldv397lcr3vn95w/proSR.zip?dl=0 -O /tmp
+unzip /tmp/proSR.zip -P $DATADIR/checkpoints && rm /tmp/proSR.zip
+
+# ProSRGAN
+# coming soon...
 
 ###################################
 ## Datasets
@@ -42,8 +50,12 @@ rm /tmp/DIV2K_valid_LR_bicubic_X4.zip
 rm /tmp/DIV2K_train_LR_bicubic_X2.zip
 rm /tmp/DIV2K_valid_LR_bicubic_X2.zip
 
-
 # Flickr2K
 # wget http://cv.snu.ac.kr/research/EDSR/Flickr2K.tar -P /tmp
 # tar -xvf /tmp/Flickr2K.tar -C $DATADIR/datasets/
 # rm -rf /tmp/Flickr2K.tar
+
+# Set14, Urban100, BSD100
+wget https://cv.snu.ac.kr/research/EDSR/benchmark.tar -P /tmp
+tar -xvf /tmp/benchmark.tar -C /tmp && mv /tmp/benchmark/* $DATADIR/datasets
+rm -rf /tmp/benchmark /tmp/benchmark.tar

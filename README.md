@@ -80,13 +80,6 @@ Following wide-spread protocol, the quantitative results are obtained converting
 | x4     | 30.39 | 28.64 | 27.50 | 26.02 |
 | x8     | 26.89 | 24.92 | 24.71 | 22.44 |
 
-| [ProSR](https://www.dropbox.com/s/ldv397lcr3vn95w/proSRs.zip?dl=0) | DIV2K |  Set14  | BSD100  | Urban100
-|--------|-------|-------|-------|-------|
-| x2     | 35.88 | 33.52 | 32.00 | 31.61 |
-| x4     | 30.39 | 28.64 | 27.50 | 26.02 |
-| x8     | 26.89 | 24.92 | 24.71 | 22.44 |
-
-
 Results slightly differ from those reported in the paper for several reasons. This is an independent re-implementation. Differently from the paper it was trained on DIV2K and Flickr2K. I picked the best performers validating on Set14 insted of DIV2K.
 
 ## Training
