@@ -77,9 +77,9 @@ Following wide-spread protocol, the quantitative results are obtained converting
 
 | [proSRs](https://www.dropbox.com/s/ldv397lcr3vn95w/proSRs.zip?dl=0) | DIV2K | Set14 | BSD100| Urban100 | [proSR](https://www.dropbox.com/s/3fjp5dd70wuuixl/proSR.zip?dl=0) | DIV2K | Set14 | BSD100| Urban100 |
 |--------|-------|-------|-------|----------|-------|-------|-------|-------|----------|
-| x2     | 35.88 | 33.52 | 32.00 | 31.61    | x2    | 36.37 | 34.12 | 32.23 | 32.68    |
-| x4     | 30.39 | 28.64 | 27.50 | 26.02    | x4    | 30.78 | 28.94 | 27.68 | 26.74    |
-| x8     | 26.89 | 24.92 | 24.71 | 22.44    | x8    | 27.18 | 25.25 | 24.86 | 22.91    |
+| **x2** | 35.88 | 33.52 | 32.00 | 31.61    | **x2**| 36.37 | 34.12 | 32.23 | 32.68    |
+| **x4** | 30.39 | 28.64 | 27.50 | 26.02    | **x4**| 30.78 | 28.94 | 27.68 | 26.74    |
+| **x8** | 26.89 | 24.92 | 24.71 | 22.44    | **x8**| 27.18 | 25.25 | 24.86 | 22.91    |
 
 Results slightly differ from those reported in the paper for several reasons: this is an independent re-implementation; differently from the paper we trained on on DIV2K and Flickr2K; I picked the best performers validating on Set14 instead of DIV2K.
 
