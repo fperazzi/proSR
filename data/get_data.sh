@@ -9,11 +9,11 @@ mkdir -p $DATADIR/datasets $DATADIR/checkpoints
 
 # ProSR
 wget https://www.dropbox.com/s/ldv397lcr3vn95w/proSRs.zip?dl=0 -O /tmp
-unzip /tmp/proSRs.zip -P $DATADIR/checkpoints && rm /tmp/proSRs.zip
+unzip /tmp/proSRs.zip -j -P $DATADIR/checkpoints && rm /tmp/proSRs.zip
 
 # ProSRs
 wget https://www.dropbox.com/s/ldv397lcr3vn95w/proSR.zip?dl=0 -O /tmp
-unzip /tmp/proSR.zip -P $DATADIR/checkpoints && rm /tmp/proSR.zip
+unzip /tmp/proSR.zip -j -P $DATADIR/checkpoints && rm /tmp/proSR.zip
 
 # ProSRGAN
 # coming soon...

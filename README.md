@@ -80,7 +80,13 @@ Following wide-spread protocol, the quantitative results are obtained converting
 | x4     | 30.39 | 28.64 | 27.50 | 26.02 |
 | x8     | 26.89 | 24.92 | 24.71 | 22.44 |
 
-Results slightly differ from those reported in the paper for several reasons. This is an independent re-implementation. Differently from the paper it was trained on DIV2K and Flickr2K. I picked the best performers validating on Set14 instead of DIV2K.
+| [ProSR](https://www.dropbox.com/s/3fjp5dd70wuuixl/proSR.zip?dl=0) | DIV2K |  Set14  | BSD100  | Urban100
+|--------|-------|-------|-------|-------|
+| x2     | 36.37 | 34.12 | 32.23 | 32.68 |
+| x4     | 30.78 | 28.94 | 27.68 | 26.74 |
+| x8     | 27.18 | 25.25 | 24.86 | 22.91 |
+
+Results slightly differ from those reported in the paper for several reasons: this is an independent re-implementation; differently from the paper we trained on on DIV2K and Flickr2K; I picked the best performers validating on Set14 instead of DIV2K.
 
 ## Training
 Train your own model using the script `train.py`:
@@ -191,3 +197,9 @@ If this code helps your research, please consider citing the following paper.
 ```
 ## Contacts
 If you have any question, please contact [Yifan Wang](yifan.wang@inf.ethz.ch) and [Federico Perazzi](fperazzi@adobe.com).
+
+#### Update Log
+* Sept. 10, 2018
+    * Upload ProSR models.
+    * Add ProSR evaluation in README.
+
