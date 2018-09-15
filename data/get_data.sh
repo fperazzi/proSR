@@ -7,11 +7,11 @@ mkdir -p $DATADIR/datasets $DATADIR/checkpoints
 # Pretrained Models
 ##################################
 
-# ProSR
+# ProSRs
 wget https://www.dropbox.com/s/ldv397lcr3vn95w/proSRs.zip?dl=0 -O /tmp
 unzip /tmp/proSRs.zip -j -P $DATADIR/checkpoints && rm /tmp/proSRs.zip
 
-# ProSRs
+# ProSR
 wget https://www.dropbox.com/s/ldv397lcr3vn95w/proSR.zip?dl=0 -O /tmp
 unzip /tmp/proSR.zip -j -P $DATADIR/checkpoints && rm /tmp/proSR.zip
 
