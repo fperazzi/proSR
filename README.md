@@ -197,4 +197,5 @@ If you have any question, please contact [Yifan Wang](yifan.wang@inf.ethz.ch) an
 * Sept. 10, 2018
     * Upload ProSR models.
     * Add ProSR evaluation in README.
-
+* Sept. 16, 2018
+    * Upload proSRGAN models.
