@@ -67,7 +67,7 @@ We release the following models:
 
 * [proSR](https://www.dropbox.com/s/3fjp5dd70wuuixl/proSR.zip?dl=0) - This is the full size model that ranked 2nd and 4th place respectively in terms of PSNR and SSIM on the "Track 1" of the [NTIRE Super-Resolution Challenge 2018](https://competitions.codalab.org/competitions/18015).
 * [proSRs](https://www.dropbox.com/s/ldv397lcr3vn95w/proSRs.zip?dl=0) - A lightweight version of ProSR. Best speed / accuracy tradeoff.
-* proSRGAN - ProSR trained with an adversarial loss. Lower PSNR but higher details.
+* [proSRGAN](https://www.dropbox.com/s/ulkvm4yt5v3vxd8/proSRGAN.zip?dl=0) - ProSR trained with an adversarial loss. Lower PSNR but higher details.
 
 The above models perform well across different upscaling ratios [2,4,8]. However, best performance is achieved using scale specific models. These models are available in the same folder and are post-fixed with `_xSCALE` (e.g. `proSR_x8.pth`) to indicate at which regime they perform best.
 

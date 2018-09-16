@@ -13,15 +13,15 @@ unzip -j /tmp/proSRs.zip -d $DATADIR/checkpoints && rm /tmp/proSRs.zip
 
 # ProSR
 wget https://www.dropbox.com/s/3fjp5dd70wuuixl/proSR.zip?dl=0 -O /tmp/proSR.zip
-unzip -j /tmp/proSR.zip  -d $DATADIR/checkpoints && rm /tmp/proSR.zip
+unzip -j /tmp/proSR.zip -d $DATADIR/checkpoints && rm /tmp/proSR.zip
 
 # ProSRGAN
-# coming soon...
+wget https://www.dropbox.com/s/ulkvm4yt5v3vxd8/proSRGAN.zip?dl=0 -O /tmp/proSRGAN.zip
+unzip -j /tmp/proSRGAN.zip -d $DATADIR/checkpoints && rm /tmp/proSRGAN.zip
 
 ###################################
 ## Datasets
 ###################################
-exit
 
 ## DIV2K
 mkdir -p $DATADIR/datasets/DIV2K

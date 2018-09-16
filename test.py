@@ -52,7 +52,7 @@ def parse_args():
     parser.add_argument(
         '-f', '--fmt', help='Image file format', type=str, default='*')
     parser.add_argument(
-        '-o', '--output-dir', help='Output folder.', type=str, default='./')
+        '-o', '--output-dir', help='Output folder.', required=True,type=str)
 
     args = parser.parse_args()
 
