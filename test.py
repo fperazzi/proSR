@@ -13,8 +13,8 @@ import time
 import os.path as osp
 import prosr
 import skimage.io as io
-import sys
 import torch
+import sys
 
 # BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # sys.path.append(osp.join(BASE_DIR, 'lib'))
@@ -48,11 +48,17 @@ def parse_args():
         type=int,
         required=True)
     parser.add_argument(
-        '-d', '--downscale', help='Bicubic downscaling of input to LR', action='store_true')
+        '-d',
+        '--downscale',
+        help='Bicubic downscaling of input to LR',
+        action='store_true')
     parser.add_argument(
         '-f', '--fmt', help='Image file format', type=str, default='*')
     parser.add_argument(
-        '-o', '--output-dir', help='Output folder.', required=True,type=str)
+        '-o', '--output-dir', help='Output folder.', required=True, type=str)
+
+    parser.add_argument(
+        '--cpu', help='Use CPU.', action='store_true')
 
     args = parser.parse_args()
 
@@ -80,7 +86,7 @@ if __name__ == '__main__':
 
     model.eval()
 
-    if torch.cuda.is_available():
+    if torch.cuda.is_available() and not args.cpu:
         model = model.cuda()
 
     # TODO Change
@@ -90,9 +96,9 @@ if __name__ == '__main__':
         args.target,
         args.scale,
         input_size=None,
-        mean   = params['train']['dataset']['mean'],
-        stddev = params['train']['dataset']['stddev'],
-        downscale = args.downscale)
+        mean=params['train']['dataset']['mean'],
+        stddev=params['train']['dataset']['stddev'],
+        downscale=args.downscale)
 
     data_loader = DataLoader(dataset, batch_size=1)
 
@@ -110,8 +116,10 @@ if __name__ == '__main__':
 
         for iid, data in enumerate(data_loader):
             tic = time.time()
-            output = model(data['input'].cuda(),
-                           args.scale).cpu() + data['bicubic']
+            input = data['input']
+            if not args.cpu:
+                input = input.cuda()
+            output = model(input, args.scale).cpu() + data['bicubic']
             sr_img = tensor2im(output, mean, stddev)
             toc = time.time()
             if 'target' in data:
@@ -120,13 +128,13 @@ if __name__ == '__main__':
                     sr_img, hr_img, args.scale)
                 print_evaluation(
                     osp.basename(data['input_fn'][0]), psnr_val, ssim_val,
-                    iid + 1, len(dataset),toc-tic)
+                    iid + 1, len(dataset), toc - tic)
                 psnr_mean += psnr_val
                 ssim_mean += ssim_val
             else:
                 print_evaluation(
                     osp.basename(data['input_fn'][0]), np.nan, np.nan, iid + 1,
-                    len(dataset),toc-tic)
+                    len(dataset), toc - tic)
 
             fn = osp.join(args.output_dir, osp.basename(data['input_fn'][0]))
             io.imsave(fn, sr_img)
