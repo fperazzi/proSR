@@ -72,7 +72,11 @@ if __name__ == '__main__':
     # Parse command-line arguments
     args = parse_args()
 
-    checkpoint = torch.load(args.checkpoint)
+    if args.cpu:
+        checkpoint = torch.load(args.checkpoint,map_location=torch.device('cpu'))
+    else:
+        checkpoint = torch.load(args.checkpoint)
+
     cls_model = getattr(prosr.models, checkpoint['class_name'])
 
     model = cls_model(**checkpoint['params']['G'])
