@@ -73,7 +73,7 @@ if __name__ == '__main__':
     args = parse_args()
 
     if args.cpu:
-        checkpoint = torch.load(args.checkpoint,map_location=torch.device('cpu'))
+        checkpoint = torch.load(args.checkpoint, map_location=lambda storage, loc: storage)
     else:
         checkpoint = torch.load(args.checkpoint)
 
