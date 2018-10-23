@@ -33,6 +33,7 @@ def eval_psnr_and_ssim(im1, im2, scale):
         win_size=11,
         gaussian_weights=True,
         multichannel=True,
+        data_range=1.0,
         K1=0.01,
         K2=0.03,
         sigma=1.5)
