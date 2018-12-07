@@ -178,7 +178,7 @@ If this code helps your research, please consider citing the following paper.
 ```
 @InProceedings{Wang_2018_CVPR_Workshops,
     author = {
-      Wang, Y. and
+      Yifan, W. and
       Perazzi, F. and
       McWilliams, B. and
       Sorkine-Hornung, A. and
