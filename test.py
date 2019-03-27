@@ -144,11 +144,11 @@ if __name__ == '__main__':
                     input = chunk['input']
                     if not args.cpu:
                         input = input.cuda()
-                    output = model.predict(input,{},args.scale)
+                    output = model(input,args.scale)
                     data_chunks.gather(output)
                 output = data_chunks.concatenate() + data['bicubic']
             else:
-                input = data['input']
+                input = data['input'] + data['bicubic']
                 if not args.cpu:
                     input = input.cuda()
                 output = model.predict(input,data,args.scale)
