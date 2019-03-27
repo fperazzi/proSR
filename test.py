@@ -1,7 +1,7 @@
 from argparse import ArgumentParser
 from pprint import pprint
 from prosr import Phase
-from prosr.data import DataLoader, Dataset
+from prosr.data import DataLoader, Dataset, DataChunks
 from prosr.logger import info
 from prosr.metrics import eval_psnr_and_ssim
 from prosr.utils import (get_filenames, IMG_EXTENSIONS, print_evaluation,
@@ -15,6 +15,7 @@ import prosr
 import skimage.io as io
 import torch
 import sys
+
 
 # BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # sys.path.append(osp.join(BASE_DIR, 'lib'))
@@ -52,11 +53,24 @@ def parse_args():
         '--downscale',
         help='Bicubic downscaling of input to LR',
         action='store_true')
+
+    parser.add_argument(
+        '-mx',
+        '--max-dimension',
+        help='Split image into chunks of max-dimension.',
+        type=int,
+        required=False,
+        default=0)
+    parser.add_argument(
+        '--padding',
+        help='Pad image when splitting into quadrants.',
+        type=int,
+        required=False,
+        default=0)
     parser.add_argument(
         '-f', '--fmt', help='Image file format', type=str, default='*')
     parser.add_argument(
         '-o', '--output-dir', help='Output folder.', required=True, type=str)
-
     parser.add_argument(
         '--cpu', help='Use CPU.', action='store_true')
 
@@ -73,7 +87,8 @@ if __name__ == '__main__':
     args = parse_args()
 
     if args.cpu:
-        checkpoint = torch.load(args.checkpoint, map_location=lambda storage, loc: storage)
+        checkpoint = torch.load(args.checkpoint,
+                                map_location=lambda storage, loc: storage)
     else:
         checkpoint = torch.load(args.checkpoint)
 
@@ -120,10 +135,23 @@ if __name__ == '__main__':
 
         for iid, data in enumerate(data_loader):
             tic = time.time()
-            input = data['input']
-            if not args.cpu:
-                input = input.cuda()
-            output = model(input, args.scale).cpu() + data['bicubic']
+            # split image in chuncks of max-dimension
+            if args.max_dimension:
+                data_chunks = DataChunks({'input':data['input']},
+                                         args.max_dimension,
+                                         args.padding,args.scale)
+                for chunk in data_chunks.iter():
+                    input = chunk['input']
+                    if not args.cpu:
+                        input = input.cuda()
+                    output = model.predict(input,{},args.scale)
+                    data_chunks.gather(output)
+                output = data_chunks.concatenate() + data['bicubic']
+            else:
+                input = data['input']
+                if not args.cpu:
+                    input = input.cuda()
+                output = model.predict(input,data,args.scale)
             sr_img = tensor2im(output, mean, stddev)
             toc = time.time()
             if 'target' in data:
