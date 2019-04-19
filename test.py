@@ -148,10 +148,10 @@ if __name__ == '__main__':
                     data_chunks.gather(output)
                 output = data_chunks.concatenate() + data['bicubic']
             else:
-                input = data['input'] + data['bicubic']
+                input = data['input']
                 if not args.cpu:
                     input = input.cuda()
-                output = model.predict(input,data,args.scale)
+                output = model(input,args.scale).cpu() + data['bicubic']
             sr_img = tensor2im(output, mean, stddev)
             toc = time.time()
             if 'target' in data:
