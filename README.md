@@ -146,9 +146,12 @@ python test.py --checkpoint data/checkpoints/proSR.pth --target data/datasets/DI
 
 #### Docker example
 ```bash
+# Build the image with GPU support
 nvidia-docker build -t prosr .
+
+# Scale a folder by 8x
 nvidia-docker run -it --name prosr --shm-size=4G -v INPUT_DATA/:/data prosr \
-    python test.py -i data/input --checkpoint data/proSR/proSR_x8.pth --scale -o /data/output
+    python test.py -i /data --checkpoint data/proSR/proSR_x8.pth --scale 8 -o /data/output
 ```
 
 ## Additional Tools
