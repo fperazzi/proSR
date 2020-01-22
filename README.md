@@ -143,6 +143,17 @@ python test.py -i LR_INPUT (optional) -t HR_INPUT (optional) --checkpoint CHECKP
 python test.py --checkpoint data/checkpoints/proSR.pth --target data/datasets/DIV2K/DIV2K_valid_HR --scale 8
 ```
 
+
+#### Docker example
+```bash
+# Build the image with GPU support
+nvidia-docker build -t prosr .
+
+# Scale a folder by 8x
+nvidia-docker run -it --name prosr --shm-size=4G -v INPUT_DATA/:/data prosr \
+    python test.py -i /data --checkpoint data/proSR/proSR_x8.pth --scale 8 -o /data/output
+```
+
 ## Additional Tools
 
 ### Configuration
@@ -150,7 +161,7 @@ python test.py --checkpoint data/checkpoints/proSR.pth --target data/datasets/DI
 The configuration file and the command-line options are embedded as a dictionary in the respective *.pth. file. Print the configuration file using the command:
 
 ```
-python tools/print_info.py --config data/checkpoints/proSR.pth
+python tools/print_info.py data/checkpoints/proSR.pth
 ```
 
 
