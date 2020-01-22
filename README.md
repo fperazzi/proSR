@@ -121,7 +121,7 @@ python train.py --checkpoint data/checkpoints/PRETRAINED
 By default, all available GPUs are used. To use specific GPUs use `CUDA_VISIBLE_DEVICES`, e.g. `export CUDA_VISIBLE_DEVICES=0,1`
 
 #### Visualization
-To visualize intermediate results (optional) run the `visdom.server` in a separate terminal and enable visualization passing the command line arguments: `--visdom True --visdom-port PORT-NUMBER`.
+To visualize intermediate results (optional) run the `visdom.server` in a separate terminal and enable visualization passing the command line arguments: `--visdom --visdom-port PORT-NUMBER`.
 
 ```
 # Run the server in a separate terminal
