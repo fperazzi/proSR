@@ -123,7 +123,11 @@ def mkdir(path):
 def print_current_errors(epoch, i, errors, t, log_name=None):
     message = '(epoch: %d, iters: %d, time: %.3f) ' % (epoch, i, t)
     for k, v in errors.items():
-        message += '%s: %.3f ' % (k, v)
+        if isinstance(v, numbers.Number):
+            message += '%s: %.3f ' % (k, v)
+        if isinstance(v, list):
+            avg_v = np.average(v)
+            message += '%s: %.3f ' % (k, avg_v)
 
     print(message)
     if log_name is not None:
