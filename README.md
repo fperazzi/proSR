@@ -31,7 +31,7 @@ Follow the instructions below to get **ProSR** up and running on your machine, b
 conda create -n proSR
 
 # Install torch
-conda install pytorch=0.4.0 torchvision cuda91 -c pytorch
+conda install pytorch=0.4.1 torchvision cuda91 -c pytorch
 
 # Install image libraries
 conda install scikit-image cython
@@ -39,8 +39,8 @@ conda install scikit-image cython
 # Install visdom
 conda install visdom dominate -c conda-forge
 
-# Install pip and easydict
-pip install easydict html
+# Install python dependencies
+python3.7 -m pip install easydict pillow
 ```
 
 #### Search Path
